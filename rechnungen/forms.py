@@ -61,6 +61,8 @@ class MahnForm(forms.ModelForm):
             f.widget.attrs["placeholder"] = DEFAULT_REMINDER_TEXTS[lvl]
         from .mailing import DEFAULT_MAIL_TEXTS
 
+        self.fields["auto_max_level"].required = False
+
         for kind in ("invoice", "reminder"):
             f = self.fields[f"mail_text_{kind}"]
             f.required = False
@@ -100,6 +102,9 @@ class MahnForm(forms.ModelForm):
 
     def clean_reminder_text_2(self):
         return self._clean_text("reminder_text_2")
+
+    def clean_auto_max_level(self):
+        return self.cleaned_data.get("auto_max_level") or 2
 
     def clean_mail_text_invoice(self):
         return self._clean_text("mail_text_invoice")
