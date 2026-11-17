@@ -13,7 +13,7 @@
       <td>{% if r.tx.status == "offen" %}
         {% if r.match %}<form method="post" action="{% url 'bank_accept' r.tx.pk %}">{% csrf_token %}<input type="hidden" name="invoice" value="{{ r.match.pk }}"><button class="primary">Honorarnote {{ r.match.number }} ({{ r.confidence }})</button></form>{% endif %}
         <form method="post" action="{% url 'bank_book' r.tx.pk %}">{% csrf_token %}<select name="category">{% for c in r.categories %}<option value="{{ c.pk }}">{{ c.name }}</option>{% endfor %}</select><button class="primary">Buchen</button></form>
-        <form method="post" action="{% url 'bank_ignore' r.tx.pk %}">{% csrf_token %}<button class="primary" style="background:#6b7280">Ignorieren</button></form>
+        <form method="post" action="{% url 'bank_ignore' r.tx.pk %}">{% csrf_token %}<button class="secondary">Ignorieren</button></form>
       {% else %}{{ r.tx.get_status_display }}{% endif %}</td>
     </tr>{% empty %}<tr><td class="muted">Keine Umsätze.</td></tr>{% endfor %}
   </table>

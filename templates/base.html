@@ -5,27 +5,125 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{% block title %}Praxis{% endblock %}</title>
 <style>
-  body { font: 16px/1.5 system-ui, sans-serif; margin: 0; color: #1c2430; background: #f6f7f9; }
-  header { background: #1f3a5f; color: #fff; padding: 12px 24px; display: flex; justify-content: space-between; align-items: center; }
-  header a, header button { color: #fff; background: none; border: 0; font: inherit; cursor: pointer; text-decoration: underline; }
-  main { max-width: 860px; margin: 24px auto; padding: 0 16px; }
-  .card { background: #fff; border: 1px solid #dde1e7; border-radius: 8px; padding: 16px 20px; margin-bottom: 16px; }
-  label { display: block; font-weight: 600; margin-top: 12px; }
-  input, select, textarea { width: 100%; box-sizing: border-box; padding: 8px; border: 1px solid #b9c0cc; border-radius: 6px; font: inherit; }
-  button.primary, a.btn { background: #1f3a5f; color: #fff; border: 0; border-radius: 6px; padding: 8px 16px; cursor: pointer; text-decoration: none; display: inline-block; margin-top: 16px; font: inherit; }
-  .error { color: #a4161a; } .muted { color: #5b6573; }
-  table { width: 100%; border-collapse: collapse; } td, th { text-align: left; padding: 8px; border-bottom: 1px solid #e6e9ee; }
+  :root {
+    --bg: #f3f5f8; --surface: #fff; --ink: #1b2430; --muted: #5d6877; --line: #e2e6ec; --line-strong: #c4ccd8;
+    --brand: #1f4e8c; --brand-ink: #fff; --brand-soft: #e7eef8; --danger: #b3261e; --danger-soft: #fdecea;
+    --ok: #1d7a3e; --ok-soft: #e8f5ec; --warn-soft: #fff4e0; --radius: 10px; --shadow: 0 1px 2px rgba(20,30,50,.06), 0 2px 8px rgba(20,30,50,.04);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #12161c; --surface: #1b212a; --ink: #e8ecf2; --muted: #9aa5b5; --line: #2b3441; --line-strong: #3d4858;
+      --brand: #6ea2e8; --brand-ink: #0c1522; --brand-soft: #22324a; --danger: #ff8a80; --danger-soft: #3a2220;
+      --ok: #6fd08c; --ok-soft: #1e3326; --warn-soft: #3a2f1c; --shadow: none;
+    }
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body { font: 16px/1.55 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; margin: 0; color: var(--ink); background: var(--bg); }
+  a { color: var(--brand); }
+  h1 { font-size: 1.6rem; line-height: 1.25; margin: 0 0 .6rem; }
+  h2 { font-size: 1.15rem; margin: 1.4rem 0 .5rem; }
+  h1 + h2, .card > h2:first-child { margin-top: 0; }
+  p { margin: .5rem 0 .9rem; }
+
+  /* Kopfzeile */
+  .topbar { background: var(--surface); border-bottom: 1px solid var(--line); position: sticky; top: 0; z-index: 10; }
+  .topbar-in { max-width: 1100px; margin: 0 auto; padding: 0 16px; display: flex; align-items: center; gap: 16px; min-height: 56px; }
+  .brand { font-weight: 700; font-size: 1.05rem; color: var(--ink); text-decoration: none; white-space: nowrap; }
+  .brand span { color: var(--brand); }
+  nav.main { display: flex; gap: 2px; overflow-x: auto; flex: 1; scrollbar-width: none; }
+  nav.main::-webkit-scrollbar { display: none; }
+  nav.main a { color: var(--muted); text-decoration: none; padding: 8px 12px; border-radius: 8px; white-space: nowrap; font-size: .95rem; font-weight: 500; }
+  nav.main a:hover { background: var(--brand-soft); color: var(--ink); }
+  nav.main a.active { background: var(--brand-soft); color: var(--brand); font-weight: 600; }
+  .usermenu { display: flex; align-items: center; gap: 4px; white-space: nowrap; font-size: .9rem; color: var(--muted); }
+  .usermenu form { margin: 0; display: inline; }
+  .usermenu a, .usermenu button { color: var(--muted); background: none; border: 0; padding: 6px 8px; border-radius: 8px; font: inherit; cursor: pointer; text-decoration: none; margin: 0; width: auto; }
+  .usermenu a:hover, .usermenu button:hover { background: var(--brand-soft); color: var(--ink); }
+  .usermenu .who { font-weight: 600; color: var(--ink); padding: 0 6px; }
+  @media (max-width: 760px) {
+    .topbar-in { flex-wrap: wrap; padding-top: 8px; gap: 4px 12px; }
+    nav.main { order: 3; flex-basis: 100%; padding-bottom: 8px; }
+    .usermenu .who { display: none; }
+  }
+
+  main { max-width: 1100px; margin: 24px auto 64px; padding: 0 16px; }
+  .card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 20px 24px; margin-bottom: 16px; box-shadow: var(--shadow); }
+  @media (max-width: 600px) { .card { padding: 16px; } }
+  .muted { color: var(--muted); } .error { color: var(--danger); font-size: .9rem; margin-top: 4px; }
+  .errorlist { list-style: none; padding: 0; margin: 4px 0; color: var(--danger); font-size: .9rem; }
+  .helptext { color: var(--muted); font-size: .85rem; display: block; margin-top: 2px; }
+
+  /* Meldungen */
+  .messages { margin-bottom: 16px; }
+  .msg { background: var(--brand-soft); border: 1px solid var(--line); border-left: 4px solid var(--brand); border-radius: 8px; padding: 10px 14px; margin-bottom: 8px; }
+  .msg.error, .msg.warning { background: var(--danger-soft); border-left-color: var(--danger); color: var(--ink); }
+  .msg.success { background: var(--ok-soft); border-left-color: var(--ok); }
+
+  /* Formulare */
+  label { display: block; font-weight: 600; margin: 14px 0 4px; font-size: .92rem; }
+  input, select, textarea { width: 100%; padding: 9px 11px; border: 1px solid var(--line-strong); border-radius: 8px; font: inherit; color: var(--ink); background: var(--surface); min-height: 40px; }
+  input[type=checkbox], input[type=radio] { width: auto; min-height: 0; }
+  textarea { min-height: 96px; resize: vertical; }
+  input:focus, select:focus, textarea:focus, button:focus-visible, a:focus-visible { outline: 3px solid var(--brand-soft); outline-offset: 0; border-color: var(--brand); }
+  a:focus-visible, button:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
+
+  /* Schaltflächen: jede Schaltfläche sieht gleich aus, die Hauptaktion ist hervorgehoben */
+  button, a.btn { font: inherit; font-weight: 600; font-size: .93rem; cursor: pointer; text-decoration: none; display: inline-block; margin-top: 12px;
+    padding: 8px 16px; min-height: 40px; border-radius: 8px; border: 1px solid var(--line-strong); background: var(--surface); color: var(--ink); line-height: 1.5; }
+  button:hover, a.btn:hover { background: var(--brand-soft); }
+  button.primary, a.btn.primary, a.btn:not(.secondary) { background: var(--brand); border-color: var(--brand); color: var(--brand-ink); }
+  button.primary:hover, a.btn:not(.secondary):hover { filter: brightness(1.1); background: var(--brand); }
+  button.danger { color: var(--danger); border-color: var(--danger); }
+  button.danger:hover { background: var(--danger-soft); }
+  td button, td a.btn, .inline button { margin: 0; min-height: 32px; padding: 4px 12px; font-size: .88rem; }
+  form.inline { display: inline; margin: 0; }
+
+  /* Tabellen */
+  .tablewrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; }
+  th { font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); font-weight: 600; }
+  td, th { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  tbody tr:hover td, table tr:hover td { background: color-mix(in srgb, var(--brand-soft) 45%, transparent); }
+  tr:last-child td { border-bottom: 0; }
+  td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+  @media (max-width: 600px) { td, th { padding: 8px 6px; font-size: .92rem; } }
+
+  /* Hilfsklassen für Seiten */
+  .row { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+  .row.between { justify-content: space-between; }
+  .badge { display: inline-block; padding: 1px 9px; border-radius: 999px; font-size: .78rem; font-weight: 600; background: var(--brand-soft); color: var(--brand); }
+  .badge.ok { background: var(--ok-soft); color: var(--ok); } .badge.bad { background: var(--danger-soft); color: var(--danger); }
+  hr { border: 0; border-top: 1px solid var(--line); margin: 18px 0; }
+  .login { max-width: 420px; margin: 8vh auto 0; }
 </style>
 </head>
 <body>
-<header>
-  <span><strong>Praxis</strong>{% if user.is_authenticated %} · <a href="{% url 'patient_list' %}">Patienten</a> · <a href="{% url 'termine_week' %}">Termine</a> · <a href="{% url 'invoice_list' %}">Honorarnoten</a> · <a href="{% url 'journal' %}">Buchhaltung</a> · <a href="{% url 'raeume_index' %}">Räume</a> · <a href="{% url 'rent_list' %}">Miete</a> · <a href="{% url 'notfall_index' %}">Notfall</a> · <a href="{% url 'import_start' %}">Import</a>{% endif %}</span>
+{% with p=request.path %}
+<div class="topbar"><div class="topbar-in">
+  <a class="brand" href="/"><span>●</span> Praxis</a>
   {% if user.is_authenticated %}
-  <form method="post" action="{% url 'logout' %}" style="margin:0">{% csrf_token %}{{ user.get_username }} · <a href="{{ help_url }}">Hilfe</a> · <a href="{% url 'password_change' %}">Passwort</a> · <button>Abmelden</button></form>
+  <nav class="main" aria-label="Hauptmenü">
+    <a href="{% url 'patient_list' %}"{% if '/patients/' in p %} class="active" aria-current="page"{% endif %}>Patienten</a>
+    <a href="{% url 'termine_week' %}"{% if '/termine/' in p %} class="active" aria-current="page"{% endif %}>Termine</a>
+    <a href="{% url 'invoice_list' %}"{% if '/rechnungen/' in p %} class="active" aria-current="page"{% endif %}>Honorarnoten</a>
+    <a href="{% url 'journal' %}"{% if '/buchhaltung/' in p %} class="active" aria-current="page"{% endif %}>Buchhaltung</a>
+    <a href="{% url 'raeume_index' %}"{% if '/raeume/' in p %} class="active" aria-current="page"{% endif %}>Räume</a>
+    <a href="{% url 'rent_list' %}"{% if '/praxis/' in p %} class="active" aria-current="page"{% endif %}>Miete</a>
+    <a href="{% url 'notfall_index' %}"{% if '/notfall/' in p %} class="active" aria-current="page"{% endif %}>Notfall</a>
+    <a href="{% url 'import_start' %}"{% if '/import/' in p %} class="active" aria-current="page"{% endif %}>Import</a>
+  </nav>
+  <div class="usermenu">
+    <span class="who">{{ user.get_username }}</span>
+    <a href="{{ help_url }}">Hilfe</a>
+    <a href="{% url 'password_change' %}">Passwort</a>
+    <form method="post" action="{% url 'logout' %}">{% csrf_token %}<button>Abmelden</button></form>
+  </div>
   {% endif %}
-</header>
+</div></div>
+{% endwith %}
 <main>
-{% for message in messages %}<div class="card">{{ message }}</div>{% endfor %}
+{% if messages %}<div class="messages" role="status">{% for message in messages %}<div class="msg {{ message.tags }}">{{ message }}</div>{% endfor %}</div>{% endif %}
 {% block content %}{% endblock %}
 </main>
 </body>

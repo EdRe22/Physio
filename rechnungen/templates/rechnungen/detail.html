@@ -19,11 +19,11 @@
   <a class="btn" href="{% url 'invoice_pdf' invoice.pk %}" target="_blank">PDF anzeigen</a>
   {% if invoice.is_draft %}
   <form method="post" action="{% url 'invoice_issue' invoice.pk %}" style="display:inline">{% csrf_token %}<button class="primary">Jetzt ausstellen</button></form>
-  <form method="post" action="{% url 'invoice_delete' invoice.pk %}" style="display:inline">{% csrf_token %}<button class="primary" style="background:#6b7280">Entwurf löschen</button></form>
+  <form method="post" action="{% url 'invoice_delete' invoice.pk %}" style="display:inline">{% csrf_token %}<button class="secondary">Entwurf löschen</button></form>
   <p class="muted">Nach dem Ausstellen ist die Honorarnote unveränderlich und bekommt ihre fortlaufende Nummer. Korrekturen sind nur per Storno möglich.</p>
   {% endif %}
   {% if invoice.status == "ausgestellt" or invoice.status == "bezahlt" %}{% if invoice.kind == "rechnung" %}
-  <form method="post" action="{% url 'invoice_storno' invoice.pk %}" style="display:inline">{% csrf_token %}<button class="primary" style="background:#a4161a">Stornieren</button></form>
+  <form method="post" action="{% url 'invoice_storno' invoice.pk %}" style="display:inline">{% csrf_token %}<button class="danger">Stornieren</button></form>
   {% endif %}{% endif %}
 </div>
 

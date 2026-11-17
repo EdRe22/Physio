@@ -9,7 +9,7 @@
   <table>
     {% for day, items in days %}<tr><th style="width:110px">{{ day|date:"D d.m." }}</th><td>
       {% for x in items %}<div>{{ x.b.start|date:"H:i" }}–{{ x.b.end|date:"H:i" }} · {% if x.mine %}<strong>meine Belegung</strong>{% else %}belegt von {{ x.b.tenant.name }}{% endif %} <span class="muted">({{ x.b.get_kind_display }})</span>
-        {% if x.can_cancel %}<form method="post" action="{% url 'raeume_cancel' x.b.pk %}" style="display:inline">{% csrf_token %}<button class="primary" style="margin:0;padding:2px 8px;background:#a4161a">Stornieren</button></form>{% endif %}</div>
+        {% if x.can_cancel %}<form method="post" action="{% url 'raeume_cancel' x.b.pk %}" style="display:inline">{% csrf_token %}<button class="danger">Stornieren</button></form>{% endif %}</div>
       {% empty %}<span class="muted">frei</span>{% endfor %}
     </td></tr>{% endfor %}
   </table>

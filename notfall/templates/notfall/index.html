@@ -29,7 +29,7 @@
       <td>{{ g.state }}{% if g.expires_at %} bis {{ g.expires_at|date:"d.m.Y H:i" }}{% endif %}</td>
       <td>
         {% if g.requested_by_id == me.pk and g.state == "aktiv" %}<a href="{% url 'notfall_patients' g.pk %}">Patienten ansehen</a>{% endif %}
-        {% if not g.ended_at %}<form method="post" action="{% url 'notfall_end' g.pk %}" style="display:inline">{% csrf_token %}<button class="primary" style="margin:0;background:#a4161a">Beenden</button></form>{% endif %}
+        {% if not g.ended_at %}<form method="post" action="{% url 'notfall_end' g.pk %}" style="display:inline">{% csrf_token %}<button class="danger">Beenden</button></form>{% endif %}
       </td></tr>
     {% empty %}<tr><td colspan="5" class="muted">Keine Vorgänge.</td></tr>{% endfor %}
   </table>

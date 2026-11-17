@@ -15,6 +15,6 @@
     {% endfor %}
     <button class="primary">Prüfen (Trockenlauf)</button>
   </form>
-  <form method="post" action="{% url 'import_cancel' job.pk %}">{% csrf_token %}<button class="primary" style="background:#6b7280">Abbrechen und Daten verwerfen</button></form>
+  <form method="post" action="{% url 'import_cancel' job.pk %}">{% csrf_token %}<button class="secondary">Abbrechen und Daten verwerfen</button></form>
 </div>
 {% endblock %}

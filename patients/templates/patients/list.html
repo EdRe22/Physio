@@ -1,14 +1,16 @@
 {% extends "base.html" %}
 {% block title %}Patienten{% endblock %}
 {% block content %}
+<div class="row between" style="margin-bottom:12px">
+  <h1 style="margin:0">Patienten</h1>
+  <a class="btn" style="margin:0" href="{% url 'patient_create' %}">+ Neuer Patient</a>
+</div>
 <div class="card">
-  <h1>Patienten</h1>
-  <form method="get" style="display:flex; gap:8px">
-    <input name="q" value="{{ q }}" placeholder="Name suchen" aria-label="Name suchen">
-    <label style="margin:0; white-space:nowrap; font-weight:400"><input type="checkbox" name="archiviert" value="1" style="width:auto" {% if archived %}checked{% endif %}> auch archivierte</label>
+  <form method="get" class="row" style="flex-wrap:nowrap">
+    <input type="search" name="q" value="{{ q }}" placeholder="Name suchen" aria-label="Name suchen" style="flex:1">
+    <label style="margin:0; white-space:nowrap; font-weight:400"><input type="checkbox" name="archiviert" value="1" {% if archived %}checked{% endif %}> auch archivierte</label>
     <button class="primary" style="margin:0">Suchen</button>
   </form>
-  <a class="btn" href="{% url 'patient_create' %}">Neuer Patient</a>
 </div>
 <div class="card">
   {% if patients %}

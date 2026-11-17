@@ -17,7 +17,7 @@
   {% if own and i.tenant_booked_on %}<p class="muted">In Ihrer Buchhaltung gebucht am {{ i.tenant_booked_on|date:"d.m.Y" }}.</p>{% endif %}
   {% if owner and i.status == "offen" %}
     <form method="post" action="{% url 'rent_paid' i.pk %}">{% csrf_token %}{{ paid_form.as_p }}<button class="primary">Als bezahlt markieren und als Einnahme buchen</button></form>
-    <form method="post" action="{% url 'rent_storno' i.pk %}">{% csrf_token %}<button class="primary" style="background:#a4161a">Stornieren</button></form>
+    <form method="post" action="{% url 'rent_storno' i.pk %}">{% csrf_token %}<button class="danger">Stornieren</button></form>
   {% endif %}
 </div>
 <a href="{% url 'rent_list' %}">Zurück</a>

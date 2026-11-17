@@ -13,7 +13,7 @@
 <div class="card">
   <h2>Versionen</h2>
   {% for v in versions %}
-  <div style="border-top:1px solid #e6e9ee; padding:8px 0">
+  <div style="border-top:1px solid var(--line); padding:8px 0">
     <span class="muted">Version {{ v.version }}, {{ v.created_at|date:"d.m.Y H:i" }}</span>
     <div>{{ v.text|linebreaksbr }}</div>
   </div>

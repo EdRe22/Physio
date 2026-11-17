@@ -30,7 +30,7 @@
 <div class="card">
   <h2>Dokumentation</h2>
   {% for entry, current in entries %}
-  <div style="border-top:1px solid #e6e9ee; padding:8px 0">
+  <div style="border-top:1px solid var(--line); padding:8px 0">
     <strong>{{ entry.get_kind_display }}</strong> · {{ entry.date|date:"d.m.Y" }}
     {% if current.version > 1 %}<span class="muted">· Version {{ current.version }}</span>{% endif %}
     · <a href="{% url 'entry_edit' entry.pk %}">ändern</a>
@@ -51,7 +51,7 @@
 <div class="card">
   <h2>Einwilligungen</h2>
   {% for kind, label, active in consents %}
-  <form method="post" style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid #e6e9ee; padding:6px 0"
+  <form method="post" style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid var(--line); padding:6px 0"
         action="{% if active %}{% url 'consent_revoke' patient.pk kind %}{% else %}{% url 'consent_grant' patient.pk kind %}{% endif %}">
     {% csrf_token %}
     <span>{{ label }}: {% if active %}erteilt am {{ active.granted_at|date:"d.m.Y" }}{% else %}<span class="muted">nicht erteilt</span>{% endif %}</span>

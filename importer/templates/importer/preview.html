@@ -14,7 +14,7 @@
     <form method="post" action="{% url 'import_run' job.pk %}">{% csrf_token %}<button class="primary">{{ report.valid }} Datensätze jetzt importieren</button></form>
     {% else %}<p class="error">Es gibt nichts Importierbares. Bitte Datei oder Zuordnung korrigieren.</p>{% endif %}
     <a href="{% url 'import_mapping' job.pk %}">Zuordnung ändern</a>
-    <form method="post" action="{% url 'import_cancel' job.pk %}">{% csrf_token %}<button class="primary" style="background:#6b7280">Abbrechen und Daten verwerfen</button></form>
+    <form method="post" action="{% url 'import_cancel' job.pk %}">{% csrf_token %}<button class="secondary">Abbrechen und Daten verwerfen</button></form>
   {% elif job.status == "done" %}
     <p class="muted">Der zwischengespeicherte Dateiinhalt wurde gelöscht.</p>
     {% if job.profile == "bank" %}<a class="btn" href="{% url 'bank_list' %}">Weiter zur Zuordnung der Bankumsätze</a>{% endif %}

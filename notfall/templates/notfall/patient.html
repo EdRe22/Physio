@@ -17,7 +17,7 @@
 </div>
 <div class="card">
   <h2>Dokumentation</h2>
-  {% for entry, current in entries %}<div style="border-top:1px solid #e6e9ee;padding:8px 0"><strong>{{ entry.get_kind_display }}</strong> · {{ entry.date|date:"d.m.Y" }}<div>{{ current.text|linebreaksbr }}</div></div>
+  {% for entry, current in entries %}<div style="border-top:1px solid var(--line);padding:8px 0"><strong>{{ entry.get_kind_display }}</strong> · {{ entry.date|date:"d.m.Y" }}<div>{{ current.text|linebreaksbr }}</div></div>
   {% empty %}<p class="muted">Keine Einträge.</p>{% endfor %}
 </div>
 <a href="{% url 'notfall_patients' grant.pk %}">Zurück zur Liste</a>
