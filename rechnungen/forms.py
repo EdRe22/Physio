@@ -33,35 +33,67 @@ def iban_valid(iban: str) -> bool:
     return int(digits) % 97 == 1
 
 
-class ProfilForm(LogoFormMixin):
+class MahnForm(forms.ModelForm):
+    """Mahnwesen je Therapeut: Zahlungsfristen, Mahnspesen und die drei Schreiben. Leere Texte = Vorlage der App."""
     reminder_fee = forms.CharField(
         label="Mahnspesen pro Mahnung ab Stufe 2 (EUR)", required=False, initial="0,00",
         help_text="Nur eintragen, wenn Mahnspesen mit dem Patienten vertraglich vereinbart sind. Sonst 0 lassen.")
 
     class Meta:
         model = Rechnungsprofil
-        fields = ["name", "title", "address", "phone", "email", "tax_no", "uid", "iban", "bic", "payment_days",
-                  "exemption_text", "exemption_confirmed_on", "reminder_days"]  # Logo: siehe LogoFormMixin
-        widgets = {"address": forms.Textarea(attrs={"rows": 3}), "exemption_text": forms.Textarea(attrs={"rows": 4}),
-                   "exemption_confirmed_on": DATE_WIDGET}
+        fields = ["reminder_days", "reminder_days_2", "reminder_days_3", "reminder_text_1", "reminder_text_2", "reminder_text_3"]
+        widgets = {f"reminder_text_{i}": forms.Textarea(attrs={"rows": 6}) for i in (1, 2, 3)}
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        from .services import DEFAULT_REMINDER_TEXTS
+
+        self.fields["reminder_days"].label = "Zahlungsfrist Zahlungserinnerung (Tage)"
         self.fields["reminder_days"].required = False
+        for lvl in (2, 3):
+            self.fields[f"reminder_days_{lvl}"].help_text = "Leer lassen = gleiche Frist wie bei der Zahlungserinnerung."
+        for lvl in (1, 2, 3):
+            f = self.fields[f"reminder_text_{lvl}"]
+            f.required = False
+            f.help_text = "Leer lassen = Vorlage der App. Platzhalter: {frist}, {betrag}, {nummer}."
+            f.widget.attrs["placeholder"] = DEFAULT_REMINDER_TEXTS[lvl]
         if self.instance and self.instance.pk:
             self.fields["reminder_fee"].initial = f"{self.instance.reminder_fee_cents / 100:.2f}".replace(".", ",")
 
     def clean_reminder_fee(self):
-        raw = self.cleaned_data.get("reminder_fee") or "0"
-        return parse_eur(raw)
+        return parse_eur(self.cleaned_data.get("reminder_fee") or "0")
 
-    def clean_reminder_days(self):
-        value = self.cleaned_data.get("reminder_days")
+    def _days(self, name, default):
+        value = self.cleaned_data.get(name)
         if value is None:
-            return 7
+            return default
         if not 1 <= value <= 60:
             raise forms.ValidationError("Bitte 1 bis 60 Tage angeben.")
         return value
+
+    def clean_reminder_days(self):
+        return self._days("reminder_days", 7)
+
+    def clean_reminder_days_2(self):
+        return self._days("reminder_days_2", None)
+
+    def clean_reminder_days_3(self):
+        return self._days("reminder_days_3", None)
+
+    def _clean_text(self, name):
+        text = (self.cleaned_data.get(name) or "").strip()
+        if len(text) > 1500:
+            raise forms.ValidationError("Bitte höchstens 1500 Zeichen.")
+        return text
+
+    def clean_reminder_text_1(self):
+        return self._clean_text("reminder_text_1")
+
+    def clean_reminder_text_2(self):
+        return self._clean_text("reminder_text_2")
+
+    def clean_reminder_text_3(self):
+        return self._clean_text("reminder_text_3")
 
     def save(self, commit=True):
         obj = super().save(commit=False)
@@ -69,6 +101,15 @@ class ProfilForm(LogoFormMixin):
         if commit:
             obj.save()
         return obj
+
+
+class ProfilForm(LogoFormMixin):
+    class Meta:
+        model = Rechnungsprofil
+        fields = ["name", "title", "address", "phone", "email", "tax_no", "uid", "iban", "bic", "payment_days",
+                  "exemption_text", "exemption_confirmed_on"]  # Logo: siehe LogoFormMixin
+        widgets = {"address": forms.Textarea(attrs={"rows": 3}), "exemption_text": forms.Textarea(attrs={"rows": 4}),
+                   "exemption_confirmed_on": DATE_WIDGET}
 
     def clean_iban(self):
         iban = self.cleaned_data["iban"].replace(" ", "").upper()

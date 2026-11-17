@@ -97,16 +97,37 @@ def test_reminder_pdf_not_visible_to_other_therapist(client_alpha, client_beta, 
     assert client_beta.get(f"/rechnungen/mahnung/{reminder.pk}/pdf/").status_code in (403, 404)
 
 
-def test_profile_form_saves_days_and_fee(client_alpha, in_alpha):
-    data = {"name": "Maria Test", "title": "Physiotherapeutin", "address": "Teststr. 1", "phone": "", "email": "", "tax_no": "",
-            "uid": "", "iban": "", "bic": "", "payment_days": 14, "exemption_text": "Steuerfrei lt. StB",
-            "exemption_confirmed_on": "2026-01-01", "reminder_days": 10, "reminder_fee": "7,50"}
-    assert client_alpha.post("/rechnungen/profil/", data).status_code == 302
+def test_settings_page_saves_days_fee_and_texts(client_alpha, in_alpha):
+    profile()
+    data = {"reminder_days": 10, "reminder_days_2": 5, "reminder_days_3": "", "reminder_fee": "7,50",
+            "reminder_text_1": "Hallo, bitte {betrag} zu {nummer} bis {frist}.", "reminder_text_2": "", "reminder_text_3": ""}
+    assert client_alpha.post("/rechnungen/mahnwesen/", data).status_code == 302
     p = Rechnungsprofil.objects.get()
-    assert p.reminder_days == 10 and p.reminder_fee_cents == 750
-    bad = client_alpha.post("/rechnungen/profil/", {**data, "reminder_fee": "-5", "reminder_days": 0})
-    assert bad.status_code == 200
-    assert Rechnungsprofil.objects.get().reminder_fee_cents == 750
+    assert (p.reminder_days, p.reminder_days_2, p.reminder_days_3, p.reminder_fee_cents) == (10, 5, None, 750)
+    assert services.reminder_days_for(p, 1) == 10 and services.reminder_days_for(p, 2) == 5 and services.reminder_days_for(p, 3) == 10
+    bad = client_alpha.post("/rechnungen/mahnwesen/", {**data, "reminder_fee": "-5", "reminder_days": 0})
+    assert bad.status_code == 200 and Rechnungsprofil.objects.get().reminder_fee_cents == 750
+    assert client_alpha.post("/rechnungen/mahnwesen/", {**data, "reminder_days_3": 99}).status_code == 200
+    assert client_alpha.get("/rechnungen/mahnwesen/").status_code == 200
+
+
+def test_own_text_and_days_used_and_frozen(in_alpha):
+    invoice = overdue_invoice(reminder_days=7, reminder_days_2=3, reminder_text_1="Eigener Text {nummer} über {betrag} bis {frist} {unbekannt}")
+    one = services.record_reminder(invoice, TODAY)
+    assert one.text.startswith("Eigener Text") and one.pay_until == TODAY + timedelta(days=7)
+    two = services.record_reminder(invoice, TODAY + timedelta(days=8))
+    assert two.pay_until == TODAY + timedelta(days=11) and two.text == services.DEFAULT_REMINDER_TEXTS[2]
+    text = pdf_text(one)
+    assert f"Eigener Text {invoice.number} über" in text and "{unbekannt}" in text and "{frist}" not in text
+    Rechnungsprofil.objects.update(reminder_text_1="Ganz anders")
+    assert "Eigener Text" in pdf_text(Mahnung.objects.get(pk=one.pk))
+
+
+def test_settings_page_is_per_therapist(client_alpha, client_beta, in_alpha):
+    profile()
+    client_alpha.post("/rechnungen/mahnwesen/", {"reminder_days": 9, "reminder_fee": "0", "reminder_text_1": "Nur Alpha"})
+    assert client_beta.get("/rechnungen/mahnwesen/").status_code in (200, 302)
+    assert "Nur Alpha" not in client_beta.get("/rechnungen/mahnwesen/", follow=True).content.decode()
 
 
 def test_reminder_is_one_page(in_alpha):

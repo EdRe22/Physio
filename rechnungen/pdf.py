@@ -150,22 +150,10 @@ def render_pdf(invoice: Honorarnote, compress=True) -> bytes:
     return bytes(pdf.output())
 
 
-_REMINDER_TEXT = {
-    1: ("Bei der Durchsicht meiner Buchhaltung habe ich festgestellt, dass die oben genannte Honorarnote noch nicht beglichen ist. "
-        "Sollten Sie bereits gezahlt haben, betrachten Sie dieses Schreiben bitte als gegenstandslos. "
-        "Andernfalls ersuche ich Sie, den offenen Betrag bis {frist} zu überweisen."),
-    2: ("Trotz meiner Zahlungserinnerung ist die oben genannte Honorarnote noch offen. "
-        "Ich ersuche Sie, den Gesamtbetrag bis {frist} zu überweisen."),
-    3: ("Die oben genannte Honorarnote ist trotz Zahlungserinnerung und Mahnung weiterhin offen. "
-        "Ich fordere Sie letztmalig auf, den Gesamtbetrag bis {frist} zu überweisen. "
-        "Andernfalls behalte ich mir vor, die Forderung auf dem Rechtsweg geltend zu machen."),
-}
-
-
 def render_reminder_pdf(reminder, compress=True) -> bytes:
     """Zahlungserinnerung/Mahnung zu einer ausgestellten Honorarnote. Aussteller, Empfänger und Betrag stammen aus dem
     festgeschriebenen Stand der Honorarnote und der Mahnung, das Schreiben ist daher jederzeit reproduzierbar."""
-    from .services import REMINDER_TITLES
+    from .services import DEFAULT_REMINDER_TEXTS, REMINDER_TITLES, fill_reminder_text
 
     invoice = reminder.invoice
     snap = json.loads(invoice.issuer_snapshot)
@@ -205,7 +193,7 @@ def render_reminder_pdf(reminder, compress=True) -> bytes:
     pdf.set_font("Roboto", "", 10.5)
     pdf.multi_cell(0, 5.5, "Sehr geehrte Damen und Herren,", new_x="LMARGIN", new_y="NEXT")
     pdf.ln(2)
-    pdf.multi_cell(0, 5.5, _REMINDER_TEXT[reminder.level].format(frist=f"{pay_until:%d.%m.%Y}"), new_x="LMARGIN", new_y="NEXT")
+    pdf.multi_cell(0, 5.5, fill_reminder_text(reminder.text or DEFAULT_REMINDER_TEXTS[reminder.level], f"{pay_until:%d.%m.%Y}", eur(total), invoice.number), new_x="LMARGIN", new_y="NEXT")
 
     pdf.ln(6)
     rows = [

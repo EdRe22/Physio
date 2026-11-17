@@ -11,7 +11,7 @@ from patients.models import Patient
 from patients.views import tenant_required
 
 from . import services
-from .forms import LeistungForm, PositionForm, ProfilForm, ZahlungForm
+from .forms import LeistungForm, MahnForm, PositionForm, ProfilForm, ZahlungForm
 from .models import Honorarnote, Leistung, Mahnung, Position, Rechnungsprofil, eur
 from .pdf import render_pdf, render_reminder_pdf
 
@@ -36,6 +36,21 @@ def profile_edit(request):
         messages.success(request, "Rechnungsprofil gespeichert.")
         return redirect("invoice_list")
     return render(request, "rechnungen/profile.html", {"form": form, "has_logo": bool(form.instance.logo_b64)})
+
+
+@tenant_required
+def reminder_settings(request):
+    profile = services.get_profile()
+    if profile is None:
+        messages.info(request, "Bitte zuerst das Rechnungsprofil ausfüllen.")
+        return redirect("profile_edit")
+    form = MahnForm(request.POST or None, instance=profile)
+    if request.method == "POST" and form.is_valid():
+        form.save()
+        audit_log("mahnwesen.einstellungen", profile)
+        messages.success(request, "Mahnwesen gespeichert. Es gilt für neu erstellte Schreiben.")
+        return redirect("reminder_settings")
+    return render(request, "rechnungen/reminder_settings.html", {"form": form, "defaults": services.DEFAULT_REMINDER_TEXTS})
 
 
 @tenant_required

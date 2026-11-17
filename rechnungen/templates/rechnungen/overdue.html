@@ -3,7 +3,7 @@
 {% block content %}
 <div class="pagehead">
   <div class="grow"><h1>Überfällige Honorarnoten</h1><div class="sub">Die App erstellt das passende Schreiben (Zahlungserinnerung, 1. Mahnung, letzte Mahnung) als PDF und merkt sich Betrag, Frist und Stufe. Die nächste Stufe ist erst nach Ablauf der Zahlungsfrist möglich.</div></div>
-  <div class="actions"><a class="btn secondary" href="{% url 'invoice_list' %}">&larr; Alle Honorarnoten</a></div>
+  <div class="actions"><a class="btn secondary" href="{% url 'reminder_settings' %}">Fristen und Texte</a> <a class="btn secondary" href="{% url 'invoice_list' %}">&larr; Alle Honorarnoten</a></div>
 </div>
 <div class="card">
   {% if rows %}

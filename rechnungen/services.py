@@ -15,6 +15,36 @@ from .models import KLEINBETRAG_CENTS, Honorarnote, Mahnung, Nummernkreis, Posit
 
 MAX_REMINDER_LEVEL = 3
 REMINDER_TITLES = {1: "Zahlungserinnerung", 2: "1. Mahnung", 3: "Letzte Mahnung"}
+REMINDER_PLACEHOLDERS = ("{frist}", "{betrag}", "{nummer}")
+DEFAULT_REMINDER_TEXTS = {
+    1: ("Bei der Durchsicht meiner Buchhaltung habe ich festgestellt, dass die oben genannte Honorarnote noch nicht beglichen ist. "
+        "Sollten Sie bereits gezahlt haben, betrachten Sie dieses Schreiben bitte als gegenstandslos. "
+        "Andernfalls ersuche ich Sie, den offenen Betrag bis {frist} zu überweisen."),
+    2: ("Trotz meiner Zahlungserinnerung ist die oben genannte Honorarnote noch offen. "
+        "Ich ersuche Sie, den Gesamtbetrag bis {frist} zu überweisen."),
+    3: ("Die oben genannte Honorarnote ist trotz Zahlungserinnerung und Mahnung weiterhin offen. "
+        "Ich fordere Sie letztmalig auf, den Gesamtbetrag bis {frist} zu überweisen. "
+        "Andernfalls behalte ich mir vor, die Forderung auf dem Rechtsweg geltend zu machen."),
+}
+
+
+def reminder_days_for(profile, level):
+    """Zahlungsfrist in Tagen für eine Mahnstufe (Stufe 2/3 leer = wie Stufe 1)."""
+    base = profile.reminder_days if profile else 7
+    if not profile or level == 1:
+        return base
+    return getattr(profile, f"reminder_days_{level}") or base
+
+
+def reminder_text_for(profile, level):
+    """Eigener Text der Therapeutin/des Therapeuten, sonst die Vorlage."""
+    own = (getattr(profile, f"reminder_text_{level}", "") or "").strip() if profile else ""
+    return own or DEFAULT_REMINDER_TEXTS[level]
+
+
+def fill_reminder_text(text, frist, betrag, nummer):
+    """Platzhalter ersetzen (bewusst kein str.format: unbekannte Klammern im Text bleiben unverändert)."""
+    return text.replace("{frist}", frist).replace("{betrag}", betrag).replace("{nummer}", nummer)
 
 
 class BillingError(Exception):
@@ -232,8 +262,9 @@ def record_reminder(invoice, today=None):
     if blocked:
         raise BillingError(blocked)
     profile = get_profile()
-    days = profile.reminder_days if profile else 7
+    days = reminder_days_for(profile, level)
     fee = profile.reminder_fee_cents if profile and level >= 2 else 0
     with _atomic():
         return Mahnung.objects.create(invoice=invoice, level=level, date=today, open_cents=invoice.open_cents,
-                                      fee_cents=fee, pay_until=today + timedelta(days=days))
+                                      fee_cents=fee, pay_until=today + timedelta(days=days),
+                                      text=reminder_text_for(profile, level))

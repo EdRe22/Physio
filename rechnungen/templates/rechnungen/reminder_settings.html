@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}Mahnwesen einstellen{% endblock %}
+{% block content %}
+<div class="pagehead">
+  <div class="grow"><h1>Mahnwesen einstellen</h1><div class="sub">Zahlungsfristen, Mahnspesen und der Wortlaut Ihrer drei Schreiben. Diese Einstellungen gelten nur für Sie und nur für neu erstellte Schreiben.</div></div>
+  <div class="actions"><a class="btn secondary" href="{% url 'overdue_list' %}">Überfällige</a></div>
+</div>
+<div class="card">
+  <form method="post">{% csrf_token %}
+    {{ form.non_field_errors }}
+    <h2>Zahlungsfristen</h2>
+    {% for field in form %}{% if field.name == "reminder_days" or field.name == "reminder_days_2" or field.name == "reminder_days_3" or field.name == "reminder_fee" %}
+      <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+      {{ field }}
+      {% if field.help_text %}<span class="muted">{{ field.help_text }}</span>{% endif %}
+      {% for e in field.errors %}<div class="error">{{ e }}</div>{% endfor %}
+    {% endif %}{% endfor %}
+
+    <h2 style="margin-top:1.5rem">Wortlaut der Schreiben</h2>
+    <p class="muted">Der Text steht zwischen „Sehr geehrte Damen und Herren“ und der Betragsübersicht. Platzhalter: <code>{frist}</code> = Zahlungsfrist, <code>{betrag}</code> = Gesamtbetrag, <code>{nummer}</code> = Honorarnummer. Ein leeres Feld verwendet die Vorlage (grau im Feld sichtbar).</p>
+    {% for field in form %}{% if field.name == "reminder_text_1" or field.name == "reminder_text_2" or field.name == "reminder_text_3" %}
+      <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+      {{ field }}
+      {% for e in field.errors %}<div class="error">{{ e }}</div>{% endfor %}
+    {% endif %}{% endfor %}
+    <div class="callout warn">Mahnspesen sind nur zulässig, wenn sie mit dem Patienten vertraglich vereinbart sind. Eigene Texte sollten Sie vor Verwendung rechtlich prüfen lassen. Bereits erstellte Schreiben bleiben unverändert.</div>
+    <button class="primary">Speichern</button>
+  </form>
+</div>
+{% endblock %}
