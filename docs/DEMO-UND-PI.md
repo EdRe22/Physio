@@ -53,7 +53,7 @@ Der Befehl läuft nur in einer **leeren** Installation und verlangt `--confirm-f
 | Benutzer / Ordner | wie bei den anderen Apps: `/home/<PI-USER>/physio` (Code), `/home/<PI-USER>/physio-data` (Daten, Schlüssel) |
 | Port (nur lokal) | **3010**, vorher prüfen: `ss -ltnp \| grep -E ':30[0-9]{2}'` (3001 und 3002 sind belegt, weitere Instanzen möglich) |
 | Dienst | `physio` (bei Demo: `physio-demo`) |
-| Adresse | `physio.<DOMAIN>` bzw. `physio-demo.<DOMAIN>` (eigene Subdomain wie bei den anderen) |
+| Adresse | `physio.<DOMAIN>` bzw. `physio.rendl.at` (eigene Subdomain wie bei den anderen) |
 | Datenbank | **SQLite** in `physio-data`. Für die Vorführung ausreichend. Für den Echtbetrieb ist PostgreSQL vorgesehen (`DEPLOYMENT.md`) |
 
 Jede der drei Apps hat eigenen Ordner, eigenen Dienst, eigenen Port, eigene Schlüssel und Datenbank. Das Anmelde-Cookie gilt je Subdomain
@@ -93,7 +93,7 @@ mkdir -p ~/physio-data
 Umgebungsdatei `/etc/physio-demo.env` (Rechte `600`, Besitzer root; der Dienst liest sie über `EnvironmentFile`):
 ```
 PHYSIO_SECRET_KEY=<openssl rand -hex 32>
-PHYSIO_ALLOWED_HOSTS=physio-demo.<DOMAIN>,127.0.0.1
+PHYSIO_ALLOWED_HOSTS=physio.rendl.at,127.0.0.1
 PHYSIO_TRUST_PROXY=1
 PHYSIO_DATA_DIR=/home/<PI-USER>/physio-data
 PHYSIO_KEYFILE=/home/<PI-USER>/physio-data/master.sealed
@@ -150,7 +150,7 @@ curl -s -o /dev/null -w '%{http_code}\n' http://127.0.0.1:3010/login/    # 503 =
 ### 6. Caddy: Eintrag ergänzen (die beiden anderen Blöcke unverändert lassen)
 In `/etc/caddy/Caddyfile` einen weiteren Block hinzufügen:
 ```
-physio-demo.<DOMAIN> {
+physio.rendl.at {
 	encode zstd gzip
 	# Interne Schnittstelle nie von außen:
 	@intern path /intern/*
@@ -177,7 +177,7 @@ sudo caddy validate --config /etc/caddy/Caddyfile && sudo systemctl reload caddy
 - Die Zeile `header_up X-Forwarded-Proto` ist nötig, sonst lehnt Django Formulare über HTTPS ab (CSRF-Herkunftsprüfung). Die App wertet sie nur mit `PHYSIO_TRUST_PROXY=1` aus.
 
 ### 7. Entsperren und Test
-Im Browser `https://physio-demo.<DOMAIN>/entsperren/` öffnen, Passphrase eingeben. Danach Anmeldung mit einem Demo-Konto (zweiten Faktor einrichten).
+Im Browser `https://physio.rendl.at/entsperren/` öffnen, Passphrase eingeben. Danach Anmeldung mit einem Demo-Konto (zweiten Faktor einrichten).
 **Nach jedem Neustart des Pi oder des Dienstes** muss neu entsperrt werden (Absicht: Der Schlüssel liegt nie auf der Platte).
 
 ### 8. Aktualisieren und zurücksetzen
