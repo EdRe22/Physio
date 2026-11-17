@@ -1,0 +1,28 @@
+<p>Der Bereich „Verwaltung“ in der Seitenleiste ist nur für den Eigentümer sichtbar. Hier sehen Sie Konten und Einrichtungsstand, <strong>nie Patientendaten</strong>.</p>
+
+<h2>Einrichtung</h2>
+<p>Die Checkliste zeigt, was für den Praxisbetrieb noch fehlt: Praxisprofil für Mietabrechnungen, eigenes Rechnungsprofil, Räume, Kollegen, Mietverhältnisse und die Voraussetzung für den Notfallzugriff (mindestens drei aktive Therapeuten). Bei offenen Schritten führt ein Knopf direkt zur passenden Seite.</p>
+
+<h2>Therapeut anlegen</h2>
+<ol>
+  <li>Unter „Benutzer“ → „Therapeut anlegen“ Namen und Benutzernamen eingeben. Das System legt Konto und einen eigenen, verschlüsselten Datenbereich an.</li>
+  <li>Das <strong>Startpasswort wird nur einmal angezeigt</strong> und lässt sich später nicht mehr abrufen. Übergeben Sie es persönlich, nicht per E-Mail oder Chat.</li>
+  <li>Beim ersten Login muss die Person das Passwort sofort ändern und den zweiten Faktor einrichten. Machen Sie das am besten gemeinsam.</li>
+  <li>Danach legen Sie unter „Miete“ → „Mietverhältnisse“ die Miete für die Person fest.</li>
+</ol>
+
+<h2>Konto verwalten</h2>
+<p>Auf der Seite eines Benutzers stehen vier Aktionen. Jede wird im Protokoll festgehalten, auch im Protokoll des Betroffenen.</p>
+<ul>
+  <li><strong>Passwort zurücksetzen:</strong> erzeugt ein neues Startpasswort (einmalig sichtbar), beendet alle Sitzungen und hebt eine Anmeldesperre auf.</li>
+  <li><strong>Zweiten Faktor zurücksetzen:</strong> für ein verlorenes Handy. Bestätigen Sie vorher, dass Sie die Identität der Person <strong>persönlich</strong> geprüft haben. Die Person richtet beim nächsten Login einen neuen Faktor ein.</li>
+  <li><strong>Konto sperren / freigeben:</strong> Die Person kann sich nicht mehr anmelden, laufende Sitzungen enden sofort. Die Daten bleiben unverändert.</li>
+  <li><strong>Ausscheiden:</strong> siehe <a href="{% url 'hilfe_topic' 'eigentuemer-ausscheiden' %}">Ausscheiden und Praxisende</a>.</li>
+</ul>
+<p>Ihr eigenes Konto und bereits ausgeschiedene Konten lassen sich hier nicht verwalten. Ihr eigenes Passwort ändern Sie über „Passwort“ in der Seitenleiste.</p>
+
+<h2>Protokoll prüfen</h2>
+<p>„Jetzt prüfen“ kontrolliert, ob die Protokolle aller Therapeuten unverändert und lückenlos sind. Meldet die Prüfung einen Fehler, informieren Sie sofort die technische Betreuung.</p>
+
+<h2>Systemübersicht</h2>
+<p>Zeigt, ob der Schlüssel entsperrt ist, ob das System im Entwicklungs- oder Produktionsbetrieb läuft und welche Datenbank verwendet wird. Gelb oder rot markierte Zeilen sollten vor dem Echtbetrieb geklärt sein.</p>

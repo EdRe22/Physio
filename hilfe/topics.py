@@ -27,6 +27,7 @@ TOPICS = [
     Topic("notfall", "Notfallzugriff (Vertretung)", "Wenn ein Kollege ausfällt: beantragen, freigeben, Regeln"),
     Topic("datenschutz", "Datenschutz und Protokoll", "Wer sieht was, was wird protokolliert, Datenpanne"),
     Topic("probleme", "Probleme und Fragen", "Häufige Fehlermeldungen und was zu tun ist"),
+    Topic("eigentuemer-verwaltung", "Verwaltung: Konten und Einrichtung (Eigentümer)", "Therapeut anlegen, Passwort und zweiten Faktor zurücksetzen, sperren", True),
     Topic("eigentuemer-praxis", "Praxis einrichten (Eigentümer)", "Räume, Mietverhältnisse, Mietabrechnung, Steuerhinweis", True),
     Topic("eigentuemer-ausscheiden", "Ausscheiden und Praxisende (Eigentümer)", "Ablauf, Fristen, endgültige Löschung", True),
     Topic("eigentuemer-technik", "Betrieb für den Eigentümer", "Neustart und Entsperren, Sicherung, Zugang zurücksetzen", True),
@@ -37,7 +38,7 @@ BY_SLUG = {t.slug: t for t in TOPICS}
 AREAS = [
     ("/patients/", "patienten"), ("/termine/", "termine"), ("/raeume/", "raeume"), ("/rechnungen/", "honorarnoten"),
     ("/buchhaltung/bank/", "bankabgleich"), ("/buchhaltung/", "buchhaltung"), ("/import/", "import"),
-    ("/praxis/", "miete"), ("/notfall/", "notfall"), ("/passwort/", "erste-schritte"), ("/2fa/", "erste-schritte"),
+    ("/verwaltung/", "eigentuemer-verwaltung"), ("/praxis/", "miete"), ("/notfall/", "notfall"), ("/passwort/", "erste-schritte"), ("/2fa/", "erste-schritte"),
 ]
 
 
