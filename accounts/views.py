@@ -77,6 +77,9 @@ class PasswordChange(PasswordChangeView):
 
     def form_valid(self, form):
         response = super().form_valid(form)
+        if form.user.must_change_password:
+            form.user.must_change_password = False
+            form.user.save(update_fields=["must_change_password"])
         _audit_login(self.request, "auth.password_changed")
         return response
 

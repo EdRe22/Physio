@@ -11,6 +11,7 @@ class Therapist(AbstractUser):
 
     tenant = models.OneToOneField("core.Tenant", null=True, blank=True, on_delete=models.PROTECT, related_name="user")
     role = models.CharField(max_length=16, choices=Role.choices, default=Role.THERAPIST)
+    must_change_password = models.BooleanField(default=False)  # nach Startpasswort/Zurücksetzen: erst ändern, dann arbeiten
     failed_logins = models.PositiveSmallIntegerField(default=0)
     locked_until = models.DateTimeField(null=True, blank=True)
 

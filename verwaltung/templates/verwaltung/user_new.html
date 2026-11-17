@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}Therapeut anlegen{% endblock %}
+{% block content %}
+<div class="pagehead">
+  <div class="grow"><h1>Therapeut anlegen</h1><div class="sub">Legt das Konto und einen eigenen, verschlüsselten Datenbereich an.</div></div>
+  <div class="actions"><a class="btn secondary" href="{% url 'verwaltung_users' %}">&larr; Benutzer</a></div>
+</div>
+<div class="layout">
+  <div class="card">
+    <form method="post">{% csrf_token %}
+      {{ form.non_field_errors }}
+      {% for field in form %}
+        <label for="{{ field.id_for_label }}">{{ field.label }}</label>{{ field }}
+        {% if field.help_text %}<span class="helptext">{{ field.help_text }}</span>{% endif %}
+        {% for e in field.errors %}<div class="error">{{ e }}</div>{% endfor %}
+      {% endfor %}
+      <button class="primary">Konto anlegen</button>
+    </form>
+  </div>
+  <div class="card">
+    <h2>So läuft es ab</h2>
+    <ol style="padding-left:1.1rem;margin:0">
+      <li>Das System erzeugt ein Startpasswort und zeigt es <strong>einmalig</strong> an.</li>
+      <li>Sie übergeben es persönlich, nicht per E-Mail oder Chat.</li>
+      <li>Beim ersten Login wird das Passwort sofort geändert und der zweite Faktor eingerichtet. Richten Sie das am besten gemeinsam ein.</li>
+    </ol>
+  </div>
+</div>
+{% endblock %}

@@ -192,6 +192,7 @@
     <a href="{% url 'raeume_index' %}"{% if '/raeume/' in p %} class="active" aria-current="page"{% endif %}><svg class="ic" aria-hidden="true"><use href="#i-grid"/></svg><span>Räume</span></a>
     <a href="{% url 'rent_list' %}"{% if '/praxis/' in p %} class="active" aria-current="page"{% endif %}><svg class="ic" aria-hidden="true"><use href="#i-key"/></svg><span>Miete</span></a>
     <a href="{% url 'notfall_index' %}"{% if '/notfall/' in p %} class="active" aria-current="page"{% endif %}><svg class="ic" aria-hidden="true"><use href="#i-alert"/></svg><span>Notfall</span></a>
+    {% if user.is_owner %}<a href="{% url 'verwaltung_index' %}"{% if '/verwaltung/' in p %} class="active" aria-current="page"{% endif %}><svg class="ic" aria-hidden="true"><use href="#i-lock"/></svg><span>Verwaltung</span></a>{% endif %}
     <a href="{% url 'import_start' %}"{% if '/import/' in p %} class="active" aria-current="page"{% endif %}><svg class="ic" aria-hidden="true"><use href="#i-upload"/></svg><span>Import</span></a>
   </nav>
   <div class="sidefoot">

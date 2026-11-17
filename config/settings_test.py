@@ -9,6 +9,7 @@ DATABASES = {
     "default": {"ENGINE": "django.db.backends.sqlite3", "NAME": ":memory:"},
     "t_alpha": {"ENGINE": "django.db.backends.sqlite3", "NAME": ":memory:"},
     "t_beta": {"ENGINE": "django.db.backends.sqlite3", "NAME": ":memory:"},
+    "t_zeta": {"ENGINE": "django.db.backends.sqlite3", "NAME": ":memory:"},
 }
 import tempfile  # noqa: E402
 from pathlib import Path  # noqa: E402

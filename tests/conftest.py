@@ -8,7 +8,7 @@ from accounts.models import Therapist
 from core import tenancy
 from core.models import Tenant
 
-DBS = ["default", "t_alpha", "t_beta"]
+DBS = ["default", "t_alpha", "t_beta", "t_zeta"]
 
 
 def pytest_collection_modifyitems(items):

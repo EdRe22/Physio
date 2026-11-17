@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}Benutzer{% endblock %}
+{% block content %}
+<div class="pagehead">
+  <div class="grow"><h1>Benutzer</h1><div class="sub">Konten der Therapeuten. Jeder hat einen eigenen, getrennten Datenbereich.</div></div>
+  <div class="actions"><a class="btn" href="{% url 'verwaltung_user_new' %}">+ Therapeut anlegen</a></div>
+</div>
+{% include "verwaltung/_tabs.html" with active="users" %}
+<div class="card">
+  <div class="tablewrap"><table>
+    <thead><tr><th>Name</th><th>Benutzername</th><th>Rolle</th><th>2FA</th><th>Letzter Login</th><th>Status</th></tr></thead>
+    <tbody>
+    {% for r in rows %}
+    <tr>
+      <td><a href="{% url 'verwaltung_user' r.u.pk %}"><strong>{{ r.u.tenant.name|default:"–" }}</strong></a></td>
+      <td>{{ r.u.username }}</td>
+      <td>{{ r.u.get_role_display }}</td>
+      <td>{% if r.has_2fa %}<span class="badge ok">eingerichtet</span>{% else %}<span class="badge warn">offen</span>{% endif %}</td>
+      <td>{{ r.u.last_login|date:"d.m.Y H:i"|default:"noch nie" }}</td>
+      <td><span class="badge {% if r.state == 'aktiv' %}ok{% elif r.state == 'gesperrt' %}bad{% endif %}">{{ r.state }}</span>{% if r.u.must_change_password %} <span class="badge warn">Passwortwechsel offen</span>{% endif %}</td>
+    </tr>
+    {% empty %}<tr><td colspan="6">Keine Benutzer.</td></tr>{% endfor %}
+    </tbody>
+  </table></div>
+</div>
+{% endblock %}

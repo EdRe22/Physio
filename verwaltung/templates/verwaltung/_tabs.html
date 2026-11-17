@@ -1,0 +1,4 @@
+<div class="tabs" role="navigation" aria-label="Verwaltung">
+  <a href="{% url 'verwaltung_index' %}" {% if active == "index" %}class="on" aria-current="page"{% endif %}>Einrichtung &amp; System</a>
+  <a href="{% url 'verwaltung_users' %}" {% if active == "users" %}class="on" aria-current="page"{% endif %}>Benutzer</a>
+</div>

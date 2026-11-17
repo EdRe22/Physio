@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block title %}{{ u.tenant.name|default:u.username }}{% endblock %}
+{% block content %}
+<div class="pagehead">
+  <div class="grow"><h1>{{ u.tenant.name|default:u.username }}
+    {% if offboarded %}<span class="badge">ausgeschieden</span>{% elif not u.is_active %}<span class="badge bad">gesperrt</span>{% else %}<span class="badge ok">aktiv</span>{% endif %}</h1>
+    <div class="sub">{{ u.username }} · {{ u.get_role_display }}</div></div>
+  <div class="actions"><a class="btn secondary" href="{% url 'verwaltung_users' %}">&larr; Benutzer</a></div>
+</div>
+<div class="layout">
+  <div class="card">
+    <h2>Konto</h2>
+    <dl class="kv">
+      <dt>E-Mail</dt><dd>{{ u.email|default:"–" }}</dd>
+      <dt>Zweiter Faktor</dt><dd>{% if has_2fa %}<span class="badge ok">eingerichtet</span>{% else %}<span class="badge warn">noch nicht eingerichtet</span>{% endif %}</dd>
+      <dt>Letzter Login</dt><dd>{{ u.last_login|date:"d.m.Y H:i"|default:"noch nie" }}</dd>
+      <dt>Passwortwechsel</dt><dd>{% if u.must_change_password %}<span class="badge warn">beim nächsten Login nötig</span>{% else %}–{% endif %}</dd>
+      <dt>Anmeldesperre</dt><dd>{% if u.locked_until %}bis {{ u.locked_until|date:"d.m.Y H:i" }}{% else %}–{% endif %}</dd>
+      {% if offboarded %}<dt>Aufbewahrung bis</dt><dd>{{ u.tenant.retain_until|date:"d.m.Y" }}</dd>{% endif %}
+    </dl>
+  </div>
+
+  {% if is_me %}
+  <div class="card"><h2>Eigenes Konto</h2><p class="muted" style="margin:0">Das eigene Konto verwalten Sie nicht hier. Das Passwort ändern Sie über „Passwort“ in der Seitenleiste.</p></div>
+  {% elif not offboarded %}
+  <div>
+    <div class="card">
+      <h2>Passwort zurücksetzen</h2>
+      <p class="muted" style="margin-top:0">Erzeugt ein neues Startpasswort (wird einmalig angezeigt), beendet alle Sitzungen und hebt eine Anmeldesperre auf.</p>
+      <form method="post" action="{% url 'verwaltung_user_password' u.pk %}">{% csrf_token %}<button style="margin:0">Neues Startpasswort erzeugen</button></form>
+    </div>
+    <div class="card">
+      <h2>Zweiten Faktor zurücksetzen</h2>
+      <p class="muted" style="margin-top:0">Für ein verlorenes oder neues Handy. Die Person richtet beim nächsten Login einen neuen Faktor ein.</p>
+      <form method="post" action="{% url 'verwaltung_user_2fa' u.pk %}">{% csrf_token %}
+        <label style="display:flex;gap:10px;align-items:flex-start;font-weight:500"><input type="checkbox" name="identity_checked" value="1" required style="width:auto;margin-top:4px"> Ich habe die Identität der Person persönlich geprüft.</label>
+        <button>Zweiten Faktor zurücksetzen</button>
+      </form>
+    </div>
+    <div class="card">
+      <h2>{% if u.is_active %}Konto sperren{% else %}Konto freigeben{% endif %}</h2>
+      <p class="muted" style="margin-top:0">{% if u.is_active %}Die Person kann sich nicht mehr anmelden, ihre Sitzungen enden sofort. Die Daten bleiben unverändert.{% else %}Die Person kann sich wieder anmelden.{% endif %}</p>
+      <form method="post" action="{% url 'verwaltung_user_lock' u.pk %}">{% csrf_token %}<input type="hidden" name="lock" value="{% if u.is_active %}1{% else %}0{% endif %}">
+        <button style="margin:0">{% if u.is_active %}Konto sperren{% else %}Konto freigeben{% endif %}</button></form>
+    </div>
+    <div class="card">
+      <h2>Ausscheiden aus der Praxis</h2>
+      <p class="muted" style="margin-top:0">Sperrt Konto und Datenbereich, beendet das Mietverhältnis und berechnet das Ende der Aufbewahrungsfrist. Die Daten werden <strong>nicht</strong> sofort gelöscht. Die endgültige Löschung nach Fristende macht die technische Betreuung.</p>
+      <form method="post" action="{% url 'verwaltung_user_offboard' u.pk %}">{% csrf_token %}
+        <label style="display:flex;gap:10px;align-items:flex-start;font-weight:500"><input type="checkbox" name="export_confirmed" value="1" required style="width:auto;margin-top:4px"> Die Person hat ihren Gesamtexport (Patienten und Honorarnoten) erhalten.</label>
+        <label for="confirm_name">Zur Bestätigung den Benutzernamen eintippen: <strong>{{ u.username }}</strong></label>
+        <input id="confirm_name" name="confirm_name" autocomplete="off" required>
+        <button>Ausscheiden</button>
+      </form>
+    </div>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

@@ -41,6 +41,9 @@ class TwoFactorRequiredMiddleware:
             if request.path not in self._open_paths() and not request.path.startswith("/static/"):
                 has_device = user.totpdevice_set.filter(confirmed=True).exists()
                 return redirect("otp_verify" if has_device else "otp_setup")
+        if user.is_authenticated and getattr(user, "must_change_password", False) and user.is_verified():
+            if request.path not in ("/passwort/", "/logout/") and not request.path.startswith("/static/"):
+                return redirect("password_change")
         return self.get_response(request)
 
 
