@@ -14,7 +14,7 @@ from django.core.mail import EmailMessage
 from audit.models import log as audit_log
 from patients.models import Einwilligung
 
-from . import services
+from . import mailconfig, services
 from .models import Honorarnote, Versand
 from .pdf import render_pdf, render_reminder_pdf
 
@@ -77,13 +77,14 @@ def _send(invoice, reminder):
         subject = f"{title} zur Honorarnote {invoice.number}"
         body = _body(profile, "reminder", invoice.number, name, f"{reminder.pay_until:%d.%m.%Y}" if reminder.pay_until else "")
         pdf, filename = render_reminder_pdf(reminder), f"{title.replace('. ', '_').replace(' ', '_')}_{invoice.number}.pdf"
-    message = EmailMessage(
-        subject=subject, body=body, from_email=f"{name} <{settings.DEFAULT_FROM_EMAIL}>", to=[patient.email],
-        reply_to=[snap["email"]] if snap.get("email") else None,
-    )
-    message.attach(filename, pdf, "application/pdf")
     ok = True
     try:
+        conn, sender = mailconfig.connection_for(profile)
+        message = EmailMessage(
+            subject=subject, body=body, from_email=f"{name} <{sender}>", to=[patient.email], connection=conn,
+            reply_to=[snap["email"]] if snap.get("email") else None,
+        )
+        message.attach(filename, pdf, "application/pdf")
         message.send(fail_silently=False)
     except Exception:  # keine Adresse ins Log
         logger.exception("Versand der Honorarnote %s fehlgeschlagen", invoice.pk)

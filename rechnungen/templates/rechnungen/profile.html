@@ -5,7 +5,7 @@
   <h1>Rechnungsprofil</h1>
   <div class="callout" style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;justify-content:space-between">
     <span><strong>Mahnwesen und E-Mail:</strong> Zahlungsfristen, Mahnspesen, die Texte der drei Mahnschreiben, die E-Mail-Texte und den automatischen Mahnversand (ein/aus) stellen Sie auf einer eigenen Seite ein.</span>
-    <a class="btn secondary" href="{% url 'reminder_settings' %}">Mahnwesen einstellen</a>
+    <a class="btn secondary" href="{% url 'reminder_settings' %}">Mahnwesen einstellen</a> <a class="btn secondary" href="{% url 'mail_server' %}">Mailserver einstellen</a>
   </div>
   <form method="post" enctype="multipart/form-data">{% csrf_token %}
     {{ form.non_field_errors }}

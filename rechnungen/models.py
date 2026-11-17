@@ -52,6 +52,11 @@ class Rechnungsprofil(models.Model):
     auto_reminders = models.BooleanField("Zahlungserinnerung und 1. Mahnung automatisch per E-Mail versenden", default=False)
     auto_max_level = models.PositiveSmallIntegerField(
         "Automatisch bis Stufe", default=2, choices=[(1, "Nur Zahlungserinnerung"), (2, "Zahlungserinnerung und 1. Mahnung")])
+    smtp_host = models.CharField("Mailserver (SMTP)", max_length=253, blank=True, default="")
+    smtp_port = models.PositiveSmallIntegerField("Port", default=587)
+    smtp_user = models.CharField("Benutzername", max_length=254, blank=True, default="")
+    smtp_password = EncryptedTextField(blank=True, null=True, default=None)  # null: Migration ohne Mandant möglich
+    smtp_from = models.CharField("Absenderadresse", max_length=254, blank=True, default="")
     mail_text_invoice = models.TextField("E-Mail-Text Honorarnote", blank=True, default="")
     mail_text_reminder = models.TextField("E-Mail-Text Mahnung", blank=True, default="")
     reminder_fee_cents = models.PositiveIntegerField(default=0)  # Mahnspesen ab Stufe 2, nur bei vertraglicher Vereinbarung

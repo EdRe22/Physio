@@ -10,8 +10,8 @@ from core import logo
 from patients.models import Patient
 from patients.views import tenant_required
 
-from . import mailing, services
-from .forms import LeistungForm, MahnForm, PositionForm, ProfilForm, ZahlungForm
+from . import mailconfig, mailing, services
+from .forms import LeistungForm, MahnForm, MailServerForm, PositionForm, ProfilForm, ZahlungForm
 from .models import Honorarnote, Leistung, Mahnung, Versand, Position, Rechnungsprofil, eur
 from .pdf import render_pdf, render_reminder_pdf
 
@@ -51,6 +51,32 @@ def reminder_settings(request):
         messages.success(request, "Mahnwesen gespeichert. Es gilt für neu erstellte Schreiben.")
         return redirect("reminder_settings")
     return render(request, "rechnungen/reminder_settings.html", {"form": form, "defaults": services.DEFAULT_REMINDER_TEXTS})
+
+
+@tenant_required
+def mail_server(request):
+    profile = services.get_profile()
+    if profile is None:
+        messages.info(request, "Bitte zuerst das Rechnungsprofil ausfüllen.")
+        return redirect("profile_edit")
+    if request.method == "POST" and request.POST.get("action") == "test":
+        to = profile.smtp_from or profile.email
+        if not to:
+            messages.error(request, "Für die Test-E-Mail fehlt eine Adresse (Absenderadresse oder E-Mail im Rechnungsprofil).")
+        else:
+            try:
+                mailconfig.send_test(profile, to)
+                messages.success(request, "Test-E-Mail wurde an Ihre eigene Adresse gesendet. Bitte Posteingang prüfen.")
+            except Exception:  # Zugangsdaten/Adresse nie in die Meldung
+                messages.error(request, "Der Test ist fehlgeschlagen. Bitte Servername, Port, Benutzername und Passwort prüfen.")
+        return redirect("mail_server")
+    form = MailServerForm(request.POST or None, instance=profile)
+    if request.method == "POST" and form.is_valid():
+        form.save()
+        audit_log("mailserver.einstellungen", profile)  # nur Ereignis, keine Werte
+        messages.success(request, "Mailserver gespeichert. Mit „Test-E-Mail senden“ können Sie ihn prüfen.")
+        return redirect("mail_server")
+    return render(request, "rechnungen/mail_server.html", {"form": form, "custom": mailconfig.is_custom(profile), "has_password": bool(profile.smtp_password)})
 
 
 @tenant_required

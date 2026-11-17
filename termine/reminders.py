@@ -21,7 +21,7 @@ logger = logging.getLogger(__name__)
 SUBJECT = "Terminerinnerung"
 
 
-def build_message(termin, practice_name, reply_to=""):
+def build_message(termin, practice_name, reply_to="", sender=None, connection=None):
     local = timezone.localtime(termin.start)
     body = (
         "Guten Tag,\n\n"
@@ -37,7 +37,8 @@ def build_message(termin, practice_name, reply_to=""):
     return EmailMessage(
         subject=SUBJECT,
         body=body,
-        from_email=f"{practice_name} <{settings.DEFAULT_FROM_EMAIL}>",
+        from_email=f"{practice_name} <{sender or settings.DEFAULT_FROM_EMAIL}>",
+        connection=connection,
         to=[termin.patient.email],
         reply_to=[reply_to] if reply_to else None,
     )
@@ -50,6 +51,13 @@ def send_due_reminders(practice_name, reply_to="", hours=36, now=None):
         status=Termin.Status.GEPLANT, reminder_sent_at__isnull=True, start__gt=now, start__lte=now + timedelta(hours=hours)
     ).select_related("patient")
     counts = {"sent": 0, "no_consent": 0, "no_email": 0, "failed": 0}
+    from rechnungen import mailconfig, services as billing
+
+    try:
+        connection, sender = mailconfig.connection_for(billing.get_profile())
+    except mailconfig.MailConfigError:
+        logger.exception("Eigener Mailserver unzulässig, Erinnerungen werden nicht gesendet")
+        connection, sender, due = None, None, due.none()
     for termin in due:
         patient = termin.patient
         if not patient.has_consent(Einwilligung.Kind.EMAIL_REMINDER):
@@ -59,7 +67,7 @@ def send_due_reminders(practice_name, reply_to="", hours=36, now=None):
             counts["no_email"] += 1
             continue
         try:
-            build_message(termin, practice_name, reply_to).send(fail_silently=False)
+            build_message(termin, practice_name, reply_to, sender, connection).send(fail_silently=False)
         except Exception:  # Zustellfehler: markieren, nicht abbrechen; keine Adresse ins Log
             logger.exception("Erinnerung für Termin %s konnte nicht gesendet werden", termin.pk)
             termin.reminder_failed_at = now

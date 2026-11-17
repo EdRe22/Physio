@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}Mailserver{% endblock %}
+{% block content %}
+<div class="pagehead">
+  <div class="grow"><h1>Eigener Mailserver</h1><div class="sub">Von welcher Adresse Ihre Honorarnoten, Mahnungen und Terminerinnerungen versendet werden. Gilt nur für Sie.</div></div>
+  <div class="actions"><a class="btn secondary" href="{% url 'reminder_settings' %}">Mahnwesen</a></div>
+</div>
+<div class="card">
+  {% if custom %}<div class="callout ok">Ihr eigener Mailserver ist eingerichtet. Es wird über <strong>{{ form.instance.smtp_host }}</strong> von <strong>{{ form.instance.smtp_from }}</strong> gesendet.</div>
+  {% else %}<div class="callout">Es ist kein eigener Mailserver hinterlegt. Gesendet wird über den zentralen Zugang der Praxis, sofern dieser eingerichtet ist.</div>{% endif %}
+  <form method="post">{% csrf_token %}
+    {{ form.non_field_errors }}
+    {% for field in form %}
+      {% if field.name == "remove" %}{% if custom %}<label style="display:flex;gap:10px;align-items:center;font-weight:500">{{ field }} {{ field.label }}</label>{% endif %}
+      {% else %}
+      <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+      {{ field }}
+      {% if field.help_text %}<span class="muted">{{ field.help_text }}</span>{% endif %}
+      {% for e in field.errors %}<div class="error">{{ e }}</div>{% endfor %}
+      {% endif %}
+    {% endfor %}
+    <div class="callout warn">Zugangsdaten bekommen Sie von Ihrem E-Mail-Anbieter (SMTP-Server, Port, Benutzername, Passwort). Die Verbindung ist immer verschlüsselt (TLS). Das Passwort wird verschlüsselt gespeichert und nicht mehr angezeigt. Nutzen Sie nach Möglichkeit ein eigenes App-Passwort. Nur ein Mailserver mit Auftragsverarbeitungsvertrag, bevorzugt in der EU, ist datenschutzrechtlich geeignet.</div>
+    <button class="primary">Speichern</button>
+  </form>
+  {% if custom %}
+  <form method="post" style="margin-top:1rem">{% csrf_token %}<input type="hidden" name="action" value="test"><button class="secondary">Test-E-Mail an eigene Adresse senden</button></form>
+  {% endif %}
+</div>
+{% endblock %}

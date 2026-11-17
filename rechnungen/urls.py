@@ -7,6 +7,7 @@ urlpatterns = [
     path("profil/", views.profile_edit, name="profile_edit"),
     path("profil/logo/", views.profile_logo, name="profile_logo"),
     path("mahnwesen/", views.reminder_settings, name="reminder_settings"),
+    path("mailserver/", views.mail_server, name="mail_server"),
     path("leistungen/", views.leistung_list, name="leistung_list"),
     path("leistungen/neu/", views.leistung_edit, name="leistung_create"),
     path("leistungen/<int:pk>/", views.leistung_edit, name="leistung_edit"),

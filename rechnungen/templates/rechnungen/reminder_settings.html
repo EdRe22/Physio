@@ -3,7 +3,7 @@
 {% block content %}
 <div class="pagehead">
   <div class="grow"><h1>Mahnwesen und E-Mail-Texte</h1><div class="sub">Zahlungsfristen, Mahnspesen, der Wortlaut Ihrer drei Schreiben und der Text der E-Mails. Diese Einstellungen gelten nur für Sie und nur für neu erstellte Schreiben.</div></div>
-  <div class="actions"><a class="btn secondary" href="{% url 'overdue_list' %}">Überfällige</a></div>
+  <div class="actions"><a class="btn secondary" href="{% url 'mail_server' %}">Eigener Mailserver</a> <a class="btn secondary" href="{% url 'overdue_list' %}">Überfällige</a></div>
 </div>
 <div class="card">
   <form method="post">{% csrf_token %}

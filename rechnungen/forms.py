@@ -33,6 +33,60 @@ def iban_valid(iban: str) -> bool:
     return int(digits) % 97 == 1
 
 
+class MailServerForm(forms.ModelForm):
+    """Eigener SMTP-Zugang des Therapeuten. Leeres Passwortfeld = bisheriges Passwort behalten."""
+    smtp_password_new = forms.CharField(
+        label="Passwort", required=False, widget=forms.PasswordInput(render_value=False, attrs={"autocomplete": "new-password"}),
+        help_text="Wird verschlüsselt gespeichert und nie wieder angezeigt. Leer lassen = bisheriges Passwort behalten.")
+    remove = forms.BooleanField(label="Eigenen Mailserver entfernen (wieder den Zugang der Praxis verwenden)", required=False)
+
+    class Meta:
+        model = Rechnungsprofil
+        fields = ["smtp_host", "smtp_port", "smtp_user", "smtp_from"]
+        widgets = {"smtp_port": forms.Select(choices=[(587, "587 (STARTTLS, empfohlen)"), (465, "465 (SSL/TLS)")])}
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for f in self.fields.values():
+            f.required = False  # leer = eigenen Mailserver entfernen (Pflichtangaben prüft clean)
+
+    def clean(self):
+        data = super().clean()
+        from .mailconfig import ALLOWED_PORTS, MailConfigError, check_host
+
+        if data.get("remove"):
+            return data
+        host = (data.get("smtp_host") or "").strip().lower()
+        data["smtp_host"] = host
+        if not host:
+            return data
+        if data.get("smtp_port") not in ALLOWED_PORTS:
+            self.add_error("smtp_port", "Erlaubt sind nur Port 587 (STARTTLS) und 465 (SSL/TLS).")
+        try:
+            check_host(host)
+        except MailConfigError as exc:
+            self.add_error("smtp_host", str(exc))
+        if not data.get("smtp_user"):
+            self.add_error("smtp_user", "Bitte den Benutzernamen des Mailkontos angeben.")
+        sender = (data.get("smtp_from") or "").strip()
+        if not sender or "@" not in sender or any(c in sender for c in " <>,;\r\n"):
+            self.add_error("smtp_from", "Bitte eine gültige Absenderadresse angeben, zum Beispiel praxis@ihre-domain.at.")
+        if not data.get("smtp_password_new") and not (self.instance and self.instance.smtp_password):
+            self.add_error("smtp_password_new", "Bitte das Passwort des Mailkontos angeben.")
+        return data
+
+    def save(self, commit=True):
+        obj = super().save(commit=False)
+        if self.cleaned_data.get("remove") or not self.cleaned_data.get("smtp_host"):
+            obj.smtp_host = obj.smtp_user = obj.smtp_password = obj.smtp_from = ""
+            obj.smtp_port = 587
+        elif self.cleaned_data.get("smtp_password_new"):
+            obj.smtp_password = self.cleaned_data["smtp_password_new"]
+        if commit:
+            obj.save()
+        return obj
+
+
 class MahnForm(forms.ModelForm):
     """Mahnwesen je Therapeut: Zahlungsfristen, Mahnspesen und die drei Schreiben. Leere Texte = Vorlage der App."""
     reminder_fee = forms.CharField(
