@@ -8,6 +8,7 @@
     <a class="btn secondary" href="{% url 'rent_profile' %}">Praxisprofil</a>
   </div>{% endif %}
 </div>
+{% include "buchhaltung/_tabs.html" with active="rent" %}
 {% if owner %}
   {% if not profile or not profile.ready %}<div class="callout bad">Das Praxisprofil ist unvollständig oder der Steuerhinweis ist nicht vom Steuerberater bestätigt. Ausstellen ist gesperrt.</div>{% endif %}
   <div class="card">

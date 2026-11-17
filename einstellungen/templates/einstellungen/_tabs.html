@@ -3,5 +3,7 @@
   <a href="{% url 'reminder_settings' %}" {% if active == "reminders" %}class="on" aria-current="page"{% endif %}>Mahnwesen &amp; E-Mail-Texte</a>
   <a href="{% url 'mail_server' %}" {% if active == "mailserver" %}class="on" aria-current="page"{% endif %}>Mailserver</a>
   <a href="{% url 'my_design' %}" {% if active == "design" %}class="on" aria-current="page"{% endif %}>Farbe</a>
+  <a href="{% url 'import_start' %}" {% if active == "import" %}class="on" aria-current="page"{% endif %}>Datenimport</a>
+  <a href="{% url 'notfall_index' %}" {% if active == "notfall" %}class="on" aria-current="page"{% endif %}>Notfallzugriff</a>
   <a href="{% url 'my_account' %}" {% if active == "account" %}class="on" aria-current="page"{% endif %}>Konto</a>
 </div>

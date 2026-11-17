@@ -50,3 +50,18 @@ def test_account_page_and_nav_entry_for_everyone(client_alpha, client_beta, alph
     for c in (client_alpha, client_beta):
         page = c.get("/einstellungen/konto/").content.decode()
         assert "Passwort ändern" in page and 'href="/einstellungen/"' in page
+
+
+def test_menu_has_no_import_rent_emergency_but_tabs_do(client_alpha, alpha):
+    page = client_alpha.get("/uebersicht/").content.decode()
+    nav = page[page.index('aria-label="Hauptmenü"'):page.index("</nav>")]
+    for gone in ("/import/", "/praxis/", "/notfall/"):
+        assert gone not in nav
+    assert "/einstellungen/" in nav and "/buchhaltung/" in nav
+    settings_page = client_alpha.get("/einstellungen/konto/").content.decode()
+    assert "/import/" in settings_page and "/notfall/" in settings_page
+    books = client_alpha.get("/buchhaltung/").content.decode()
+    assert 'href="/praxis/"' in books
+    assert 'href="/buchhaltung/"' in client_alpha.get("/praxis/").content.decode()
+    assert "Datenimport" in client_alpha.get("/import/").content.decode()
+    assert "Notfallzugriff" in client_alpha.get("/notfall/").content.decode()

@@ -5,12 +5,11 @@
   <div class="grow"><h1>Journal {{ year }}</h1></div>
   <div class="actions">
     <a class="btn" href="{% url 'buchung_new' %}">+ Neue Buchung</a>
-    <a class="btn secondary" href="{% url 'bank_list' %}">Bankumsätze{% if open_tx %} <span class="badge warn">{{ open_tx }} offen</span>{% endif %}</a>
-    <a class="btn secondary" href="{% url 'report' %}?jahr={{ year }}">Auswertung</a>
     <a class="btn secondary" href="{% url 'export' %}?jahr={{ year }}">CSV</a>
     <a class="btn secondary" href="{% url 'export' %}?jahr={{ year }}&amp;format=zip">ZIP mit Belegen</a>
   </div>
 </div>
+{% include "buchhaltung/_tabs.html" with active="journal" %}
 <div class="tabs" role="group" aria-label="Art filtern">
   <a href="?jahr={{ year }}" {% if not request.GET.art %}class="on"{% endif %}>Alle</a>
   <a href="?jahr={{ year }}&amp;art=einnahme" {% if request.GET.art == "einnahme" %}class="on"{% endif %}>Einnahmen</a>

@@ -5,6 +5,7 @@
   <div class="grow"><h1>Bankumsätze</h1><div class="sub">Importierte Kontoauszüge: Zahlungen den Honorarnoten zuordnen oder buchen.</div></div>
   <div class="actions"><a class="btn" href="{% url 'import_start' %}">Kontoauszug importieren</a></div>
 </div>
+{% include "buchhaltung/_tabs.html" with active="bank" %}
 <div class="tabs" role="group" aria-label="Status filtern">
   {% for v, l in statuses %}<a href="?status={{ v }}" {% if request.GET.status == v or not request.GET.status and forloop.first %}class="on"{% endif %}>{{ l }}</a>{% endfor %}
 </div>

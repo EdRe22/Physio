@@ -5,6 +5,7 @@
   <div class="grow"><h1>Daten importieren</h1>
     <div class="sub">Excel (.xlsx), CSV oder Kontoauszug. Die Datei wird nicht gespeichert, der Inhalt liegt bis zum Abschluss verschlüsselt in deiner Datenbank und wird danach verworfen.</div></div>
 </div>
+{% include "einstellungen/_tabs.html" with active="import" %}
 <div class="card">
   <h2>Schritt 1 von 3: Datei hochladen</h2>
   <form method="post" enctype="multipart/form-data">{% csrf_token %}

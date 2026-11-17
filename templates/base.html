@@ -190,13 +190,10 @@
     <a href="{% url 'patient_list' %}"{% if '/patients/' in p %} class="active" aria-current="page"{% endif %}><svg class="ic" aria-hidden="true"><use href="#i-users"/></svg><span>Patienten</span></a>
     <a href="{% url 'termine_week' %}"{% if '/termine/' in p %} class="active" aria-current="page"{% endif %}><svg class="ic" aria-hidden="true"><use href="#i-calendar"/></svg><span>Termine</span></a>
     <a href="{% url 'invoice_list' %}"{% if '/rechnungen/' in p %} class="active" aria-current="page"{% endif %}><svg class="ic" aria-hidden="true"><use href="#i-file"/></svg><span>Honorarnoten</span></a>
-    <a href="{% url 'journal' %}"{% if '/buchhaltung/' in p %} class="active" aria-current="page"{% endif %}><svg class="ic" aria-hidden="true"><use href="#i-chart"/></svg><span>Buchhaltung</span></a>
+    <a href="{% url 'journal' %}"{% if '/buchhaltung/' in p or '/praxis/' in p %} class="active" aria-current="page"{% endif %}><svg class="ic" aria-hidden="true"><use href="#i-chart"/></svg><span>Buchhaltung</span></a>
     <a href="{% url 'raeume_index' %}"{% if '/raeume/' in p %} class="active" aria-current="page"{% endif %}><svg class="ic" aria-hidden="true"><use href="#i-grid"/></svg><span>Räume</span></a>
-    <a href="{% url 'rent_list' %}"{% if '/praxis/' in p %} class="active" aria-current="page"{% endif %}><svg class="ic" aria-hidden="true"><use href="#i-key"/></svg><span>Miete</span></a>
-    <a href="{% url 'notfall_index' %}"{% if '/notfall/' in p %} class="active" aria-current="page"{% endif %}><svg class="ic" aria-hidden="true"><use href="#i-alert"/></svg><span>Notfall</span></a>
     {% if user.is_owner %}<a href="{% url 'verwaltung_index' %}"{% if '/verwaltung/' in p %} class="active" aria-current="page"{% endif %}><svg class="ic" aria-hidden="true"><use href="#i-lock"/></svg><span>Verwaltung</span></a>{% endif %}
-    <a href="{% url 'einstellungen' %}"{% if '/einstellungen/' in p %} class="active" aria-current="page"{% endif %}><svg class="ic" aria-hidden="true"><use href="#i-settings"/></svg><span>Einstellungen</span></a>
-    <a href="{% url 'import_start' %}"{% if '/import/' in p %} class="active" aria-current="page"{% endif %}><svg class="ic" aria-hidden="true"><use href="#i-upload"/></svg><span>Import</span></a>
+    <a href="{% url 'einstellungen' %}"{% if '/einstellungen/' in p or '/import/' in p or '/notfall/' in p %} class="active" aria-current="page"{% endif %}><svg class="ic" aria-hidden="true"><use href="#i-settings"/></svg><span>Einstellungen</span></a>
   </nav>
   <div class="sidefoot">
     <div class="me"><span class="avatar sm" aria-hidden="true">{{ user.get_username|slice:":1"|upper }}</span><span class="who">{{ user.get_username }}</span></div>

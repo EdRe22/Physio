@@ -5,6 +5,7 @@
   <div class="grow"><h1>Einnahmen-Ausgaben-Rechnung {{ year }}</h1><div class="sub">Zufluss-/Abflussprinzip, ohne steuerliche Würdigung. Bitte mit dem Steuerberater abstimmen.</div></div>
   <div class="actions"><a class="btn secondary" href="{% url 'journal' %}?jahr={{ year }}">&larr; Journal</a></div>
 </div>
+{% include "buchhaltung/_tabs.html" with active="report" %}
 <div class="stats">
   <div class="tile good"><div class="label">Einnahmen</div><div class="value">{{ r.total_einnahmen }}</div></div>
   <div class="tile bad"><div class="label">Ausgaben</div><div class="value">{{ r.total_ausgaben }}</div></div>
