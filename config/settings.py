@@ -80,7 +80,7 @@ AUTH_USER_MODEL = "accounts.Therapist"
 AUTHENTICATION_BACKENDS = ["accounts.backends.LockoutBackend"]
 DATABASE_ROUTERS = ["core.router.TenantRouter"]
 LOGIN_URL = "login"
-LOGIN_REDIRECT_URL = "patient_list"
+LOGIN_REDIRECT_URL = "uebersicht"
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",

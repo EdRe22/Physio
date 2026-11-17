@@ -3,6 +3,7 @@ from django.shortcuts import redirect
 from django.views.static import serve
 from django.urls import include, path
 
+from core.dashboard import uebersicht
 from core.jobs import run_job
 from core.unlock import unlock_view
 
@@ -10,7 +11,8 @@ urlpatterns = [
     path("static/<path:path>", serve, {"document_root": settings.BASE_DIR / "static"}, name="static_file"),
     path("entsperren/", unlock_view, name="unlock"),
     path("intern/job/<str:name>/", run_job, name="run_job"),
-    path("", lambda request: redirect("patient_list")),
+    path("uebersicht/", uebersicht, name="uebersicht"),
+    path("", lambda request: redirect("uebersicht")),
     path("", include("accounts.urls")),
     path("patients/", include("patients.urls")),
     path("termine/", include("termine.urls")),

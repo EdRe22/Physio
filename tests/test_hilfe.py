@@ -1,3 +1,4 @@
+from core import tenancy
 import pytest
 
 from hilfe.facts import facts
@@ -54,3 +55,24 @@ def test_help_numbers_come_from_code():
 
     f = facts()
     assert f["room_max_hours"] == services.MAX_HOURS and f["series_max"] == services.MAX_SERIES
+
+
+def test_dashboard_shows_only_own_data(client_alpha, client_beta, alpha, beta):
+    from datetime import datetime, time
+
+    from django.utils import timezone
+
+    from patients.models import Patient
+    from termine.models import Termin
+
+    with tenancy.tenant_context(alpha):
+        p = Patient.objects.create(first_name="Zora", last_name="Zufall")
+        Termin.objects.create(patient=p, start=timezone.make_aware(datetime.combine(timezone.localdate(), time(23, 0))), duration_min=30)
+    mine = client_alpha.get("/uebersicht/")
+    assert mine.status_code == 200 and "Zufall" in mine.content.decode() and "Termine heute" in mine.content.decode()
+    assert "Zufall" not in client_beta.get("/uebersicht/").content.decode()
+    assert client_alpha.get("/").status_code == 302
+
+
+def test_dashboard_needs_login(client):
+    assert client.get("/uebersicht/").status_code == 302

@@ -28,7 +28,7 @@ def _audit_login(request, action):
 def otp_verify(request):
     user = request.user
     if user.is_verified():
-        return redirect("patient_list")
+        return redirect("uebersicht")
     device = user.totpdevice_set.filter(confirmed=True).first()
     if device is None:
         return redirect("otp_setup")
@@ -39,7 +39,7 @@ def otp_verify(request):
             otp_login(request, device)
             request.session.cycle_key()  # neue Session-ID nach Erhöhung der Vertrauensstufe
             _audit_login(request, "auth.login")
-            return redirect("patient_list")
+            return redirect("uebersicht")
         error = "Code ungültig oder zu viele Versuche. Bitte kurz warten und erneut versuchen."
     return render(request, "accounts/otp_verify.html", {"error": error})
 
@@ -49,7 +49,7 @@ def otp_setup(request):
     user = request.user
     if user.totpdevice_set.filter(confirmed=True).exists():
         # Wer bereits einen zweiten Faktor hat, darf keinen weiteren nur mit Passwort einrichten.
-        return redirect("otp_verify" if not user.is_verified() else "patient_list")
+        return redirect("otp_verify" if not user.is_verified() else "uebersicht")
     device, _ = TOTPDevice.objects.get_or_create(user=user, confirmed=False, defaults={"name": "default"})
     error = ""
     if request.method == "POST":
@@ -60,7 +60,7 @@ def otp_setup(request):
             otp_login(request, device)
             request.session.cycle_key()
             _audit_login(request, "auth.2fa_enabled")
-            return redirect("patient_list")
+            return redirect("uebersicht")
         error = "Code ungültig. Bitte erneut versuchen."
     qr = mark_safe(segno.make(device.config_url).svg_inline(scale=5, dark="#000", light="#fff"))
     from base64 import b32encode
@@ -73,7 +73,7 @@ class PasswordChange(PasswordChangeView):
     """Passwortwechsel (nur mit bestätigtem zweitem Faktor erreichbar, Regeln aus AUTH_PASSWORD_VALIDATORS)."""
 
     template_name = "accounts/password_change.html"
-    success_url = reverse_lazy("patient_list")
+    success_url = reverse_lazy("uebersicht")
 
     def form_valid(self, form):
         response = super().form_valid(form)

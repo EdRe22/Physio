@@ -127,8 +127,8 @@ def test_every_route_rejects_anonymous_users():
         for method in ("get", "post"):
             r = getattr(Client(), method)(path)
             if path == "/":  # Startseite leitet nur auf die (geschützte) Patientenliste um
-                assert r.status_code == 302 and r["Location"] == "/patients/"
-                assert Client().get("/patients/").status_code == 302
+                assert r.status_code == 302 and r["Location"] == "/uebersicht/"
+                assert Client().get("/uebersicht/").status_code == 302
             elif path in PUBLIC:
                 assert r.status_code in PUBLIC[path] | {302, 405, 403}, (method, path, r.status_code)
             elif path.startswith(STATIC_PREFIX):

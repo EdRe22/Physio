@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block title %}Übersicht{% endblock %}
+{% block content %}
+<section class="hero">
+  <h1>{{ greeting }}, {{ user.get_username }}!</h1>
+  <p>{% if termine %}Heute {% if termine|length == 1 %}steht ein Termin{% else %}stehen {{ termine|length }} Termine{% endif %} an{% if next_termin %}, der nächste um <strong>{{ next_termin.start|time:"H:i" }} Uhr</strong> ({{ next_termin.patient.full_name }}){% endif %}.{% else %}Heute stehen keine Termine an. Zeit für Verwaltung oder eine Pause.{% endif %}
+    {{ today|date:"l, d. F Y" }}</p>
+  <div class="heroactions">
+    <a class="btn" href="{% url 'termin_create' %}">+ Neuer Termin</a>
+    <a class="btn ghost" href="{% url 'patient_create' %}">+ Neuer Patient</a>
+    <a class="btn ghost" href="{% url 'termine_week' %}">Wochenkalender</a>
+  </div>
+</section>
+
+<div class="stats">
+  <div class="tile"><span class="ico"><svg class="ic" aria-hidden="true"><use href="#i-calendar"/></svg></span><div class="label">Termine heute</div><div class="value">{{ termine|length }}</div></div>
+  <div class="tile"><span class="ico"><svg class="ic" aria-hidden="true"><use href="#i-euro"/></svg></span><div class="label">Offene Honorarnoten ({{ open_count }})</div><div class="value">{{ open_total }}</div></div>
+  <div class="tile {% if overdue_count %}bad{% else %}good{% endif %}"><span class="ico"><svg class="ic" aria-hidden="true"><use href="#i-clock"/></svg></span><div class="label">Überfällig</div><div class="value">{{ overdue_count }}</div></div>
+  <div class="tile"><span class="ico"><svg class="ic" aria-hidden="true"><use href="#i-bank"/></svg></span><div class="label">Bankumsätze offen</div><div class="value">{{ open_tx }}</div></div>
+</div>
+
+<div class="layout">
+  <div class="card">
+    <div class="cardhead"><h2>Heute</h2><a class="btn secondary" href="{% url 'termine_week' %}">Woche ansehen</a></div>
+    <div class="tl">
+    {% for t in termine %}
+      <div class="tlrow{% if t.status == 'erledigt' or t.status == 'abgesagt' or t.status == 'nicht_erschienen' %} done{% elif t == next_termin %} next{% endif %}">
+        <span class="t">{{ t.start|time:"H:i" }}</span>
+        <span><a class="n" href="{% url 'patient_detail' t.patient_id %}">{{ t.patient.full_name }}</a><br><span class="muted" style="font-size:.85rem">{{ t.duration_min }} Min.</span></span>
+        <span class="badge {% if t.status == 'erledigt' %}ok{% elif t.status == 'abgesagt' or t.status == 'nicht_erschienen' %}bad{% endif %}">{{ t.get_status_display }}</span>
+      </div>
+    {% empty %}<div class="emptystate">Keine Termine heute.</div>{% endfor %}
+    </div>
+    {% if rooms_today %}
+    <hr>
+    <h2 style="margin-top:0">Meine Räume heute</h2>
+    {% for b in rooms_today %}<div class="listrow"><span>{{ b.room.name }}</span><span class="muted">{{ b.start|time:"H:i" }}–{{ b.end|time:"H:i" }}</span></div>{% endfor %}
+    {% endif %}
+  </div>
+
+  <div class="card">
+    <h2>Zu erledigen</h2>
+    <a class="todo{% if overdue_count %} bad{% endif %}" href="{% url 'overdue_list' %}"><span class="dot"><svg class="ic" aria-hidden="true"><use href="#i-clock"/></svg></span>Überfällige Honorarnoten<b>{{ overdue_count }}</b></a>
+    <a class="todo{% if draft_count %} warn{% endif %}" href="{% url 'invoice_list' %}?status=entwurf"><span class="dot"><svg class="ic" aria-hidden="true"><use href="#i-file"/></svg></span>Honorarnoten-Entwürfe<b>{{ draft_count }}</b></a>
+    <a class="todo{% if open_tx %} warn{% endif %}" href="{% url 'bank_list' %}"><span class="dot"><svg class="ic" aria-hidden="true"><use href="#i-bank"/></svg></span>Bankumsätze zuordnen<b>{{ open_tx }}</b></a>
+    {% if low_referrals %}
+    <hr>
+    <h2 style="margin-top:0">Zuweisungen</h2>
+    {% for z in low_referrals %}
+    <a class="todo warn" href="{% url 'patient_detail' z.patient_id %}"><span class="dot"><svg class="ic" aria-hidden="true"><use href="#i-alert"/></svg></span>
+      <span>{{ z.patient.full_name }}<br><span class="muted" style="font-size:.82rem">{{ z.units_left }} Einheiten offen{% if z.valid_until %} · gültig bis {{ z.valid_until|date:"d.m.Y" }}{% endif %}</span></span></a>
+    {% endfor %}
+    {% endif %}
+  </div>
+</div>
+{% endblock %}
