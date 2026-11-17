@@ -20,4 +20,5 @@ urlpatterns = [
     path("<int:pk>/storno/", views.invoice_storno, name="invoice_storno"),
     path("<int:pk>/zahlung/", views.payment_add, name="payment_add"),
     path("<int:pk>/mahnung/", views.reminder_add, name="reminder_add"),
+    path("mahnung/<int:pk>/pdf/", views.reminder_pdf, name="reminder_pdf"),
 ]

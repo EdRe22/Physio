@@ -14,6 +14,7 @@ from patients.models import Eintrag
 from .models import KLEINBETRAG_CENTS, Honorarnote, Mahnung, Nummernkreis, Position, Rechnungsprofil, Zahlung
 
 MAX_REMINDER_LEVEL = 3
+REMINDER_TITLES = {1: "Zahlungserinnerung", 2: "1. Mahnung", 3: "Letzte Mahnung"}
 
 
 class BillingError(Exception):
@@ -204,16 +205,35 @@ def overdue(today=None):
     ]
 
 
+def reminder_state(invoice, today=None):
+    """Nächster Schritt im Mahnwesen: (Stufe oder None, Titel, Hinderungsgrund oder '')."""
+    today = today or timezone.localdate()
+    last = invoice.reminders.order_by("-level").first()
+    level = (last.level if last else 0) + 1
+    if level > MAX_REMINDER_LEVEL:
+        return None, "", "Alle Mahnstufen sind erfasst."
+    if last and last.pay_until and today <= last.pay_until:
+        return level, REMINDER_TITLES[level], f"Die Zahlungsfrist der letzten Mahnung läuft noch bis {last.pay_until:%d.%m.%Y}."
+    return level, REMINDER_TITLES[level], ""
+
+
 def record_reminder(invoice, today=None):
-    """Hält fest, dass eine Zahlungserinnerung/Mahnung erfolgt ist (Stufe 1 bis 3)."""
+    """Erstellt die nächste Zahlungserinnerung/Mahnung (Stufe 1 bis 3) und hält Betrag, Spesen und Zahlungsfrist fest."""
     today = today or timezone.localdate()
     if invoice.status != Honorarnote.Status.AUSGESTELLT or invoice.kind != Honorarnote.Kind.RECHNUNG:
         raise BillingError("Mahnungen sind nur für offene Honorarnoten möglich.")
     if invoice.due_date is None or invoice.due_date >= today:
         raise BillingError("Die Honorarnote ist noch nicht überfällig.")
-    last = invoice.reminders.order_by("-level").first()
-    level = (last.level if last else 0) + 1
-    if level > MAX_REMINDER_LEVEL:
+    if invoice.open_cents <= 0:
+        raise BillingError("Die Honorarnote ist bereits bezahlt.")
+    level, _title, blocked = reminder_state(invoice, today)
+    if level is None:
         raise BillingError("Es wurden bereits alle Mahnstufen erfasst.")
+    if blocked:
+        raise BillingError(blocked)
+    profile = get_profile()
+    days = profile.reminder_days if profile else 7
+    fee = profile.reminder_fee_cents if profile and level >= 2 else 0
     with _atomic():
-        return Mahnung.objects.create(invoice=invoice, level=level, date=today)
+        return Mahnung.objects.create(invoice=invoice, level=level, date=today, open_cents=invoice.open_cents,
+                                      fee_cents=fee, pay_until=today + timedelta(days=days))

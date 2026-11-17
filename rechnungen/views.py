@@ -12,8 +12,8 @@ from patients.views import tenant_required
 
 from . import services
 from .forms import LeistungForm, PositionForm, ProfilForm, ZahlungForm
-from .models import Honorarnote, Leistung, Position, Rechnungsprofil, eur
-from .pdf import render_pdf
+from .models import Honorarnote, Leistung, Mahnung, Position, Rechnungsprofil, eur
+from .pdf import render_pdf, render_reminder_pdf
 
 
 def _guard(request, func, *args, ok=None, **kwargs):
@@ -97,6 +97,9 @@ def invoice_detail(request, pk):
         "invoice": invoice, "positions": invoice.positions.all(), "payments": invoice.payments.all(),
         "reminders": invoice.reminders.all(), "today": timezone.localdate(),
     }
+    if invoice.status == Honorarnote.Status.AUSGESTELLT and invoice.kind == Honorarnote.Kind.RECHNUNG and bool(invoice.due_date and invoice.due_date < context["today"] and invoice.open_cents > 0):
+        level, title, blocked = services.reminder_state(invoice, context["today"])
+        context["next_reminder"] = {"level": level, "title": title, "blocked": blocked} if level else None
     if invoice.is_draft:
         context["position_form"] = PositionForm(initial={"date": timezone.localdate()})
     elif invoice.status == Honorarnote.Status.AUSGESTELLT and invoice.kind == Honorarnote.Kind.RECHNUNG:
@@ -182,14 +185,32 @@ def invoice_pdf(request, pk):
 
 @tenant_required
 def overdue_list(request):
-    return render(request, "rechnungen/overdue.html", {"invoices": services.overdue(), "today": timezone.localdate()})
+    today = timezone.localdate()
+    rows = []
+    for inv in services.overdue(today):
+        level, title, blocked = services.reminder_state(inv, today)
+        rows.append({"i": inv, "days": (today - inv.due_date).days, "level": level, "title": title, "blocked": blocked,
+                     "last": inv.reminders.order_by("-level").first()})
+    return render(request, "rechnungen/overdue.html", {"rows": rows, "today": today})
 
 
 @tenant_required
 @require_POST
 def reminder_add(request, pk):
     invoice = get_object_or_404(Honorarnote, pk=pk)
-    _guard(request, services.record_reminder, invoice, ok="Mahnstufe erfasst.")
+    reminder = _guard(request, services.record_reminder, invoice, ok="Schreiben erstellt. Es steht jetzt zum Ausdrucken oder Speichern bereit.")
+    if reminder is not None:
+        return redirect("reminder_pdf", pk=reminder.pk)
     if request.POST.get("next") == "overdue":
         return redirect("overdue_list")
     return redirect("invoice_detail", pk=pk)
+
+
+@tenant_required
+def reminder_pdf(request, pk):
+    reminder = get_object_or_404(Mahnung.objects.select_related("invoice__patient"), pk=pk)
+    audit_log("mahnung.pdf", reminder.invoice)
+    title = services.REMINDER_TITLES[reminder.level].replace(". ", "_").replace(" ", "_")
+    response = HttpResponse(render_reminder_pdf(reminder), content_type="application/pdf")
+    response["Content-Disposition"] = f'inline; filename="{title}_{reminder.invoice.number}.pdf"'
+    return response

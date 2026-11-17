@@ -297,12 +297,12 @@ def test_overdue_and_reminder_levels(in_alpha):
     profile(payment_days=10)
     invoice = services.issue(draft(patient()), today=TODAY - timedelta(days=30))
     assert services.overdue() == [invoice]
-    first = services.record_reminder(invoice)
+    first = services.record_reminder(invoice, TODAY)
     assert first.level == 1
-    services.record_reminder(invoice)
-    services.record_reminder(invoice)
+    services.record_reminder(invoice, TODAY + timedelta(days=8))
+    services.record_reminder(invoice, TODAY + timedelta(days=16))
     with pytest.raises(services.BillingError, match="alle Mahnstufen"):
-        services.record_reminder(invoice)
+        services.record_reminder(invoice, TODAY + timedelta(days=30))
     services.add_payment(invoice, TODAY, invoice.total_cents)
     assert services.overdue() == []
 

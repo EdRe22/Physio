@@ -43,6 +43,8 @@ class Rechnungsprofil(models.Model):
         "Hinweis zur Umsatzsteuerbefreiung",
         default="PLATZHALTER: Umsatzsteuerbefreite Leistung. Wortlaut und Rechtsgrundlage vom Steuerberater bestätigen lassen.",
     )
+    reminder_days = models.PositiveSmallIntegerField("Zahlungsfrist in Mahnungen (Tage)", default=7)
+    reminder_fee_cents = models.PositiveIntegerField(default=0)  # Mahnspesen ab Stufe 2, nur bei vertraglicher Vereinbarung
     logo_b64 = models.TextField(blank=True, default="", editable=False)  # fertig umgerechnetes PNG, siehe core/logo.py
     exemption_confirmed_on = models.DateField(
         "Vom Steuerberater bestätigt am", null=True, blank=True,
@@ -250,6 +252,10 @@ class Mahnung(_Immutable):
     invoice = models.ForeignKey(Honorarnote, on_delete=models.PROTECT, related_name="reminders")
     level = models.PositiveSmallIntegerField()
     date = models.DateField()
+    # Stand beim Erstellen (Mahnungen sind unveränderlich, spätere Profiländerungen betreffen sie nicht)
+    open_cents = models.PositiveIntegerField(default=0)
+    fee_cents = models.PositiveIntegerField(default=0)
+    pay_until = models.DateField(null=True, blank=True)
 
     class Meta:
         ordering = ["level"]

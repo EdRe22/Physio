@@ -148,3 +148,91 @@ def render_pdf(invoice: Honorarnote, compress=True) -> bytes:
         if invoice.number:
             pdf.cell(0, 5, f"Verwendungszweck: {invoice.number}", new_x="LMARGIN", new_y="NEXT")
     return bytes(pdf.output())
+
+
+_REMINDER_TEXT = {
+    1: ("Bei der Durchsicht meiner Buchhaltung habe ich festgestellt, dass die oben genannte Honorarnote noch nicht beglichen ist. "
+        "Sollten Sie bereits gezahlt haben, betrachten Sie dieses Schreiben bitte als gegenstandslos. "
+        "Andernfalls ersuche ich Sie, den offenen Betrag bis {frist} zu überweisen."),
+    2: ("Trotz meiner Zahlungserinnerung ist die oben genannte Honorarnote noch offen. "
+        "Ich ersuche Sie, den Gesamtbetrag bis {frist} zu überweisen."),
+    3: ("Die oben genannte Honorarnote ist trotz Zahlungserinnerung und Mahnung weiterhin offen. "
+        "Ich fordere Sie letztmalig auf, den Gesamtbetrag bis {frist} zu überweisen. "
+        "Andernfalls behalte ich mir vor, die Forderung auf dem Rechtsweg geltend zu machen."),
+}
+
+
+def render_reminder_pdf(reminder, compress=True) -> bytes:
+    """Zahlungserinnerung/Mahnung zu einer ausgestellten Honorarnote. Aussteller, Empfänger und Betrag stammen aus dem
+    festgeschriebenen Stand der Honorarnote und der Mahnung, das Schreiben ist daher jederzeit reproduzierbar."""
+    from .services import REMINDER_TITLES
+
+    invoice = reminder.invoice
+    snap = json.loads(invoice.issuer_snapshot)
+    pay_until = reminder.pay_until or reminder.date
+    total = reminder.open_cents + reminder.fee_cents
+
+    pdf = _Pdf(False)
+    pdf.set_compression(compress)
+    title = REMINDER_TITLES[reminder.level]
+    pdf.set_title(f"{title} zu Honorarnote {invoice.number}")
+    pdf.alias_nb_pages()
+    pdf.add_page()
+    logo.draw_on_pdf(pdf, snap.get("logo", ""))
+
+    pdf.set_font("Roboto", "B", 13)
+    pdf.cell(0, 7, snap["name"], new_x="LMARGIN", new_y="NEXT")
+    pdf.set_font("Roboto", "", 9.5)
+    for line in [snap["title"], *_lines(snap["address"])]:
+        pdf.cell(0, 5, line, new_x="LMARGIN", new_y="NEXT")
+    contact = " · ".join(x for x in (snap["phone"], snap["email"]) if x)
+    if contact:
+        pdf.cell(0, 5, contact, new_x="LMARGIN", new_y="NEXT")
+
+    pdf.ln(10)
+    pdf.set_font("Roboto", "", 11)
+    for line in [invoice.recipient_name, *_lines(invoice.recipient_address)]:
+        pdf.cell(0, 5.5, line, new_x="LMARGIN", new_y="NEXT")
+
+    pdf.ln(8)
+    pdf.set_font("Roboto", "", 10)
+    pdf.cell(0, 5.5, f"Datum: {reminder.date:%d.%m.%Y}", align="R", new_x="LMARGIN", new_y="NEXT")
+    pdf.ln(2)
+    pdf.set_font("Roboto", "B", 15)
+    pdf.cell(0, 8, f"{title} zur Honorarnote {invoice.number}", new_x="LMARGIN", new_y="NEXT")
+
+    pdf.ln(4)
+    pdf.set_font("Roboto", "", 10.5)
+    pdf.multi_cell(0, 5.5, "Sehr geehrte Damen und Herren,", new_x="LMARGIN", new_y="NEXT")
+    pdf.ln(2)
+    pdf.multi_cell(0, 5.5, _REMINDER_TEXT[reminder.level].format(frist=f"{pay_until:%d.%m.%Y}"), new_x="LMARGIN", new_y="NEXT")
+
+    pdf.ln(6)
+    rows = [
+        ("Honorarnote", f"{invoice.number} vom {invoice.issue_date:%d.%m.%Y}"),
+        ("Ursprünglich fällig am", f"{invoice.due_date:%d.%m.%Y}"),
+        ("Rechnungsbetrag", eur(invoice.total_cents)),
+        ("Bereits bezahlt", eur(invoice.total_cents - reminder.open_cents)),
+        ("Offener Betrag", eur(reminder.open_cents)),
+    ]
+    if reminder.fee_cents:
+        rows.append(("Mahnspesen", eur(reminder.fee_cents)))
+    pdf.set_font("Roboto", "", 10)
+    for label, value in rows:
+        pdf.cell(90, 6.5, label)
+        pdf.cell(0, 6.5, value, align="R", new_x="LMARGIN", new_y="NEXT")
+    pdf.set_font("Roboto", "B", 11)
+    pdf.cell(90, 9, f"Zu zahlen bis {pay_until:%d.%m.%Y}", border="T")
+    pdf.cell(0, 9, eur(total), border="T", align="R", new_x="LMARGIN", new_y="NEXT")
+
+    pdf.ln(5)
+    pdf.set_font("Roboto", "", 9.5)
+    if snap["iban"]:
+        bank = f"IBAN {snap['iban']}" + (f" · BIC {snap['bic']}" if snap["bic"] else "")
+        pdf.cell(0, 5, bank, new_x="LMARGIN", new_y="NEXT")
+    pdf.cell(0, 5, f"Verwendungszweck: {invoice.number}", new_x="LMARGIN", new_y="NEXT")
+    pdf.ln(6)
+    pdf.multi_cell(0, 5.5, "Mit freundlichen Grüßen", new_x="LMARGIN", new_y="NEXT")
+    pdf.ln(8)
+    pdf.cell(0, 5.5, snap["name"], new_x="LMARGIN", new_y="NEXT")
+    return bytes(pdf.output())

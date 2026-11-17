@@ -21,6 +21,7 @@ Legende: **[Admin]** macht die technische Betreuung, **[Eigentümer]** die Praxi
 | ☐ | Verarbeitungsverzeichnis je Verantwortlichem angelegt | Eigentümer | |
 | ☐ | Steuerberater hat den Wortlaut der Befreiungshinweise schriftlich bestätigt: Honorarnoten **und** Vermietung | Eigentümer | |
 | ☐ | Aufbewahrungsfristen rechtlich bestätigt (im Code angenommen: Dokumentation 10 Jahre, Honorarnoten/Buchhaltung 7 Jahre, siehe `praxis/offboarding.py`) | Eigentümer | |
+| ☐ | Wortlaut der Mahnschreiben (Zahlungserinnerung, 1. Mahnung, letzte Mahnung in `rechnungen/pdf.py`), Mahnspesen und Verzicht auf Verzugszinsen rechtlich bestätigt | Eigentümer | |
 | ☐ | Regelung für Tod oder dauerhaften Ausfall eines Kollegen geklärt (Erben, Nachfolger, Berufsrecht). Die App kann das nicht entscheiden | Eigentümer | |
 | ☐ | Aufbewahrungsdauer der Sicherungen festgelegt und dokumentiert (Löschung gilt erst nach Ablauf der alten Sicherungen als vollständig) | Beide | |
 | ☐ | Meldeprozess für Datenpannen (72 Stunden) besprochen: wer meldet an wen | Beide | |

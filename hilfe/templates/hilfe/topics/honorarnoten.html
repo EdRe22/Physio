@@ -23,8 +23,16 @@
 <p>Erfassen Sie eingegangene Überweisungen mit „Zahlung erfassen“ bei der Honorarnote (Datum, Betrag). Teilzahlungen sind möglich. Sobald der Betrag voll beglichen ist, wechselt der Status auf „bezahlt“. Der Betrag darf den offenen Rest nicht übersteigen, das Datum nicht in der Zukunft und nicht vor dem Rechnungsdatum liegen. <strong>Jede Zahlung wird automatisch als Einnahme in die Buchhaltung übernommen.</strong> Zahlungen lassen sich nicht ändern oder löschen.</p>
 <p>Einfacher geht es über den <a href="{% url 'hilfe_topic' 'bankabgleich' %}">Kontoauszug-Import</a>: Die App ordnet Überweisungen den Honorarnoten zu.</p>
 
-<h2>Überfällige Honorarnoten und Mahnstufen</h2>
-<p>Die Seite „Überfällige“ zeigt offene Honorarnoten nach Ablauf des Zahlungsziels. Mit „Mahnung erfassen“ halten Sie fest, dass Sie erinnert haben (Stufe 1 bis {{ f.max_reminder_level }}). Die App erzeugt dabei <strong>kein Mahnschreiben</strong> und berechnet keine Spesen, sie dokumentiert nur den Vorgang.</p>
+<h2>Überfällige Honorarnoten und Mahnungen</h2>
+<p>Die Seite „Überfällige“ zeigt offene Honorarnoten nach Ablauf des Zahlungsziels, mit der Zahl der Tage und dem Stand des Mahnwesens. Die App erstellt das passende Schreiben als PDF und merkt sich Datum, offenen Betrag, Mahnspesen und Zahlungsfrist:</p>
+<ol>
+  <li><strong>Zahlungserinnerung</strong> (Stufe 1): freundlicher Hinweis, ohne Spesen.</li>
+  <li><strong>1. Mahnung</strong> (Stufe 2): mit Mahnspesen, falls in Ihrem Profil hinterlegt.</li>
+  <li><strong>Letzte Mahnung</strong> (Stufe {{ f.max_reminder_level }}): mit Hinweis auf weitere rechtliche Schritte.</li>
+</ol>
+<p>Die nächste Stufe ist erst <strong>nach Ablauf der Zahlungsfrist</strong> der vorigen möglich. Ein bereits gezahlter Betrag wird abgezogen, bei Teilzahlung mahnt die App nur den Rest. Mahnungen sind unveränderlich: spätere Änderungen im Profil betreffen bereits erstellte Schreiben nicht. Das PDF lässt sich jederzeit wieder öffnen (Seite „Überfällige“ oder bei der Honorarnote unter „Mahnwesen“). Der Versand erfolgt durch Sie, die App versendet nichts.</p>
+<p>Frist und Mahnspesen stellen Sie unter „Rechnungsprofil“ ein (Zahlungsfrist in Mahnungen, Standard 7 Tage; Mahnspesen, Standard 0,00 EUR).</p>
+<div class="warn"><strong>Wichtig:</strong> Mahnspesen dürfen Sie nur verlangen, wenn sie mit dem Patienten vertraglich vereinbart sind. Verzugszinsen berechnet die App nicht. Der Wortlaut der Schreiben ist eine Vorlage und muss vor dem Echtbetrieb rechtlich bestätigt werden.</div>
 
 <h2>Logo auf der Honorarnote</h2>
 <p>Unter „Honorarnoten“ → „Rechnungsprofil“ können Sie ein Logo hochladen (PNG oder JPEG, höchstens 2 MB). Es erscheint oben rechts auf Ihren Honorarnoten. Die App verkleinert das Bild automatisch und entfernt Zusatzdaten wie den Aufnahmeort. Beim Ausstellen wird das Logo mit der Honorarnote festgeschrieben: ein späterer Wechsel oder das Entfernen ändert bereits ausgestellte Honorarnoten nicht.</p>

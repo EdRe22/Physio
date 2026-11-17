@@ -68,8 +68,14 @@
       </form>
     </div>
     {% endif %}
-    {% if reminders %}
-    <div class="card"><h2>Mahnungen</h2>{% for r in reminders %}<div class="listrow"><span>Stufe {{ r.level }}</span><span class="muted">{{ r.date|date:"d.m.Y" }}</span></div>{% endfor %}</div>
+    {% if reminders or next_reminder %}
+    <div class="card"><h2>Mahnwesen</h2>
+      {% for r in reminders %}<div class="listrow"><span>{{ r.level }}. Stufe <span class="muted">· {{ r.date|date:"d.m.Y" }}{% if r.pay_until %}, Frist bis {{ r.pay_until|date:"d.m.Y" }}{% endif %}</span></span><a href="{% url 'reminder_pdf' r.pk %}" target="_blank" rel="noopener">PDF</a></div>{% endfor %}
+      {% if next_reminder %}
+        {% if next_reminder.blocked %}<p class="muted" style="margin-bottom:0">{{ next_reminder.blocked }}</p>
+        {% else %}<form method="post" action="{% url 'reminder_add' invoice.pk %}">{% csrf_token %}<button class="secondary" style="margin-bottom:0">{{ next_reminder.title }} erstellen</button></form>{% endif %}
+      {% endif %}
+    </div>
     {% endif %}
   </div>
   {% endif %}

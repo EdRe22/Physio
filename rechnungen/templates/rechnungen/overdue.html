@@ -2,18 +2,28 @@
 {% block title %}Überfällige Honorarnoten{% endblock %}
 {% block content %}
 <div class="pagehead">
-  <div class="grow"><h1>Überfällige Honorarnoten</h1><div class="sub">Hier hältst du fest, dass du erinnert oder gemahnt hast (Stufe 1 bis 3). Die Mahnschreiben selbst erstellst du außerhalb der App.</div></div>
+  <div class="grow"><h1>Überfällige Honorarnoten</h1><div class="sub">Die App erstellt das passende Schreiben (Zahlungserinnerung, 1. Mahnung, letzte Mahnung) als PDF und merkt sich Betrag, Frist und Stufe. Die nächste Stufe ist erst nach Ablauf der Zahlungsfrist möglich.</div></div>
   <div class="actions"><a class="btn secondary" href="{% url 'invoice_list' %}">&larr; Alle Honorarnoten</a></div>
 </div>
 <div class="card">
-  {% if invoices %}
+  {% if rows %}
   <div class="tablewrap"><table>
-    <thead><tr><th>Nr.</th><th>Patient</th><th>Fällig seit</th><th class="num">Offen</th><th>Mahnstufe</th><th></th></tr></thead>
+    <thead><tr><th>Nr.</th><th>Patient</th><th>Überfällig</th><th class="num">Offen</th><th>Stand</th><th></th></tr></thead>
     <tbody>
-    {% for i in invoices %}
-    <tr><td><a href="{% url 'invoice_detail' i.pk %}"><strong>{{ i.number }}</strong></a></td><td>{{ i.patient.full_name }}</td><td>{{ i.due_date|date:"d.m.Y" }}</td><td class="num">{{ i.open_eur }}</td>
-      <td><span class="badge {% if i.reminders.count %}warn{% endif %}">{{ i.reminders.count }}</span></td>
-      <td><form method="post" action="{% url 'reminder_add' i.pk %}" class="inline">{% csrf_token %}<input type="hidden" name="next" value="overdue"><button class="secondary">Mahnung erfassen</button></form></td></tr>
+    {% for r in rows %}
+    <tr>
+      <td><a href="{% url 'invoice_detail' r.i.pk %}"><strong>{{ r.i.number }}</strong></a></td>
+      <td>{{ r.i.patient.full_name }}</td>
+      <td>{{ r.days }} Tage <span class="muted">(seit {{ r.i.due_date|date:"d.m.Y" }})</span></td>
+      <td class="num">{{ r.i.open_eur }}</td>
+      <td>{% if r.last %}<span class="badge warn">{{ r.last.level }}. Stufe</span> <span class="muted">Frist bis {{ r.last.pay_until|date:"d.m.Y" }}</span>{% else %}<span class="muted">noch keine Erinnerung</span>{% endif %}</td>
+      <td>
+        {% if r.last %}<a class="btn secondary" href="{% url 'reminder_pdf' r.last.pk %}" target="_blank" rel="noopener">PDF</a>{% endif %}
+        {% if r.level and not r.blocked %}
+        <form method="post" action="{% url 'reminder_add' r.i.pk %}" class="inline">{% csrf_token %}<input type="hidden" name="next" value="overdue"><button class="secondary">{{ r.title }} erstellen</button></form>
+        {% elif r.blocked %}<span class="muted" style="font-size:.85rem">{{ r.blocked }}</span>{% endif %}
+      </td>
+    </tr>
     {% endfor %}
     </tbody>
   </table></div>
