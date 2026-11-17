@@ -13,6 +13,13 @@ class EncryptedTextField(models.TextField):
 
     description = "Verschlüsselter Text (pro Mandant)"
 
+    def formfield(self, **kwargs):
+        # TextField würde jedes Feld als großes Textfeld darstellen; mehrzeilig nur, wo das Formular es ausdrücklich verlangt.
+        from django import forms
+
+        kwargs.setdefault("widget", forms.TextInput)
+        return super().formfield(**kwargs)
+
     def get_prep_value(self, value):
         value = super().get_prep_value(value)
         if value is None:
