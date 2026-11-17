@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block title %}Auswertung {{ year }}{% endblock %}
+{% block content %}
+<div class="card">
+  <h1>Einnahmen-Ausgaben-Rechnung {{ year }}</h1>
+  <h2>Einnahmen</h2>
+  <table>{% for n, c in r.einnahmen %}<tr><td>{{ n }}</td><td>{{ c }}</td></tr>{% endfor %}<tr><th>Summe</th><th>{{ r.total_einnahmen }}</th></tr></table>
+  <h2>Ausgaben</h2>
+  <table>{% for n, c in r.ausgaben %}<tr><td>{{ n }}</td><td>{{ c }}</td></tr>{% endfor %}<tr><th>Summe</th><th>{{ r.total_ausgaben }}</th></tr></table>
+  <h2>Überschuss: {{ r.ueberschuss }}</h2>
+  <p class="muted">Zufluss-/Abflussprinzip, ohne steuerliche Würdigung. Bitte mit dem Steuerberater abstimmen.</p>
+</div>
+{% endblock %}

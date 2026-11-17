@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}Buchhaltung{% endblock %}
+{% block content %}
+<div class="card">
+  <h1>Journal {{ year }}</h1>
+  <p><a class="btn" href="{% url 'buchung_new' %}">Neue Buchung</a>
+  <a class="btn" href="{% url 'bank_list' %}">Bankumsätze{% if open_tx %} ({{ open_tx }} offen){% endif %}</a>
+  <a class="btn" href="{% url 'report' %}?jahr={{ year }}">Auswertung</a>
+  <a class="btn" href="{% url 'export' %}?jahr={{ year }}">CSV</a>
+  <a class="btn" href="{% url 'export' %}?jahr={{ year }}&format=zip">ZIP mit Belegen</a></p>
+  <p class="muted">Filter: <a href="?jahr={{ year }}">alle</a> · <a href="?jahr={{ year }}&art=einnahme">Einnahmen</a> · <a href="?jahr={{ year }}&art=ausgabe">Ausgaben</a></p>
+  <table>
+    <tr><th>Nr.</th><th>Datum</th><th>Kategorie</th><th>Art</th><th>Betrag</th></tr>
+    {% for b in buchungen %}<tr><td><a href="{% url 'buchung_detail' b.pk %}">{{ b.number }}</a></td><td>{{ b.date|date:"d.m.Y" }}</td><td>{{ b.category.name }}</td><td>{{ b.get_kind_display }}</td><td>{{ b.amount_eur }}</td></tr>
+    {% empty %}<tr><td colspan="5" class="muted">Keine Buchungen.</td></tr>{% endfor %}
+  </table>
+</div>
+{% endblock %}

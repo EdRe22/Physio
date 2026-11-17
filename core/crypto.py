@@ -57,3 +57,24 @@ def encrypt(data_key: bytes, text: str) -> str:
 
 def decrypt(data_key: bytes, token: str) -> str:
     return _open(data_key, token, _FIELD_AAD).decode("utf-8")
+
+
+_FILE_AAD = b"physio/file/v1"
+
+
+def encrypt_bytes(data_key: bytes, data: bytes) -> bytes:
+    """Verschlüsselt Dateiinhalte (Belege): nonce(12) || ciphertext+tag."""
+    nonce = os.urandom(12)
+    return nonce + AESGCM(data_key).encrypt(nonce, data, _FILE_AAD)
+
+
+def decrypt_bytes(data_key: bytes, blob: bytes) -> bytes:
+    return AESGCM(data_key).decrypt(blob[:12], blob[12:], _FILE_AAD)
+
+
+def blind_index(data_key: bytes, text: str) -> str:
+    """Schlüsselabhängiger Hash für Dublettenprüfung ohne Klartext (HMAC-SHA256, pro Mandant)."""
+    import hashlib
+    import hmac
+
+    return hmac.new(data_key, b"physio/blind/v1:" + text.encode("utf-8"), hashlib.sha256).hexdigest()

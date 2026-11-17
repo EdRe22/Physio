@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}Bankumsätze{% endblock %}
+{% block content %}
+<div class="card">
+  <h1>Bankumsätze</h1>
+  <p><a class="btn" href="{% url 'import_start' %}">Kontoauszug importieren</a></p>
+  <p class="muted">{% for v, l in statuses %}<a href="?status={{ v }}">{{ l }}</a>{% if not forloop.last %} · {% endif %}{% endfor %}</p>
+  {% if sure_count %}<form method="post" action="{% url 'bank_accept_all' %}">{% csrf_token %}<button class="primary">{{ sure_count }} sichere Zuordnungen übernehmen</button></form>{% endif %}
+  <table>
+    {% for r in rows %}<tr>
+      <td>{{ r.tx.date|date:"d.m.Y" }}<br>{{ r.tx.amount_eur }}</td>
+      <td>{{ r.tx.counterpart }}<br><span class="muted">{{ r.tx.purpose }}</span></td>
+      <td>{% if r.tx.status == "offen" %}
+        {% if r.match %}<form method="post" action="{% url 'bank_accept' r.tx.pk %}">{% csrf_token %}<input type="hidden" name="invoice" value="{{ r.match.pk }}"><button class="primary">Honorarnote {{ r.match.number }} ({{ r.confidence }})</button></form>{% endif %}
+        <form method="post" action="{% url 'bank_book' r.tx.pk %}">{% csrf_token %}<select name="category">{% for c in r.categories %}<option value="{{ c.pk }}">{{ c.name }}</option>{% endfor %}</select><button class="primary">Buchen</button></form>
+        <form method="post" action="{% url 'bank_ignore' r.tx.pk %}">{% csrf_token %}<button class="primary" style="background:#6b7280">Ignorieren</button></form>
+      {% else %}{{ r.tx.get_status_display }}{% endif %}</td>
+    </tr>{% empty %}<tr><td class="muted">Keine Umsätze.</td></tr>{% endfor %}
+  </table>
+</div>
+{% endblock %}

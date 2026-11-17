@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}Buchung {{ b.number }}{% endblock %}
+{% block content %}
+<div class="card">
+  <h1>Buchung {{ b.number }}</h1>
+  <table>
+    <tr><th>Datum</th><td>{{ b.date|date:"d.m.Y" }}</td></tr>
+    <tr><th>Art</th><td>{{ b.get_kind_display }}</td></tr>
+    <tr><th>Kategorie</th><td>{{ b.category.name }}</td></tr>
+    <tr><th>Betrag</th><td>{{ b.amount_eur }}</td></tr>
+    <tr><th>Text</th><td>{{ b.text }}</td></tr>
+    <tr><th>Gegenseite</th><td>{{ b.counterpart }}</td></tr>
+    <tr><th>Herkunft</th><td>{{ b.get_source_display }}</td></tr>
+  </table>
+  {% if reversible %}<form method="post" action="{% url 'buchung_reverse' b.pk %}">{% csrf_token %}<button class="primary">Stornieren</button></form>{% endif %}
+</div>
+<div class="card">
+  <h2>Belege</h2>
+  <ul>{% for x in belege %}<li><a href="{% url 'beleg_download' x.pk %}">{{ x.number }}</a> ({{ x.size }} Bytes)</li>{% empty %}<li class="muted">Kein Beleg.</li>{% endfor %}</ul>
+  <form method="post" action="{% url 'beleg_attach' b.pk %}" enctype="multipart/form-data">{% csrf_token %}
+    <input type="file" name="beleg" accept=".pdf,.jpg,.jpeg,.png"><button class="primary">Beleg anhängen</button>
+  </form>
+</div>
+<a href="{% url 'journal' %}">Zurück zum Journal</a>
+{% endblock %}

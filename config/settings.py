@@ -49,10 +49,14 @@ INSTALLED_APPS = [
     "termine",
     "importer",
     "rechnungen",
+    "buchhaltung",
 ]
 
 # Diese Apps liegen ausschließlich in der Mandanten-Datenbank des jeweiligen Therapeuten.
-TENANT_APP_LABELS = {"audit", "patients", "termine", "importer", "rechnungen"}
+TENANT_APP_LABELS = {"audit", "patients", "termine", "importer", "rechnungen", "buchhaltung"}
+
+# Belege (verschlüsselte Dateien, pro Mandant ein Unterordner). Muss ins Backup!
+BELEG_DIR = Path(os.environ.get("PHYSIO_BELEG_DIR", DATA_DIR / "belege"))
 
 # Uploads bleiben im Arbeitsspeicher und landen nie unverschlüsselt als Temp-Datei auf der Platte.
 FILE_UPLOAD_HANDLERS = ["django.core.files.uploadhandler.MemoryFileUploadHandler"]

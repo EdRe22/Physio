@@ -226,7 +226,105 @@ class EntryProfile:
         entry.add_version(clean["text"], author_id=None)
 
 
-PROFILES = {"patients": PatientProfile, "entries": EntryProfile}
+# --- Kontoauszug ---
+
+BANK_FIELDS = [
+    Field("date", "Buchungsdatum", True, ("datum", "valuta", "buchungstag", "valutadatum", "buchungsdatum")),
+    Field("amount", "Betrag", True, ("betrag", "umsatz", "amount", "betrag eur")),
+    Field("counterpart", "Name Gegenseite", False, ("name", "auftraggeber", "empfänger", "partner", "begünstigter", "zahlungspflichtiger")),
+    Field("iban", "IBAN Gegenseite", False, ("iban", "gegenkonto", "iban gegenseite")),
+    Field("purpose", "Verwendungszweck", False, ("verwendungszweck", "zahlungsreferenz", "buchungstext", "text", "zweck", "mitteilung")),
+    Field("reference", "Referenz", False, ("referenz", "endtoendid", "kundenreferenz")),
+]
+
+
+def parse_amount_cents(raw):
+    """'-1.234,56', '1234.56', '45,5-' -> Cent. None bei ungültigem oder mehrdeutigem Betrag."""
+    from decimal import Decimal, InvalidOperation
+
+    text = raw.strip().replace(" ", "").replace(" ", "").replace("€", "").upper().replace("EUR", "")
+    negative = text.endswith("-") or text.startswith("-")
+    text = text.strip("-+")
+    if "," in text and "." in text:
+        text = text.replace(".", "").replace(",", ".") if text.rfind(",") > text.rfind(".") else text.replace(",", "")
+    else:
+        text = text.replace(",", ".")
+    try:
+        value = Decimal(text)
+    except InvalidOperation:
+        return None
+    if value != value.quantize(Decimal("0.01")) or value > Decimal("9999999.99"):
+        return None
+    return int(value * 100) * (-1 if negative else 1)
+
+
+class BankProfile:
+    name = "bank"
+    title = "Kontoauszug (Bank, camt.053 / CSV / Excel)"
+    fields = BANK_FIELDS
+
+    def __init__(self):
+        from buchhaltung.models import BankTransaktion
+
+        self.key = tenancy.require().data_key
+        self.seen = set(BankTransaktion.objects.values_list("tx_hash", flat=True))
+        self.occurrences = {}
+
+    def validate(self, row, mapping):
+        clean, errors = {}, []
+        for f in self.fields:
+            value = _value(row, mapping, f.key)
+            if f.required and not value:
+                errors.append(f"{f.label} fehlt")
+            elif len(value) > 500:
+                errors.append(f"{f.label} ist zu lang")
+            clean[f.key] = value
+        if clean["date"]:
+            parsed = parse_date(clean["date"])
+            if parsed is None:
+                try:
+                    parsed = datetime.strptime(clean["date"], "%d.%m.%y").date()
+                except ValueError:
+                    parsed = None
+            if parsed is None:
+                errors.append("Buchungsdatum ungültig (TT.MM.JJJJ erwartet)")
+            elif parsed > date.today():
+                errors.append("Buchungsdatum liegt in der Zukunft")
+            else:
+                clean["date"] = parsed
+        if clean["amount"]:
+            cents = parse_amount_cents(clean["amount"])
+            if cents is None:
+                errors.append("Betrag ungültig")
+            elif cents == 0:
+                errors.append("Betrag ist 0")
+            else:
+                clean["amount"] = cents
+        clean["iban"] = clean["iban"].replace(" ", "").upper()
+        return clean, errors
+
+    def is_duplicate(self, clean):
+        from core import crypto
+
+        base = "|".join([clean["date"].isoformat(), str(clean["amount"]), clean["counterpart"].casefold(),
+                         clean["purpose"].casefold(), clean["reference"].casefold()])
+        n = self.occurrences[base] = self.occurrences.get(base, 0) + 1
+        clean["_hash"] = crypto.blind_index(self.key, f"{base}#{n}")
+        if clean["_hash"] in self.seen:
+            return True
+        self.seen.add(clean["_hash"])
+        return False
+
+    def create(self, clean):
+        from buchhaltung.models import BankTransaktion
+
+        BankTransaktion.objects.create(
+            date=clean["date"], amount_cents=clean["amount"], counterpart=clean["counterpart"], iban=clean["iban"],
+            purpose=clean["purpose"], reference=clean["reference"], tx_hash=clean["_hash"],
+        )
+
+
+PROFILES = {"patients": PatientProfile, "entries": EntryProfile, "bank": BankProfile}
 
 
 def process(job, commit):

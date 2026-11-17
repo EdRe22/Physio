@@ -86,12 +86,20 @@ def read_table(uploaded):
     if uploaded.size > MAX_BYTES:
         raise ImportFileError("Die Datei ist größer als 5 MB.")
     raw = uploaded.read()
+    if name.endswith(".xml"):  # Kontoauszug camt.053
+        from buchhaltung.camt import CamtError, parse_camt053
+
+        try:
+            headers, body = parse_camt053(raw)
+        except CamtError as exc:
+            raise ImportFileError(str(exc))
+        return headers, body
     if name.endswith(".xlsx"):
         rows = _read_xlsx(raw)
     elif name.endswith(".csv"):
         rows = _read_csv(raw)
     else:
-        raise ImportFileError("Bitte eine .xlsx- oder .csv-Datei hochladen.")
+        raise ImportFileError("Bitte eine .xlsx-, .csv- oder (Kontoauszug) .xml-Datei hochladen.")
     rows = [r for r in rows if any(r)]  # komplett leere Zeilen weglassen
     if len(rows) < 2:
         raise ImportFileError("Die Datei braucht eine Kopfzeile und mindestens eine Datenzeile.")

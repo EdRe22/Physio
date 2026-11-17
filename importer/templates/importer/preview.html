@@ -17,6 +17,7 @@
     <form method="post" action="{% url 'import_cancel' job.pk %}">{% csrf_token %}<button class="primary" style="background:#6b7280">Abbrechen und Daten verwerfen</button></form>
   {% elif job.status == "done" %}
     <p class="muted">Der zwischengespeicherte Dateiinhalt wurde gelöscht.</p>
+    {% if job.profile == "bank" %}<a class="btn" href="{% url 'bank_list' %}">Weiter zur Zuordnung der Bankumsätze</a>{% endif %}
   {% endif %}
 </div>
 {% if report.errors %}
