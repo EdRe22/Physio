@@ -6,6 +6,8 @@ from pathlib import Path
 import font_roboto
 from fpdf import FPDF
 
+from core import logo
+
 from .models import Honorarnote, eur
 from .services import get_profile
 
@@ -55,6 +57,7 @@ def render_pdf(invoice: Honorarnote, compress=True) -> bytes:
             "email": profile.email if profile else "", "tax_no": profile.tax_no if profile else "",
             "uid": profile.uid if profile else "", "iban": profile.iban if profile else "", "bic": profile.bic if profile else "",
             "exemption_text": profile.exemption_text if profile else "", "payment_days": profile.payment_days if profile else 14,
+            "logo": profile.logo_b64 if profile else "",
         }
     recipient_name = invoice.recipient_name or invoice.patient.full_name
     recipient_address = invoice.recipient_address if invoice.is_issued else invoice.patient.address
@@ -65,7 +68,8 @@ def render_pdf(invoice: Honorarnote, compress=True) -> bytes:
     pdf.alias_nb_pages()
     pdf.add_page()
 
-    # Aussteller
+    # Aussteller (Logo oben rechts, falls vorhanden)
+    logo.draw_on_pdf(pdf, snap.get("logo", ""))
     pdf.set_font("Roboto", "B", 13)
     pdf.cell(0, 7, snap["name"], new_x="LMARGIN", new_y="NEXT")
     pdf.set_font("Roboto", "", 9.5)

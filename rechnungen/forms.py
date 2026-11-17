@@ -3,6 +3,8 @@ from decimal import Decimal, InvalidOperation
 
 from django import forms
 
+from core.logo import LogoFormMixin
+
 from .models import Leistung, Rechnungsprofil, Zahlung
 
 DATE_WIDGET = forms.DateInput(attrs={"type": "date"}, format="%Y-%m-%d")
@@ -31,11 +33,11 @@ def iban_valid(iban: str) -> bool:
     return int(digits) % 97 == 1
 
 
-class ProfilForm(forms.ModelForm):
+class ProfilForm(LogoFormMixin):
     class Meta:
         model = Rechnungsprofil
         fields = ["name", "title", "address", "phone", "email", "tax_no", "uid", "iban", "bic", "payment_days",
-                  "exemption_text", "exemption_confirmed_on"]
+                  "exemption_text", "exemption_confirmed_on"]  # Logo: siehe LogoFormMixin
         widgets = {"address": forms.Textarea(attrs={"rows": 3}), "exemption_text": forms.Textarea(attrs={"rows": 4}),
                    "exemption_confirmed_on": DATE_WIDGET}
 

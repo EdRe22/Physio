@@ -7,6 +7,7 @@ from django.utils import timezone
 from django.views.decorators.http import require_POST
 
 from audit.models import log as audit_log
+from core import logo
 from patients.views import tenant_required
 from rechnungen.services import BillingError
 
@@ -53,12 +54,18 @@ def rent_list(request):
 
 @owner_required
 def profile_edit(request):
-    form = ProfilForm(request.POST or None, instance=services.profile())
+    form = ProfilForm(request.POST or None, request.FILES or None, instance=services.profile())
     if request.method == "POST" and form.is_valid():
         form.save()
         messages.success(request, "Praxisprofil gespeichert.")
         return redirect("rent_list")
-    return render(request, "praxis/profile.html", {"form": form})
+    return render(request, "praxis/profile.html", {"form": form, "has_logo": bool(form.instance.logo_b64)})
+
+
+@owner_required
+def profile_logo(request):
+    profile = services.profile()
+    return logo.image_response(profile.logo_b64 if profile else "")
 
 
 @owner_required

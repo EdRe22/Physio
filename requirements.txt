@@ -5,6 +5,7 @@ segno
 openpyxl
 defusedxml
 fpdf2
+pillow
 fonts
 font-roboto
 # Entwicklung/Tests

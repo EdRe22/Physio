@@ -18,6 +18,7 @@ class PraxisProfil(models.Model):
     tax_text = models.CharField("Steuerhinweis", max_length=300)
     tax_confirmed_on = models.DateField("Steuerhinweis bestätigt am", null=True, blank=True)
     payment_days = models.PositiveSmallIntegerField(default=14)
+    logo_b64 = models.TextField(blank=True, default="", editable=False)  # siehe core/logo.py
 
     @property
     def ready(self):

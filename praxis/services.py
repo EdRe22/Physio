@@ -69,7 +69,8 @@ def issue(tenant, period, today=None):
     with transaction.atomic():
         if Mietabrechnung.objects.filter(tenant=tenant, period=period).exclude(status="storniert").exists():
             raise RentError("Für diesen Monat gibt es bereits eine Mietabrechnung.")
-        snapshot = json.dumps({"name": prof.name, "address": prof.address, "iban": prof.iban, "tax_text": prof.tax_text},
+        snapshot = json.dumps({"name": prof.name, "address": prof.address, "iban": prof.iban, "tax_text": prof.tax_text,
+                               "logo": prof.logo_b64},
                               ensure_ascii=False)
         invoice = Mietabrechnung.objects.create(
             tenant=tenant, lease=lease, period=period, number=_next_number(year), rent_cents=lease.rent_cents,

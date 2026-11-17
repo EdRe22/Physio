@@ -2,6 +2,7 @@ import json
 
 from fpdf import FPDF
 
+from core import logo
 from rechnungen.models import eur
 from rechnungen.pdf import _font
 
@@ -17,6 +18,7 @@ def render_pdf(invoice) -> bytes:
     pdf.add_font("Roboto", "", _font("Roboto-Regular.ttf"))
     pdf.add_font("Roboto", "B", _font("Roboto-Bold.ttf"))
     pdf.add_page()
+    logo.draw_on_pdf(pdf, issuer.get("logo", ""))
 
     def line(text, size=10, style="", h=5):
         pdf.set_font("Roboto", style, size)

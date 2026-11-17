@@ -101,7 +101,7 @@ def _issuer_snapshot(profile):
     return json.dumps({
         "name": profile.name, "title": profile.title, "address": profile.address, "phone": profile.phone,
         "email": profile.email, "tax_no": profile.tax_no, "uid": profile.uid, "iban": profile.iban, "bic": profile.bic,
-        "exemption_text": profile.exemption_text, "payment_days": profile.payment_days,
+        "exemption_text": profile.exemption_text, "payment_days": profile.payment_days, "logo": profile.logo_b64,
     }, ensure_ascii=False)
 
 

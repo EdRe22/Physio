@@ -43,6 +43,7 @@ class Rechnungsprofil(models.Model):
         "Hinweis zur Umsatzsteuerbefreiung",
         default="PLATZHALTER: Umsatzsteuerbefreite Leistung. Wortlaut und Rechtsgrundlage vom Steuerberater bestätigen lassen.",
     )
+    logo_b64 = models.TextField(blank=True, default="", editable=False)  # fertig umgerechnetes PNG, siehe core/logo.py
     exemption_confirmed_on = models.DateField(
         "Vom Steuerberater bestätigt am", null=True, blank=True,
         help_text="Ohne dieses Datum können keine Honorarnoten ausgestellt werden.",

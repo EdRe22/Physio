@@ -5,10 +5,12 @@ from django import forms
 from core.models import Tenant
 from rechnungen.forms import DATE_WIDGET, iban_valid, parse_eur
 
+from core.logo import LogoFormMixin
+
 from .models import PraxisProfil
 
 
-class ProfilForm(forms.ModelForm):
+class ProfilForm(LogoFormMixin):
     tax_confirmed_on = forms.DateField(label="Steuerhinweis bestätigt am (Steuerberater)", required=False, widget=DATE_WIDGET)
 
     class Meta:

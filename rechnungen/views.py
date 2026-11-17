@@ -6,6 +6,7 @@ from django.utils import timezone
 from django.views.decorators.http import require_POST
 
 from audit.models import log as audit_log
+from core import logo
 from patients.models import Patient
 from patients.views import tenant_required
 
@@ -29,12 +30,18 @@ def _guard(request, func, *args, ok=None, **kwargs):
 
 @tenant_required
 def profile_edit(request):
-    form = ProfilForm(request.POST or None, instance=services.get_profile())
+    form = ProfilForm(request.POST or None, request.FILES or None, instance=services.get_profile())
     if request.method == "POST" and form.is_valid():
         form.save()
         messages.success(request, "Rechnungsprofil gespeichert.")
         return redirect("invoice_list")
-    return render(request, "patients/form.html", {"form": form, "title": "Rechnungsprofil"})
+    return render(request, "rechnungen/profile.html", {"form": form, "has_logo": bool(form.instance.logo_b64)})
+
+
+@tenant_required
+def profile_logo(request):
+    profile = services.get_profile()
+    return logo.image_response(profile.logo_b64 if profile else "")
 
 
 @tenant_required

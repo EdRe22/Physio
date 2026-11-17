@@ -1,5 +1,7 @@
 # Betrieb auf dem Raspberry Pi (Produktion)
 
+Die Übergabe mit Abhakliste steht in `docs/UEBERGABE-CHECKLISTE.md`.
+
 Stand: Entwurf. Nichts davon wurde auf echter Hardware oder gegen PostgreSQL erprobt. Vor dem Echtbetrieb muss
 der Sys-Admin diese Anleitung einmal komplett durchspielen (siehe „Abnahme“).
 
@@ -129,10 +131,16 @@ Frage der Rechtsnachfolge (Erben, Berufsrecht) offen und ist rechtlich zu kläre
 
 ## 8. Benutzerverwaltung
 
-- Neues Konto: `manage.py create_tenant`, `manage.py create_therapist` und die Einrichtung des zweiten Faktors
-  **gemeinsam mit der Person**, danach sofort Passwort ändern (Menü „Passwort“).
-- Verlorenes Handy: Identität persönlich prüfen, dann `manage.py reset_2fa <benutzer>`, Faktor gemeinsam neu einrichten.
-- Vergessenes Passwort: `manage.py changepassword <benutzer>`, danach Person bitten, es zu ändern.
+Der Eigentümer verwaltet Konten selbst in der App unter „Verwaltung → Benutzer“ (nur für ihn sichtbar, ohne Patientendaten):
+
+- **Neues Konto:** „Therapeut anlegen“ erzeugt Konto, eigene Datenbank und ein Startpasswort, das **nur einmal** angezeigt wird.
+  Persönlich übergeben, den zweiten Faktor **gemeinsam mit der Person** einrichten. Bis zum Passwortwechsel ist nur die Passwortseite erreichbar.
+- **Verlorenes Handy:** Identität persönlich prüfen, dann „Zweiten Faktor zurücksetzen“, Faktor gemeinsam neu einrichten.
+- **Vergessenes Passwort:** „Neues Startpasswort erzeugen“ (beendet auch alle Sitzungen und hebt eine Sperre auf).
+- **Sperren/Freigeben** und **Ausscheiden** (siehe Abschnitt 6) ebenfalls dort. Jede Aktion steht im Protokoll.
+
+Auf der Kommandozeile bleiben für die Ersteinrichtung und für Notfälle: `create_tenant`, `create_therapist <benutzer> <kürzel> [--owner]`
+(das erste Konto des Eigentümers), `reset_2fa <benutzer>`. Der Eigentümer kann sich selbst nicht in der Verwaltung sperren oder zurücksetzen.
 
 ## 9. Raumbelegung
 
@@ -144,3 +152,11 @@ die Räume unter „Räume verwalten“ an. Die Konfliktprüfung ist durch eine 
 ## 10. Statische Dateien
 
 Die Oberfläche lädt `static/ui.js` (Formularlayout). Django liefert den Ordner `static/` selbst aus, ein eigener Webserver-Eintrag ist nicht nötig. Die Datei enthält keine Daten und ist ohne Anmeldung abrufbar. Inline-Skripte bleiben durch die Sicherheitsregeln (CSP) verboten.
+
+## 11. Logo auf Belegen
+
+Eigentümer (Miete) und jeder Therapeut (Honorarnoten) können im jeweiligen Profil ein Logo hochladen (PNG oder JPEG, höchstens 2 MB).
+Die App speichert das Bild nie unverändert: Es wird geprüft, auf höchstens 900 × 360 Pixel verkleinert, Transparenz wird weiß,
+Metadaten (z. B. Standort in Fotos) fallen weg, SVG wird abgelehnt. Das fertige Logo liegt als Text in der Datenbank (Teil der Sicherung)
+und wird beim Ausstellen in die festgeschriebenen Aussteller-Angaben des Belegs kopiert, ein späterer Logowechsel ändert ausgestellte Belege also nicht.
+Voraussetzung auf dem Server: Python-Paket `pillow` (steht in `requirements.txt`). Nach dem Einspielen dieser Version `migrate` und `migrate_tenants` ausführen.

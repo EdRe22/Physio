@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}Rechnungsprofil{% endblock %}
+{% block content %}
+<div class="card">
+  <h1>Rechnungsprofil</h1>
+  <form method="post" enctype="multipart/form-data">{% csrf_token %}
+    {{ form.non_field_errors }}
+    {% for field in form %}
+      {% if field.name == "logo" and has_logo %}
+        <label>Aktuelles Logo</label>
+        <img src="{% url 'profile_logo' %}" alt="Aktuelles Logo" style="max-width:260px;max-height:110px;border:1px solid var(--line,#d5e3e0);border-radius:10px;padding:8px;background:#fff">
+      {% endif %}
+      {% if field.name == "remove_logo" %}
+        {% if has_logo %}<label style="display:flex;gap:10px;align-items:center;font-weight:500">{{ field }} {{ field.label }}</label>{% endif %}
+      {% else %}
+        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+        {{ field }}
+        {% if field.help_text %}<span class="muted">{{ field.help_text }}</span>{% endif %}
+        {% for e in field.errors %}<div class="error">{{ e }}</div>{% endfor %}
+      {% endif %}
+    {% endfor %}
+    <button class="primary">Speichern</button>
+  </form>
+</div>
+{% endblock %}
