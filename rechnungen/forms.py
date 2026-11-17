@@ -42,7 +42,7 @@ class MahnForm(forms.ModelForm):
     class Meta:
         model = Rechnungsprofil
         fields = ["reminder_days", "reminder_days_2", "reminder_days_3", "reminder_text_1", "reminder_text_2", "reminder_text_3",
-                  "mail_text_invoice", "mail_text_reminder"]
+                  "mail_text_invoice", "mail_text_reminder", "auto_reminders"]
         widgets = {**{f"reminder_text_{i}": forms.Textarea(attrs={"rows": 6}) for i in (1, 2, 3)},
                    "mail_text_invoice": forms.Textarea(attrs={"rows": 5}), "mail_text_reminder": forms.Textarea(attrs={"rows": 5})}
 

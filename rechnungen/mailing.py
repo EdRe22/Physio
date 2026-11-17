@@ -107,3 +107,35 @@ def send_invoice(invoice):
 
 def send_reminder(reminder):
     return _send(reminder.invoice, reminder)
+
+
+AUTO_MAX_LEVEL = 2  # die letzte Mahnung (Stufe 3) wird nie automatisch versendet
+
+
+def send_auto_reminders(today=None):
+    """Erstellt und versendet fällige Zahlungserinnerungen/1. Mahnungen, nur wenn die Therapeutin/der Therapeut das aktiviert hat
+    und der Patient eingewilligt hat. Die Fristenregel gilt wie bei manueller Erstellung. Zähler ohne Personenbezug."""
+    from django.utils import timezone
+
+    today = today or timezone.localdate()
+    counts = {"sent": 0, "skipped": 0, "failed": 0}
+    profile = services.get_profile()
+    if profile is None or not profile.auto_reminders:
+        return counts
+    for invoice in services.overdue(today):
+        level, _title, blocked = services.reminder_state(invoice, today)
+        if level is None or level > AUTO_MAX_LEVEL or blocked or mail_block_reason(invoice.patient):
+            counts["skipped"] += 1
+            continue
+        try:
+            reminder = services.record_reminder(invoice, today)
+        except services.BillingError:
+            counts["skipped"] += 1
+            continue
+        audit_log("mahnung.auto", invoice)
+        try:
+            send_reminder(reminder)
+            counts["sent"] += 1
+        except MailError:
+            counts["failed"] += 1  # Mahnung ist erfasst, Versand im Protokoll; manuell nachholbar
+    return counts

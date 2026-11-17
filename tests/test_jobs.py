@@ -27,7 +27,7 @@ def test_job_runs_inside_the_app_process(alpha, beta):
 
 
 def test_all_known_jobs_run(alpha):
-    for name in ("send_reminders", "purge_imports", "verify_audit"):
+    for name in ("send_reminders", "send_auto_reminders", "purge_imports", "verify_audit"):
         assert post(name).status_code == 200, name
 
 

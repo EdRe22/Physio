@@ -140,3 +140,33 @@ def test_settings_page_saves_mail_texts(client_alpha, in_alpha):
     from rechnungen.models import Rechnungsprofil
     assert Rechnungsprofil.objects.get().mail_text_invoice == "Mein Text {nummer}"
     assert client_alpha.post("/rechnungen/mahnwesen/", {**data, "mail_text_invoice": "x" * 1501}).status_code == 200
+
+
+def test_auto_reminders_opt_in_levels_and_deadline(in_alpha):
+    invoice = issued(auto_reminders=True, reminder_days=7)
+    counts = mailing.send_auto_reminders(TODAY)
+    assert counts["sent"] == 1 and mail.outbox[0].subject.startswith("Zahlungserinnerung")
+    assert mailing.send_auto_reminders(TODAY + timedelta(days=3))["sent"] == 0  # Frist läuft
+    assert mailing.send_auto_reminders(TODAY + timedelta(days=8))["sent"] == 1
+    assert mail.outbox[1].subject.startswith("1. Mahnung")
+    assert mailing.send_auto_reminders(TODAY + timedelta(days=20))["sent"] == 0  # Stufe 3 nie automatisch
+    assert invoice.reminders.count() == 2
+
+
+def test_auto_reminders_off_by_default_and_needs_consent(in_alpha):
+    issued()
+    assert mailing.send_auto_reminders(TODAY) == {"sent": 0, "skipped": 0, "failed": 0} and mail.outbox == []
+    from rechnungen.models import Rechnungsprofil
+    Rechnungsprofil.objects.update(auto_reminders=True)
+    Einwilligung.objects.update(revoked_at=timezone.now())
+    assert mailing.send_auto_reminders(TODAY)["sent"] == 0 and mail.outbox == []
+
+
+def test_export_contains_reminders_and_mails(in_alpha):
+    from patients.export import patient_bundle
+    invoice = issued()
+    mailing.send_invoice(invoice)
+    services.record_reminder(invoice, TODAY)
+    bundle = patient_bundle(invoice.patient)
+    row = bundle["honorarnoten"][0]
+    assert row["mahnungen"][0]["stufe"] == 1 and row["email_versand"][0]["erfolgreich"] is True

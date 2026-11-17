@@ -36,7 +36,11 @@ def patient_bundle(patient) -> dict:
             for e in patient.entries.order_by("date", "id")
         ],
         "honorarnoten": [
-            {"nummer": i.number, "art": i.kind, "status": i.status, "betrag_cent": i.total_cents}
+            {"nummer": i.number, "art": i.kind, "status": i.status, "betrag_cent": i.total_cents,
+             "mahnungen": [{"stufe": r.level, "datum": _d(r.date), "offen_cent": r.open_cents, "spesen_cent": r.fee_cents,
+                            "frist": _d(r.pay_until)} for r in i.reminders.all()],
+             "email_versand": [{"gesendet_am": _d(m.sent_at), "empfaenger": m.recipient, "betreff": m.subject, "erfolgreich": m.ok}
+                               for m in i.mails.all()]}
             for i in patient.invoices.exclude(number__isnull=True)
         ],
     }

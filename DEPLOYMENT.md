@@ -85,6 +85,7 @@ Die App antwortet mit 503, bis der Eigentümer unter `https://praxis.example.at/
 | täglich 02:00 | `manage.py backup /mnt/backup/physio-$(date +%F).pbk` | verschlüsselte Gesamtsicherung (`PHYSIO_BACKUP_PASSPHRASE` aus separater Datei). Braucht den Master-Schlüssel nicht. |
 | täglich 03:00 | `curl -fsS -X POST -H "Authorization: Bearer $(cat /etc/physio.jobtoken)" http://127.0.0.1:8000/intern/job/verify_audit/` | Hash-Kette aller Mandanten prüfen |
 | täglich 07:00 | dito `.../intern/job/send_reminders/` | Terminerinnerungen |
+| täglich 07:30 | dito `.../intern/job/send_auto_reminders/` | automatische Zahlungserinnerungen/1. Mahnungen (nur bei Therapeuten, die das aktiviert haben) |
 | stündlich | dito `.../intern/job/purge_imports/` | Importreste löschen |
 | 1. des Monats | dito `.../intern/job/issue_rent/?period=JJJJ-MM` (ohne Parameter: aktueller Monat) | Mietabrechnungen |
 

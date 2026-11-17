@@ -23,6 +23,9 @@
       {{ field }}
       {% for e in field.errors %}<div class="error">{{ e }}</div>{% endfor %}
     {% endif %}{% endfor %}
+    <h2 style="margin-top:1.5rem">Automatischer Versand</h2>
+    <label style="display:flex;gap:10px;align-items:center;font-weight:500">{{ form.auto_reminders }} {{ form.auto_reminders.label }}</label>
+    <p class="muted">Wenn aktiviert, erstellt und versendet die App täglich die Zahlungserinnerung und die 1. Mahnung für überfällige Honorarnoten, aber nur an Patienten mit E-Mail-Adresse und Einwilligung und unter Beachtung der Zahlungsfrist. Die letzte Mahnung erstellen und senden Sie immer selbst. Eigene Texte und Fristen gelten dabei wie oben eingestellt. Standard: aus.</p>
     <h2 style="margin-top:1.5rem">Text der E-Mails</h2>
     <p class="muted">Gilt für den Versand per E-Mail. Der Betreff ist fest. Schreiben Sie keine Namen oder Behandlungsangaben in den Text, das PDF im Anhang enthält die Details. Der Hinweis zur Einwilligung wird automatisch angehängt.</p>
     {% for field in form %}{% if field.name == "mail_text_invoice" or field.name == "mail_text_reminder" %}

@@ -21,6 +21,7 @@ from django.views.decorators.csrf import csrf_exempt
 JOBS = {
     "verify_audit": lambda request: ("verify_audit", [], {}),
     "send_reminders": lambda request: ("send_reminders", [], {}),
+    "send_auto_reminders": lambda request: ("send_auto_reminders", [], {}),
     "purge_imports": lambda request: ("purge_imports", [], {}),
     "issue_rent": lambda request: ("issue_rent", [request.GET.get("period") or date.today().strftime("%Y-%m")], {}),
 }
