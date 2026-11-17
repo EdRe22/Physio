@@ -2,7 +2,8 @@
 {% block title %}Anmelden{% endblock %}
 {% block content %}
 <div class="card login">
-  <h1>Anmelden</h1>
+  <h1>Willkommen zurück</h1>
+  <p class="muted">Bitte melde dich mit deinem Konto an.</p>
   <form method="post">{% csrf_token %}
     {% if form.errors %}<p class="error">Benutzername oder Passwort falsch, oder das Konto ist vorübergehend gesperrt.</p>{% endif %}
     <label for="id_username">Benutzername</label>{{ form.username }}
