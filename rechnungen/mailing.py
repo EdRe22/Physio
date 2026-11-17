@@ -124,7 +124,7 @@ def send_auto_reminders(today=None):
         return counts
     for invoice in services.overdue(today):
         level, _title, blocked = services.reminder_state(invoice, today)
-        if level is None or level > AUTO_MAX_LEVEL or blocked or mail_block_reason(invoice.patient):
+        if level is None or level > min(AUTO_MAX_LEVEL, profile.auto_max_level) or blocked or mail_block_reason(invoice.patient):
             counts["skipped"] += 1
             continue
         try:

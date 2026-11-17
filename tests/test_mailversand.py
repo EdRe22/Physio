@@ -170,3 +170,20 @@ def test_export_contains_reminders_and_mails(in_alpha):
     bundle = patient_bundle(invoice.patient)
     row = bundle["honorarnoten"][0]
     assert row["mahnungen"][0]["stufe"] == 1 and row["email_versand"][0]["erfolgreich"] is True
+
+
+def test_auto_level_limit_per_therapist(in_alpha):
+    invoice = issued(auto_reminders=True, auto_max_level=1, reminder_days=7)
+    assert mailing.send_auto_reminders(TODAY)["sent"] == 1
+    assert mailing.send_auto_reminders(TODAY + timedelta(days=8))["sent"] == 0  # Stufe 2 nur manuell
+    assert invoice.reminders.count() == 1
+
+
+def test_settings_page_saves_auto_options(client_alpha, in_alpha):
+    from rechnungen.models import Rechnungsprofil
+    profile()
+    data = {"reminder_days": 7, "reminder_fee": "0", "auto_reminders": "on", "auto_max_level": "1"}
+    assert client_alpha.post("/rechnungen/mahnwesen/", data).status_code == 302
+    p = Rechnungsprofil.objects.get()
+    assert p.auto_reminders is True and p.auto_max_level == 1
+    assert client_alpha.post("/rechnungen/mahnwesen/", {**data, "auto_max_level": "3"}).status_code == 200
