@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}Notfallzugriff{% endblock %}
+{% block content %}
+<div class="card">
+  <p class="error"><strong>Notfallzugriff auf die Daten von {{ grant.target.name }}</strong>, nur lesend, bis {{ grant.expires_at|date:"d.m.Y H:i" }}.</p>
+  <h1>{{ p.first_name }} {{ p.last_name }}</h1>
+  <table>
+    <tr><th>Geburtsdatum</th><td>{{ p.birth_date }}</td></tr>
+    <tr><th>Telefon</th><td>{{ p.phone }}</td></tr>
+    <tr><th>E-Mail</th><td>{{ p.email }}</td></tr>
+  </table>
+</div>
+<div class="card">
+  <h2>Zuweisungen</h2>
+  {% for r in referrals %}<p><strong>{{ r.doctor }}</strong>{% if r.diagnosis %}, {{ r.diagnosis }}{% endif %}<br><span class="muted">ab {{ r.valid_from|date:"d.m.Y" }}{% if r.valid_until %} bis {{ r.valid_until|date:"d.m.Y" }}{% endif %}</span></p>
+  {% empty %}<p class="muted">Keine.</p>{% endfor %}
+</div>
+<div class="card">
+  <h2>Dokumentation</h2>
+  {% for entry, current in entries %}<div style="border-top:1px solid #e6e9ee;padding:8px 0"><strong>{{ entry.get_kind_display }}</strong> · {{ entry.date|date:"d.m.Y" }}<div>{{ current.text|linebreaksbr }}</div></div>
+  {% empty %}<p class="muted">Keine Einträge.</p>{% endfor %}
+</div>
+<a href="{% url 'notfall_patients' grant.pk %}">Zurück zur Liste</a>
+{% endblock %}

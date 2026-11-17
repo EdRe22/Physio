@@ -16,6 +16,10 @@ class Tenant(models.Model):
     wrapped_key = models.TextField(editable=False)
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
+    # Praxisende / Ausscheiden: gesperrt, Daten bis zum Fristende aufbewahrt, danach per Schlüsselvernichtung gelöscht.
+    offboarded_on = models.DateField(null=True, blank=True)
+    retain_until = models.DateField(null=True, blank=True)
+    purged_on = models.DateField(null=True, blank=True)
 
     def __str__(self):
         return self.name

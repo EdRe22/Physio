@@ -153,3 +153,31 @@ def patient_archive(request, pk):
     patient.save(update_fields=["archived_at", "updated_at"])
     messages.success(request, "Patient archiviert.")
     return redirect("patient_list")
+
+
+@tenant_required
+def patient_export(request, pk):
+    """Kopie der Daten eines Patienten (Auskunft/Übergabe) als ZIP."""
+    from django.http import HttpResponse
+
+    from . import export
+
+    patient = get_object_or_404(Patient, pk=pk)
+    audit_log("export.patient", patient)
+    response = HttpResponse(export.patient_zip(patient), content_type="application/zip")
+    response["Content-Disposition"] = f'attachment; filename="patient-{patient.pk}.zip"'
+    return response
+
+
+@tenant_required
+@require_POST
+def tenant_export(request):
+    """Gesamtexport aller eigenen Daten, z. B. beim Ausscheiden aus der Praxis."""
+    from django.http import HttpResponse
+
+    from . import export
+
+    audit_log("export.all", object_type="export", object_id="tenant")
+    response = HttpResponse(export.tenant_zip(), content_type="application/zip")
+    response["Content-Disposition"] = 'attachment; filename="gesamtexport.zip"'
+    return response

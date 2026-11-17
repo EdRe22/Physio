@@ -11,6 +11,7 @@
     <tr><th>E-Mail</th><td>{{ patient.email }}</td></tr>
   </table>
   <a class="btn" href="{% url 'patient_edit' patient.pk %}">Bearbeiten</a>
+  <a class="btn" href="{% url 'patient_export' patient.pk %}">Datenkopie (ZIP)</a>
   {% if not patient.archived_at %}
   <form method="post" action="{% url 'patient_archive' patient.pk %}" style="display:inline">{% csrf_token %}<button class="primary">Archivieren</button></form>
   {% else %}<p class="muted">Archiviert (gesperrt, Aufbewahrungsfrist läuft).</p>{% endif %}

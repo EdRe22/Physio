@@ -105,3 +105,21 @@ Eigentümer). Belegordner (`PHYSIO_BELEG_DIR`) ist Teil der Sicherung.
 6. [ ] Vertrag zur Auftragsverarbeitung mit dem Sys-Admin, Datenschutz-Folgenabschätzung, Verarbeitungsverzeichnis.
 7. [ ] Steuerberater hat Befreiungshinweise (Honorarnoten, Miete) schriftlich bestätigt.
 8. [ ] Penetrationstest durch Dritte.
+
+## 6. Ausscheiden und Praxisende
+
+1. Der Therapeut zieht unter „Patienten“ den **Gesamtexport** (ZIP, enthält Gesundheitsdaten im Klartext, sicher übergeben).
+2. `manage.py offboard_tenant <kürzel> --export-confirmed` (fragt die Passphrase zum Entsperren ab): sperrt Konto und Mandant,
+   beendet das Mietverhältnis, berechnet das Fristende (Dokumentation 10 Jahre, Honorarnoten/Buchhaltung 7 Jahre).
+   **Die Fristen sind nicht rechtlich bestätigt** (`praxis/offboarding.py`).
+3. Nach Fristende `manage.py purge_tenant <kürzel> --confirm <kürzel>`: löscht Datenbank, Belege und Datenschlüssel endgültig.
+   Ältere Sicherungen enthalten den Datenschlüssel (geschützt durch den Master-Schlüssel) noch. Die Löschung ist erst
+   vollständig, wenn diese Sicherungen ausgetauscht sind. Die Aufbewahrungsdauer der Sicherungen daher festlegen und dokumentieren.
+
+## 7. Notfallzugriff (Vertretung bei Ausfall)
+
+Therapeut beantragt mit Begründung, ein **anderer** Therapeut (weder Antragsteller noch Betroffener) gibt frei.
+Gilt 24 Stunden, nur lesend, jederzeit widerrufbar. Alle Schritte und Lesezugriffe stehen im Audit-Log des Betroffenen,
+der sie auch auf seiner Notfall-Seite sieht (und per E-Mail erfährt, falls eine Adresse hinterlegt ist).
+Voraussetzung: mindestens drei aktive Therapeuten. **Bei dauerhafter Abwesenheit des Betroffenen** (Tod) bleibt die
+Frage der Rechtsnachfolge (Erben, Berufsrecht) offen und ist rechtlich zu klären.

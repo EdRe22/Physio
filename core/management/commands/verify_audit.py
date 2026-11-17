@@ -10,7 +10,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **opts):
         broken = []
-        for tenant in Tenant.objects.all().order_by("slug"):
+        for tenant in Tenant.objects.filter(purged_on__isnull=True).order_by("slug"):
             with tenancy.tenant_context(tenant):
                 ok, detail = verify_chain()
             self.stdout.write(f"{tenant.slug}: {'OK' if ok else 'KETTE GEBROCHEN'}")

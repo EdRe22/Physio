@@ -44,7 +44,7 @@ def _key(passphrase: str, salt: bytes) -> bytes:
 def _db_jobs():
     """(Name im Archiv, Alias) für Praxis-DB und alle Mandanten-DBs."""
     jobs = [("default", "default")]
-    for tenant in Tenant.objects.all().order_by("slug"):
+    for tenant in Tenant.objects.filter(purged_on__isnull=True).order_by("slug"):
         jobs.append((f"tenant_{tenant.slug}", tenancy.register_db(tenant.slug)))
     return jobs
 

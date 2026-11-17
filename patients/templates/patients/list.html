@@ -20,4 +20,10 @@
   </table>
   {% else %}<p class="muted">Keine Patienten gefunden.</p>{% endif %}
 </div>
+<div class="card">
+  <form method="post" action="{% url 'tenant_export' %}">{% csrf_token %}
+    <button class="primary" style="margin:0">Gesamtexport aller meiner Daten (ZIP)</button>
+    <span class="muted">z. B. beim Ausscheiden aus der Praxis. Enthält Gesundheitsdaten im Klartext.</span>
+  </form>
+</div>
 {% endblock %}

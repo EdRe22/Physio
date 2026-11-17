@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}Notfallzugriff{% endblock %}
+{% block content %}
+<div class="card">
+  <p class="error"><strong>Notfallzugriff auf die Daten von {{ grant.target.name }}</strong>, nur lesend, bis {{ grant.expires_at|date:"d.m.Y H:i" }}. Jeder Aufruf wird protokolliert.</p>
+  <table>
+    {% for p in patients %}<tr><td><a href="{% url 'notfall_patient' grant.pk p.pk %}">{{ p.full_name }}</a></td><td>{{ p.birth_date }}</td></tr>
+    {% empty %}<tr><td class="muted">Keine Patienten.</td></tr>{% endfor %}
+  </table>
+</div>
+<a href="{% url 'notfall_index' %}">Zurück</a>
+{% endblock %}

@@ -19,7 +19,7 @@
 </head>
 <body>
 <header>
-  <span><strong>Praxis</strong>{% if user.is_authenticated %} · <a href="{% url 'patient_list' %}">Patienten</a> · <a href="{% url 'termine_week' %}">Termine</a> · <a href="{% url 'invoice_list' %}">Honorarnoten</a> · <a href="{% url 'journal' %}">Buchhaltung</a> · <a href="{% url 'rent_list' %}">Miete</a> · <a href="{% url 'import_start' %}">Import</a>{% endif %}</span>
+  <span><strong>Praxis</strong>{% if user.is_authenticated %} · <a href="{% url 'patient_list' %}">Patienten</a> · <a href="{% url 'termine_week' %}">Termine</a> · <a href="{% url 'invoice_list' %}">Honorarnoten</a> · <a href="{% url 'journal' %}">Buchhaltung</a> · <a href="{% url 'rent_list' %}">Miete</a> · <a href="{% url 'notfall_index' %}">Notfall</a> · <a href="{% url 'import_start' %}">Import</a>{% endif %}</span>
   {% if user.is_authenticated %}
   <form method="post" action="{% url 'logout' %}" style="margin:0">{% csrf_token %}{{ user.get_username }} · <button>Abmelden</button></form>
   {% endif %}
