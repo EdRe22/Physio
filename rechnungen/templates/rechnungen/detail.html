@@ -13,6 +13,7 @@
   </div>
   <div class="actions">
     <a class="btn secondary" href="{% url 'invoice_pdf' invoice.pk %}" target="_blank">PDF anzeigen</a>
+    {% if not invoice.is_draft and not mail_block %}<form method="post" action="{% url 'invoice_mail' invoice.pk %}" class="inline">{% csrf_token %}<button class="secondary">Per E-Mail senden</button></form>{% endif %}
     {% if invoice.is_draft %}
     <form method="post" action="{% url 'invoice_issue' invoice.pk %}" class="inline">{% csrf_token %}<button class="primary">Jetzt ausstellen</button></form>
     <form method="post" action="{% url 'invoice_delete' invoice.pk %}" class="inline">{% csrf_token %}<button class="secondary">Entwurf löschen</button></form>
@@ -68,9 +69,15 @@
       </form>
     </div>
     {% endif %}
+    {% if not invoice.is_draft %}
+    <div class="card"><h2>E-Mail-Versand</h2>
+      {% if mail_block %}<p class="muted">{{ mail_block }}</p>{% endif %}
+      {% for m in mails %}<div class="listrow"><span>{{ m.subject }} <span class="muted">· {{ m.sent_at|date:"d.m.Y H:i" }}</span></span><span class="badge {% if m.ok %}ok{% else %}warn{% endif %}">{% if m.ok %}gesendet{% else %}fehlgeschlagen{% endif %}</span></div>{% empty %}{% if not mail_block %}<p class="muted" style="margin-bottom:0">Noch nichts versendet.</p>{% endif %}{% endfor %}
+    </div>
+    {% endif %}
     {% if reminders or next_reminder %}
     <div class="card"><h2>Mahnwesen</h2>
-      {% for r in reminders %}<div class="listrow"><span>{{ r.level }}. Stufe <span class="muted">· {{ r.date|date:"d.m.Y" }}{% if r.pay_until %}, Frist bis {{ r.pay_until|date:"d.m.Y" }}{% endif %}</span></span><a href="{% url 'reminder_pdf' r.pk %}" target="_blank" rel="noopener">PDF</a></div>{% endfor %}
+      {% for r in reminders %}<div class="listrow"><span>{{ r.level }}. Stufe <span class="muted">· {{ r.date|date:"d.m.Y" }}{% if r.pay_until %}, Frist bis {{ r.pay_until|date:"d.m.Y" }}{% endif %}</span></span><span><a href="{% url 'reminder_pdf' r.pk %}" target="_blank" rel="noopener">PDF</a>{% if not mail_block %} <form method="post" action="{% url 'reminder_mail' r.pk %}" class="inline">{% csrf_token %}<button class="secondary">Per E-Mail senden</button></form>{% endif %}</span></div>{% endfor %}
       {% if next_reminder %}
         {% if next_reminder.blocked %}<p class="muted" style="margin-bottom:0">{{ next_reminder.blocked }}</p>
         {% else %}<form method="post" action="{% url 'reminder_add' invoice.pk %}">{% csrf_token %}<button class="secondary" style="margin-bottom:0">{{ next_reminder.title }} erstellen</button></form>{% endif %}

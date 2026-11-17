@@ -38,6 +38,7 @@ class Patient(models.Model):
 class Einwilligung(models.Model):
     class Kind(models.TextChoices):
         EMAIL_REMINDER = "email_reminder", "Terminerinnerung per E-Mail"
+        EMAIL_DOCUMENTS = "email_documents", "Honorarnoten und Mahnungen per E-Mail"
         PHOTO = "photo", "Fotos zur Dokumentation"
         TRANSFER = "transfer", "Weitergabe an Dritte"
 

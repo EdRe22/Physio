@@ -10,9 +10,9 @@ from core import logo
 from patients.models import Patient
 from patients.views import tenant_required
 
-from . import services
+from . import mailing, services
 from .forms import LeistungForm, MahnForm, PositionForm, ProfilForm, ZahlungForm
-from .models import Honorarnote, Leistung, Mahnung, Position, Rechnungsprofil, eur
+from .models import Honorarnote, Leistung, Mahnung, Versand, Position, Rechnungsprofil, eur
 from .pdf import render_pdf, render_reminder_pdf
 
 
@@ -111,6 +111,7 @@ def invoice_detail(request, pk):
     context = {
         "invoice": invoice, "positions": invoice.positions.all(), "payments": invoice.payments.all(),
         "reminders": invoice.reminders.all(), "today": timezone.localdate(),
+        "mail_block": mailing.mail_block_reason(invoice.patient), "mails": invoice.mails.all()[:10],
     }
     if invoice.status == Honorarnote.Status.AUSGESTELLT and invoice.kind == Honorarnote.Kind.RECHNUNG and bool(invoice.due_date and invoice.due_date < context["today"] and invoice.open_cents > 0):
         level, title, blocked = services.reminder_state(invoice, context["today"])
@@ -204,7 +205,7 @@ def overdue_list(request):
     rows = []
     for inv in services.overdue(today):
         level, title, blocked = services.reminder_state(inv, today)
-        rows.append({"i": inv, "days": (today - inv.due_date).days, "level": level, "title": title, "blocked": blocked,
+        rows.append({"mail_block": mailing.mail_block_reason(inv.patient), "i": inv, "days": (today - inv.due_date).days, "level": level, "title": title, "blocked": blocked,
                      "last": inv.reminders.order_by("-level").first()})
     return render(request, "rechnungen/overdue.html", {"rows": rows, "today": today})
 
@@ -219,6 +220,32 @@ def reminder_add(request, pk):
     if request.POST.get("next") == "overdue":
         return redirect("overdue_list")
     return redirect("invoice_detail", pk=pk)
+
+
+@tenant_required
+@require_POST
+def invoice_mail(request, pk):
+    invoice = get_object_or_404(Honorarnote.objects.select_related("patient"), pk=pk)
+    try:
+        mailing.send_invoice(invoice)
+        messages.success(request, "Honorarnote wurde per E-Mail versendet.")
+    except mailing.MailError as exc:
+        messages.error(request, str(exc))
+    return redirect("invoice_detail", pk=pk)
+
+
+@tenant_required
+@require_POST
+def reminder_mail(request, pk):
+    reminder = get_object_or_404(Mahnung.objects.select_related("invoice__patient"), pk=pk)
+    try:
+        mailing.send_reminder(reminder)
+        messages.success(request, "Schreiben wurde per E-Mail versendet.")
+    except mailing.MailError as exc:
+        messages.error(request, str(exc))
+    if request.POST.get("next") == "overdue":
+        return redirect("overdue_list")
+    return redirect("invoice_detail", pk=reminder.invoice_id)
 
 
 @tenant_required

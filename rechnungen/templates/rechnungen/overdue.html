@@ -18,7 +18,8 @@
       <td class="num">{{ r.i.open_eur }}</td>
       <td>{% if r.last %}<span class="badge warn">{{ r.last.level }}. Stufe</span> <span class="muted">Frist bis {{ r.last.pay_until|date:"d.m.Y" }}</span>{% else %}<span class="muted">noch keine Erinnerung</span>{% endif %}</td>
       <td>
-        {% if r.last %}<a class="btn secondary" href="{% url 'reminder_pdf' r.last.pk %}" target="_blank" rel="noopener">PDF</a>{% endif %}
+        {% if r.last %}<a class="btn secondary" href="{% url 'reminder_pdf' r.last.pk %}" target="_blank" rel="noopener">PDF</a>
+        {% if not r.mail_block %}<form method="post" action="{% url 'reminder_mail' r.last.pk %}" class="inline">{% csrf_token %}<input type="hidden" name="next" value="overdue"><button class="secondary">Per E-Mail</button></form>{% endif %}{% endif %}
         {% if r.level and not r.blocked %}
         <form method="post" action="{% url 'reminder_add' r.i.pk %}" class="inline">{% csrf_token %}<input type="hidden" name="next" value="overdue"><button class="secondary">{{ r.title }} erstellen</button></form>
         {% elif r.blocked %}<span class="muted" style="font-size:.85rem">{{ r.blocked }}</span>{% endif %}

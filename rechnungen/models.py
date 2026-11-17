@@ -269,3 +269,16 @@ class Mahnung(_Immutable):
 
     def __str__(self):
         return f"Mahnung {self.pk}"
+
+
+class Versand(_Immutable):
+    """Protokoll eines E-Mail-Versands (Honorarnote oder Mahnung). Unveränderlich, Empfänger verschlüsselt."""
+    invoice = models.ForeignKey(Honorarnote, on_delete=models.PROTECT, related_name="mails")
+    reminder = models.ForeignKey(Mahnung, on_delete=models.PROTECT, null=True, blank=True, related_name="mails")
+    sent_at = models.DateTimeField(auto_now_add=True)
+    recipient = EncryptedTextField(blank=True, default="")
+    subject = models.CharField(max_length=200)
+    ok = models.BooleanField(default=True)
+
+    class Meta:
+        ordering = ["-sent_at", "-id"]
