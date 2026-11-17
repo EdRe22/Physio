@@ -48,10 +48,11 @@ INSTALLED_APPS = [
     "patients",
     "termine",
     "importer",
+    "rechnungen",
 ]
 
 # Diese Apps liegen ausschließlich in der Mandanten-Datenbank des jeweiligen Therapeuten.
-TENANT_APP_LABELS = {"audit", "patients", "termine", "importer"}
+TENANT_APP_LABELS = {"audit", "patients", "termine", "importer", "rechnungen"}
 
 # Uploads bleiben im Arbeitsspeicher und landen nie unverschlüsselt als Temp-Datei auf der Platte.
 FILE_UPLOAD_HANDLERS = ["django.core.files.uploadhandler.MemoryFileUploadHandler"]

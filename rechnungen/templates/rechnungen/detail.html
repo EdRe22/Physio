@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block title %}Honorarnote{% endblock %}
+{% block content %}
+<div class="card">
+  <h1>{% if invoice.kind == "storno" %}Stornorechnung{% else %}Honorarnote{% endif %} {{ invoice.number|default:"(Entwurf)" }}</h1>
+  <p>Patient: <a href="{% url 'patient_detail' invoice.patient_id %}">{{ invoice.patient.full_name }}</a> · Status: <strong>{{ invoice.get_status_display }}</strong>
+     {% if invoice.issue_date %}· Datum {{ invoice.issue_date|date:"d.m.Y" }}{% endif %}
+     {% if invoice.due_date %}· fällig {{ invoice.due_date|date:"d.m.Y" }}{% endif %}</p>
+  {% if invoice.cancels_id %}<p class="muted">Storno zu Honorarnote {{ invoice.cancels.number }}.</p>{% endif %}
+  {% if invoice.cancelled_by %}<p class="muted">Storniert durch {{ invoice.cancelled_by.number }}.</p>{% endif %}
+  <table>
+    <tr><th>Datum</th><th>Leistung</th><th>Menge</th><th>Einzelpreis</th><th>Betrag</th><th></th></tr>
+    {% for p in positions %}
+    <tr><td>{{ p.date|date:"d.m.Y" }}</td><td>{{ p.description }}</td><td>{{ p.quantity|floatformat:"-2" }}</td><td>{{ p.unit_price_eur }}</td><td>{{ p.total_eur }}</td>
+      <td>{% if invoice.is_draft %}<form method="post" action="{% url 'position_delete' invoice.pk p.pk %}">{% csrf_token %}<button class="primary" style="margin:0; padding:2px 8px">entfernen</button></form>{% endif %}</td></tr>
+    {% empty %}<tr><td colspan="6" class="muted">Keine Positionen.</td></tr>{% endfor %}
+    <tr><th colspan="4" style="text-align:right">Gesamtbetrag</th><th>{{ invoice.total_eur }}</th><th></th></tr>
+  </table>
+  <a class="btn" href="{% url 'invoice_pdf' invoice.pk %}" target="_blank">PDF anzeigen</a>
+  {% if invoice.is_draft %}
+  <form method="post" action="{% url 'invoice_issue' invoice.pk %}" style="display:inline">{% csrf_token %}<button class="primary">Jetzt ausstellen</button></form>
+  <form method="post" action="{% url 'invoice_delete' invoice.pk %}" style="display:inline">{% csrf_token %}<button class="primary" style="background:#6b7280">Entwurf löschen</button></form>
+  <p class="muted">Nach dem Ausstellen ist die Honorarnote unveränderlich und bekommt ihre fortlaufende Nummer. Korrekturen sind nur per Storno möglich.</p>
+  {% endif %}
+  {% if invoice.status == "ausgestellt" or invoice.status == "bezahlt" %}{% if invoice.kind == "rechnung" %}
+  <form method="post" action="{% url 'invoice_storno' invoice.pk %}" style="display:inline">{% csrf_token %}<button class="primary" style="background:#a4161a">Stornieren</button></form>
+  {% endif %}{% endif %}
+</div>
+
+{% if invoice.is_draft %}
+<div class="card">
+  <h2>Position hinzufügen</h2>
+  <form method="post" action="{% url 'position_add' invoice.pk %}">{% csrf_token %}
+    {% for field in position_form %}<label for="{{ field.id_for_label }}">{{ field.label }}</label>{{ field }}{% endfor %}
+    <button class="primary">Hinzufügen</button>
+  </form>
+</div>
+{% endif %}
+
+{% if invoice.kind == "rechnung" and not invoice.is_draft %}
+<div class="card">
+  <h2>Zahlungen</h2>
+  {% for pay in payments %}<p>{{ pay.date|date:"d.m.Y" }}: {{ pay.amount_eur }} ({{ pay.get_method_display }})</p>{% empty %}<p class="muted">Noch keine Zahlung.</p>{% endfor %}
+  <p>Offen: <strong>{{ invoice.open_eur }}</strong></p>
+  {% if payment_form %}
+  <form method="post" action="{% url 'payment_add' invoice.pk %}">{% csrf_token %}
+    {% for field in payment_form %}<label for="{{ field.id_for_label }}">{{ field.label }}</label>{{ field }}{% endfor %}
+    <button class="primary">Zahlung erfassen</button>
+  </form>
+  {% endif %}
+  {% if reminders %}<h3>Mahnungen</h3>{% for r in reminders %}<p>Stufe {{ r.level }} am {{ r.date|date:"d.m.Y" }}</p>{% endfor %}{% endif %}
+</div>
+{% endif %}
+{% endblock %}

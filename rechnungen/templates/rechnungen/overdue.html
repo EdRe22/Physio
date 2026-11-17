@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}Überfällige Honorarnoten{% endblock %}
+{% block content %}
+<div class="card">
+  <h1>Überfällige Honorarnoten</h1>
+  <p class="muted">Hier hältst du fest, dass du erinnert oder gemahnt hast (Stufe 1 bis 3). Die Mahnschreiben selbst erstellst du außerhalb der App.</p>
+  {% if invoices %}
+  <table>
+    <tr><th>Nr.</th><th>Patient</th><th>Fällig seit</th><th>Offen</th><th>Mahnstufe</th><th></th></tr>
+    {% for i in invoices %}
+    <tr><td><a href="{% url 'invoice_detail' i.pk %}">{{ i.number }}</a></td><td>{{ i.patient.full_name }}</td><td>{{ i.due_date|date:"d.m.Y" }}</td><td>{{ i.open_eur }}</td>
+      <td>{{ i.reminders.count }}</td>
+      <td><form method="post" action="{% url 'reminder_add' i.pk %}">{% csrf_token %}<input type="hidden" name="next" value="overdue"><button class="primary" style="margin:0; padding:2px 8px">Mahnung erfassen</button></form></td></tr>
+    {% endfor %}
+  </table>
+  {% else %}<p class="muted">Keine überfälligen Honorarnoten.</p>{% endif %}
+</div>
+{% endblock %}

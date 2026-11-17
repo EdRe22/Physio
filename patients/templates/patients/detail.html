@@ -40,6 +40,14 @@
 </div>
 
 <div class="card">
+  <h2>Honorarnoten</h2>
+  {% for i in patient.invoices.all %}
+  <p><a href="{% url 'invoice_detail' i.pk %}">{{ i.number|default:"Entwurf" }}</a>{% if i.kind == "storno" %} (Storno){% endif %} · {{ i.total_eur }} · {{ i.get_status_display }}</p>
+  {% empty %}<p class="muted">Noch keine Honorarnote.</p>{% endfor %}
+  <a class="btn" href="{% url 'invoice_new' patient.pk %}">Neue Honorarnote</a>
+</div>
+
+<div class="card">
   <h2>Einwilligungen</h2>
   {% for kind, label, active in consents %}
   <form method="post" style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid #e6e9ee; padding:6px 0"

@@ -11,7 +11,11 @@ Konzept: `Konzept WebApp Physio-Praxisgemeinschaft.docx` (bzw. Claude Doc). Stac
 | 2 Modul B | Terminkalender pro Therapeut (Woche), Serientermine, Überschneidungsprüfung, E-Mail-Erinnerung (`send_reminders`, nur mit Einwilligung, ohne Gesundheitsdaten) | fertig, getestet |
 | 2 Rest | Dokumenten-Upload (Befunde, Fotos), Raumbelegung (gemeinsam, mit Modul E) | offen |
 | 3 Import | Excel/CSV-Import für Patientenstamm und Dokumentation: Spaltenzuordnung, Trockenlauf, Dublettenprüfung, Protokoll ohne Zellwerte, Datei wird nie gespeichert | fertig, getestet |
-| 4-6 | Honorarnoten, Bankimport, Buchhaltung, Praxisbereich/Miete, Vertretung, Go-Live | offen |
+| 4a Honorarnoten | Leistungskatalog, Honorarnoten aus Behandlungen oder frei, fortlaufende lückenlose Nummer pro Jahr, Unveränderlichkeit nach dem Ausstellen, Storno, Zahlungen, Mahnstufen, PDF | fertig, getestet |
+| 4b | Bankimport und Zahlungsabgleich, Buchhaltung (E/A), Belege, Steuerberater-Export | offen |
+| 5-6 | Praxisbereich/Miete, Vertretung, Go-Live | offen |
+
+**Honorarnoten: Ausstellen ist gesperrt**, bis im Rechnungsprofil das Datum „vom Steuerberater bestätigt“ gesetzt ist. Der Platzhaltertext für die Umsatzsteuerbefreiung wird abgelehnt. Das PDF wird bei Bedarf aus den festgeschriebenen Daten erzeugt und nicht gespeichert (Schrift Roboto aus dem Paket `font-roboto`).
 
 Import: `/import/`. Liegengebliebene Zwischendaten verwirft `python manage.py purge_imports` (täglich per Timer). Grenzen: 5 MB, 5000 Zeilen, 30 Spalten, Formeln werden nicht ausgewertet.
 

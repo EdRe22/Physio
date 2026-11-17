@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}Neue Honorarnote{% endblock %}
+{% block content %}
+<div class="card">
+  <h1>Neue Honorarnote für {{ patient.full_name }}</h1>
+  <form method="post">{% csrf_token %}
+    <h2>Noch nicht abgerechnete Behandlungen</h2>
+    {% for e in entries %}
+    <label style="font-weight:400"><input type="checkbox" name="entries" value="{{ e.pk }}" style="width:auto" checked> {{ e.date|date:"d.m.Y" }}</label>
+    {% empty %}<p class="muted">Keine offenen Behandlungen. Du kannst trotzdem einen leeren Entwurf anlegen und Positionen frei erfassen.</p>{% endfor %}
+    <label for="leistung">Leistung für die gewählten Behandlungen</label>
+    <select id="leistung" name="leistung">
+      <option value="">– wählen –</option>
+      {% for l in leistungen %}<option value="{{ l.pk }}">{{ l.name }} ({{ l.price_eur }})</option>{% endfor %}
+    </select>
+    <button class="primary">Entwurf anlegen</button>
+  </form>
+</div>
+<a href="{% url 'patient_detail' patient.pk %}">Zurück zum Patienten</a>
+{% endblock %}

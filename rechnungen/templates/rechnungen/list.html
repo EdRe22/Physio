@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}Honorarnoten{% endblock %}
+{% block content %}
+<div class="card">
+  <h1>Honorarnoten</h1>
+  {% if not profile_ready %}
+  <p class="error">Honorarnoten können erst ausgestellt werden, wenn das <a href="{% url 'profile_edit' %}">Rechnungsprofil</a> vollständig ist und der Hinweis zur Umsatzsteuerbefreiung vom Steuerberater bestätigt wurde.</p>
+  {% endif %}
+  <p>Offen insgesamt: <strong>{{ open_total }}</strong></p>
+  <a href="{% url 'profile_edit' %}">Rechnungsprofil</a> · <a href="{% url 'leistung_list' %}">Leistungskatalog</a> · <a href="{% url 'overdue_list' %}">Überfällige</a>
+  <form method="get" style="margin-top:8px"><select name="status" onchange="this.form.submit()" aria-label="Status" style="width:auto">
+    <option value="">Alle</option>{% for value, label in statuses %}<option value="{{ value }}" {% if value == status %}selected{% endif %}>{{ label }}</option>{% endfor %}
+  </select></form>
+</div>
+<div class="card">
+  {% if invoices %}
+  <table>
+    <tr><th>Nr.</th><th>Datum</th><th>Patient</th><th>Betrag</th><th>Status</th></tr>
+    {% for i in invoices %}
+    <tr><td><a href="{% url 'invoice_detail' i.pk %}">{{ i.number|default:"Entwurf" }}</a>{% if i.kind == "storno" %} (Storno){% endif %}</td>
+        <td>{{ i.issue_date|date:"d.m.Y" }}</td><td>{{ i.patient.full_name }}</td><td>{{ i.total_eur }}</td><td>{{ i.get_status_display }}</td></tr>
+    {% endfor %}
+  </table>
+  {% else %}<p class="muted">Noch keine Honorarnoten. Neue Honorarnoten legst du beim Patienten an.</p>{% endif %}
+</div>
+{% endblock %}

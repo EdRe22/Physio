@@ -4,6 +4,10 @@ django-otp
 segno
 openpyxl
 defusedxml
+fpdf2
+fonts
+font-roboto
 # Entwicklung/Tests
 pytest
 pytest-django
+pypdf
