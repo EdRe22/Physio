@@ -15,7 +15,7 @@ from .models import BankTransaktion, Beleg, Buchung, Kategorie
 
 def _year(request):
     try:
-        return int(request.GET.get("jahr", ""))
+        return min(max(int(request.GET.get("jahr", "")), 2000), 2100)
     except ValueError:
         return timezone.localdate().year
 

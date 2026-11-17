@@ -1,5 +1,7 @@
 import segno
 from django.contrib.auth import logout
+from django.contrib.auth.views import PasswordChangeView
+from django.urls import reverse_lazy
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect, render
 from django.utils.safestring import mark_safe
@@ -9,6 +11,7 @@ from django_otp.plugins.otp_totp.models import TOTPDevice
 
 from audit.models import log as audit_log
 from core import tenancy
+from core.net import client_ip
 
 
 def _audit_login(request, action):
@@ -16,7 +19,7 @@ def _audit_login(request, action):
     user = request.user
     if not user.tenant_id:
         return
-    actor = tenancy.Actor(user.pk, user.get_username(), request.META.get("REMOTE_ADDR", ""))
+    actor = tenancy.Actor(user.pk, user.get_username(), client_ip(request))
     with tenancy.tenant_context(user.tenant, actor):
         audit_log(action)
 
@@ -34,6 +37,7 @@ def otp_verify(request):
         token = request.POST.get("token", "").strip().replace(" ", "")
         if device.verify_token(token):
             otp_login(request, device)
+            request.session.cycle_key()  # neue Session-ID nach Erhöhung der Vertrauensstufe
             _audit_login(request, "auth.login")
             return redirect("patient_list")
         error = "Code ungültig oder zu viele Versuche. Bitte kurz warten und erneut versuchen."
@@ -54,6 +58,7 @@ def otp_setup(request):
             device.confirmed = True
             device.save()
             otp_login(request, device)
+            request.session.cycle_key()
             _audit_login(request, "auth.2fa_enabled")
             return redirect("patient_list")
         error = "Code ungültig. Bitte erneut versuchen."
@@ -62,6 +67,18 @@ def otp_setup(request):
 
     secret = b32encode(device.bin_key).decode()
     return render(request, "accounts/otp_setup.html", {"qr": qr, "secret": secret, "error": error})
+
+
+class PasswordChange(PasswordChangeView):
+    """Passwortwechsel (nur mit bestätigtem zweitem Faktor erreichbar, Regeln aus AUTH_PASSWORD_VALIDATORS)."""
+
+    template_name = "accounts/password_change.html"
+    success_url = reverse_lazy("patient_list")
+
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        _audit_login(self.request, "auth.password_changed")
+        return response
 
 
 @require_POST

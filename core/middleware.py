@@ -3,6 +3,7 @@ from django.shortcuts import redirect
 from django.urls import reverse
 
 from . import tenancy
+from .net import client_ip
 
 
 class SecurityHeadersMiddleware:
@@ -57,7 +58,7 @@ class TenantMiddleware:
             tenant = user.tenant
             if not tenant.is_active:
                 return HttpResponseForbidden("Mandant deaktiviert.")
-            actor = tenancy.Actor(user_id=user.pk, label=user.get_username(), ip=request.META.get("REMOTE_ADDR", ""))
+            actor = tenancy.Actor(user_id=user.pk, label=user.get_username(), ip=client_ip(request))
             with tenancy.tenant_context(tenant, actor):
                 return self.get_response(request)
         return self.get_response(request)

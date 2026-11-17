@@ -8,7 +8,9 @@ der Sys-Admin diese Anleitung einmal komplett durchspielen (siehe „Abnahme“)
 - Raspberry Pi 5, 64-Bit-OS, automatische Sicherheitsupdates, SSH nur mit Schlüssel.
 - **Festplattenverschlüsselung (LUKS)** für Datenpartition und Sicherungsziel. Schlüssel nicht auf dem Gerät.
 - Erreichbar nur über **VPN** (z. B. WireGuard). Kein Port der App im Internet. Firewall: nur VPN und SSH.
-- Reverse-Proxy (nginx) beendet TLS, setzt `X-Forwarded-Proto` und leitet an `127.0.0.1:8000`.
+- Reverse-Proxy (nginx) beendet TLS und leitet an `127.0.0.1:8000`. Er MUSS `proxy_set_header X-Forwarded-For $remote_addr;`
+  (überschreiben, nicht anhängen) und `X-Forwarded-Proto` setzen, sonst ist die IP im Audit-Log fälschbar.
+- fail2ban auf die Anmeldeseite (die App sperrt nur pro Konto, nicht pro IP).
 - Uhr per NTP synchron halten (Audit-Zeitstempel, Fristen).
 
 ## 2. Datenbank (PostgreSQL)
@@ -48,6 +50,7 @@ PHYSIO_ALLOWED_HOSTS=praxis.example.at
 PHYSIO_DB_ENGINE=postgres
 PHYSIO_DB_USER=physio_app
 PHYSIO_DB_PASSWORD=...
+PHYSIO_TRUST_PROXY=1                                 # echte Client-IP aus X-Forwarded-For (nginx auf Loopback)
 PHYSIO_KEYFILE=/opt/physio/keys/master.sealed      # versiegelter Master-Schlüssel
 PHYSIO_BELEG_DIR=/srv/physio/belege
 PHYSIO_EMAIL_...                                    # SMTP für Terminerinnerungen
@@ -123,3 +126,10 @@ Gilt 24 Stunden, nur lesend, jederzeit widerrufbar. Alle Schritte und Lesezugrif
 der sie auch auf seiner Notfall-Seite sieht (und per E-Mail erfährt, falls eine Adresse hinterlegt ist).
 Voraussetzung: mindestens drei aktive Therapeuten. **Bei dauerhafter Abwesenheit des Betroffenen** (Tod) bleibt die
 Frage der Rechtsnachfolge (Erben, Berufsrecht) offen und ist rechtlich zu klären.
+
+## 8. Benutzerverwaltung
+
+- Neues Konto: `manage.py create_tenant`, `manage.py create_therapist` und die Einrichtung des zweiten Faktors
+  **gemeinsam mit der Person**, danach sofort Passwort ändern (Menü „Passwort“).
+- Verlorenes Handy: Identität persönlich prüfen, dann `manage.py reset_2fa <benutzer>`, Faktor gemeinsam neu einrichten.
+- Vergessenes Passwort: `manage.py changepassword <benutzer>`, danach Person bitten, es zu ändern.

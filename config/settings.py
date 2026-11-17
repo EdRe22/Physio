@@ -38,6 +38,7 @@ if not DEV and PHYSIO_MASTER_KEY_B64 and not PHYSIO_KEYFILE and os.environ.get("
         "(oder bewusst PHYSIO_ALLOW_ENV_KEY=1, nicht empfohlen)."
     )
 
+PHYSIO_TRUST_PROXY = os.environ.get("PHYSIO_TRUST_PROXY") == "1"  # nginx auf Loopback setzt X-Forwarded-For (siehe core/net.py)
 PHYSIO_JOB_TOKEN = os.environ.get("PHYSIO_JOB_TOKEN", "")  # Cron-Schnittstelle, siehe core/jobs.py
 
 DATA_DIR = Path(os.environ.get("PHYSIO_DATA_DIR", BASE_DIR / "data"))

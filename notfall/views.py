@@ -6,6 +6,7 @@ from django.views.decorators.http import require_POST
 
 from audit.models import log as audit_log
 from core import tenancy
+from core.net import client_ip
 from core.models import Tenant
 from patients.models import Patient
 from patients.views import tenant_required
@@ -78,7 +79,7 @@ def _grant_or_404(request, pk):
 @tenant_required
 def patients(request, pk):
     grant = _grant_or_404(request, pk)
-    actor = tenancy.Actor(user_id=request.user.pk, label=f"notfall:{request.user.get_username()}", ip=request.META.get("REMOTE_ADDR", ""))
+    actor = tenancy.Actor(user_id=request.user.pk, label=f"notfall:{request.user.get_username()}", ip=client_ip(request))
     with tenancy.tenant_context(grant.target, actor):
         audit_log("notfall.list", object_type="notfall", object_id=str(grant.pk))
         rows = sorted(Patient.objects.filter(archived_at__isnull=True), key=lambda p: p.full_name.casefold())
@@ -88,7 +89,7 @@ def patients(request, pk):
 @tenant_required
 def patient(request, pk, patient_pk):
     grant = _grant_or_404(request, pk)
-    actor = tenancy.Actor(user_id=request.user.pk, label=f"notfall:{request.user.get_username()}", ip=request.META.get("REMOTE_ADDR", ""))
+    actor = tenancy.Actor(user_id=request.user.pk, label=f"notfall:{request.user.get_username()}", ip=client_ip(request))
     with tenancy.tenant_context(grant.target, actor):
         pat = get_object_or_404(Patient, pk=patient_pk)
         audit_log("notfall.read", pat)
