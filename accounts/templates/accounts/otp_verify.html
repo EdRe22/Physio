@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}Zweiter Faktor{% endblock %}
+{% block content %}
+<div class="card">
+  <h1>Bestätigungscode</h1>
+  <p class="muted">Gib den 6-stelligen Code aus deiner Authenticator-App ein.</p>
+  <form method="post">{% csrf_token %}
+    {% if error %}<p class="error">{{ error }}</p>{% endif %}
+    <label for="token">Code</label>
+    <input id="token" name="token" inputmode="numeric" autocomplete="one-time-code" autofocus>
+    <button class="primary">Bestätigen</button>
+  </form>
+</div>
+{% endblock %}

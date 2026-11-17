@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{% block title %}Praxis{% endblock %}</title>
+<style>
+  body { font: 16px/1.5 system-ui, sans-serif; margin: 0; color: #1c2430; background: #f6f7f9; }
+  header { background: #1f3a5f; color: #fff; padding: 12px 24px; display: flex; justify-content: space-between; align-items: center; }
+  header a, header button { color: #fff; background: none; border: 0; font: inherit; cursor: pointer; text-decoration: underline; }
+  main { max-width: 860px; margin: 24px auto; padding: 0 16px; }
+  .card { background: #fff; border: 1px solid #dde1e7; border-radius: 8px; padding: 16px 20px; margin-bottom: 16px; }
+  label { display: block; font-weight: 600; margin-top: 12px; }
+  input, select, textarea { width: 100%; box-sizing: border-box; padding: 8px; border: 1px solid #b9c0cc; border-radius: 6px; font: inherit; }
+  button.primary, a.btn { background: #1f3a5f; color: #fff; border: 0; border-radius: 6px; padding: 8px 16px; cursor: pointer; text-decoration: none; display: inline-block; margin-top: 16px; font: inherit; }
+  .error { color: #a4161a; } .muted { color: #5b6573; }
+  table { width: 100%; border-collapse: collapse; } td, th { text-align: left; padding: 8px; border-bottom: 1px solid #e6e9ee; }
+</style>
+</head>
+<body>
+<header>
+  <strong>Praxis · Patientenverwaltung</strong>
+  {% if user.is_authenticated %}
+  <form method="post" action="{% url 'logout' %}" style="margin:0">{% csrf_token %}{{ user.get_username }} · <button>Abmelden</button></form>
+  {% endif %}
+</header>
+<main>
+{% for message in messages %}<div class="card">{{ message }}</div>{% endfor %}
+{% block content %}{% endblock %}
+</main>
+</body>
+</html>

@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}Anmelden{% endblock %}
+{% block content %}
+<div class="card">
+  <h1>Anmelden</h1>
+  <form method="post">{% csrf_token %}
+    {% if form.errors %}<p class="error">Benutzername oder Passwort falsch, oder das Konto ist vorübergehend gesperrt.</p>{% endif %}
+    <label for="id_username">Benutzername</label>{{ form.username }}
+    <label for="id_password">Passwort</label>{{ form.password }}
+    <input type="hidden" name="next" value="{{ next }}">
+    <button class="primary">Weiter</button>
+  </form>
+</div>
+{% endblock %}

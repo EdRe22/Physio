@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}Zweiten Faktor einrichten{% endblock %}
+{% block content %}
+<div class="card">
+  <h1>Zweiten Faktor einrichten</h1>
+  <p>Scanne den QR-Code mit einer Authenticator-App und gib danach den angezeigten Code ein.</p>
+  <div>{{ qr }}</div>
+  <p class="muted">Kann der Code nicht gescannt werden, gib diesen Schlüssel manuell ein: <code>{{ secret }}</code></p>
+  <form method="post">{% csrf_token %}
+    {% if error %}<p class="error">{{ error }}</p>{% endif %}
+    <label for="token">Code</label>
+    <input id="token" name="token" inputmode="numeric" autocomplete="one-time-code">
+    <button class="primary">Einrichten</button>
+  </form>
+</div>
+{% endblock %}

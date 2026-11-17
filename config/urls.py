@@ -1,0 +1,8 @@
+from django.shortcuts import redirect
+from django.urls import include, path
+
+urlpatterns = [
+    path("", lambda request: redirect("patient_list")),
+    path("", include("accounts.urls")),
+    path("patients/", include("patients.urls")),
+]

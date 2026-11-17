@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}Patienten{% endblock %}
+{% block content %}
+<div class="card">
+  <h1>Patienten</h1>
+  <form method="get" style="display:flex; gap:8px">
+    <input name="q" value="{{ q }}" placeholder="Name suchen" aria-label="Name suchen">
+    <label style="margin:0; white-space:nowrap; font-weight:400"><input type="checkbox" name="archiviert" value="1" style="width:auto" {% if archived %}checked{% endif %}> auch archivierte</label>
+    <button class="primary" style="margin:0">Suchen</button>
+  </form>
+  <a class="btn" href="{% url 'patient_create' %}">Neuer Patient</a>
+</div>
+<div class="card">
+  {% if patients %}
+  <table>
+    <tr><th>Name</th><th>Geburtsdatum</th><th></th></tr>
+    {% for p in patients %}
+    <tr><td><a href="{% url 'patient_detail' p.pk %}">{{ p.full_name }}</a></td><td>{{ p.birth_date }}</td><td class="muted">{% if p.archived_at %}archiviert{% endif %}</td></tr>
+    {% endfor %}
+  </table>
+  {% else %}<p class="muted">Keine Patienten gefunden.</p>{% endif %}
+</div>
+{% endblock %}

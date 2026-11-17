@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}Patient{% endblock %}
+{% block content %}
+<div class="card">
+  <h1>{{ patient.first_name }} {{ patient.last_name }}</h1>
+  <table>
+    <tr><th>Geburtsdatum</th><td>{{ patient.birth_date }}</td></tr>
+    <tr><th>Versicherung</th><td>{{ patient.insurer }} {{ patient.insurance_no }}</td></tr>
+    <tr><th>Adresse</th><td>{{ patient.address|linebreaksbr }}</td></tr>
+    <tr><th>Telefon</th><td>{{ patient.phone }}</td></tr>
+    <tr><th>E-Mail</th><td>{{ patient.email }}</td></tr>
+  </table>
+  <a class="btn" href="{% url 'patient_edit' patient.pk %}">Bearbeiten</a>
+  {% if not patient.archived_at %}
+  <form method="post" action="{% url 'patient_archive' patient.pk %}" style="display:inline">{% csrf_token %}<button class="primary">Archivieren</button></form>
+  {% else %}<p class="muted">Archiviert (gesperrt, Aufbewahrungsfrist läuft).</p>{% endif %}
+</div>
+<div class="card">
+  <h2>Einwilligungen</h2>
+  {% for c in consents %}<p>{{ c.get_kind_display }}: seit {{ c.granted_at|date:"d.m.Y" }}{% if c.revoked_at %}, widerrufen am {{ c.revoked_at|date:"d.m.Y" }}{% endif %}</p>
+  {% empty %}<p class="muted">Keine Einwilligungen erfasst.</p>{% endfor %}
+</div>
+<a href="{% url 'patient_list' %}">Zurück zur Liste</a>
+{% endblock %}
