@@ -10,6 +10,8 @@ from django.views.decorators.http import require_POST
 from audit.models import log as audit_log
 from core import tenancy
 from patients.views import tenant_required
+from raeume import services as room_services
+from raeume.models import Raumbelegung
 
 from .forms import TerminForm
 from .models import Termin
@@ -46,9 +48,21 @@ def termin_create(request):
     form = TerminForm(request.POST or None, initial=initial)
     if request.method == "POST" and form.is_valid():
         data = form.cleaned_data
-        with transaction.atomic(using=tenancy.require().alias):
-            for start in form.starts:
-                Termin.objects.create(patient=data["patient"], start=start, duration_min=data["duration_min"])
+        room, booked = data.get("room"), []
+        try:
+            with transaction.atomic(using=tenancy.require().alias):
+                for start in form.starts:
+                    termin = Termin.objects.create(patient=data["patient"], start=start, duration_min=data["duration_min"])
+                    if room:
+                        booking = room_services.book(request.user.tenant, room, start, termin.end, kind=Raumbelegung.Kind.TERMIN)
+                        booked.append(booking)
+                        termin.room_booking_id = booking.pk
+                        termin.save(update_fields=["room_booking_id"])
+        except room_services.RoomError as exc:
+            for booking in booked:  # Ausgleich: Termine wurden zurückgerollt, also auch die schon gebuchten Räume freigeben
+                room_services.release(booking.pk)
+            form.add_error(None, str(exc))
+            return render(request, "patients/form.html", {"form": form, "title": "Neuer Termin"})
         messages.success(request, f"{len(form.starts)} Termin(e) angelegt.")
         return redirect(f"/termine/?start={form.starts[0].date().isoformat()}")
     return render(request, "patients/form.html", {"form": form, "title": "Neuer Termin"})
@@ -66,6 +80,12 @@ def termin_edit(request, pk):
     if request.method == "POST" and form.is_valid():
         termin.start = form.starts[0]
         termin.duration_min = form.cleaned_data["duration_min"]
+        if termin.room_booking_id:  # Raum mitverschieben; bei Konflikt bleibt alles unverändert
+            try:
+                room_services.move(termin.room_booking_id, request.user.tenant, termin.start, termin.end)
+            except room_services.RoomError as exc:
+                form.add_error(None, str(exc))
+                return render(request, "patients/form.html", {"form": form, "title": "Termin ändern"})
         termin.reminder_sent_at = termin.reminder_failed_at = None  # neue Zeit, neue Erinnerung
         termin.save()
         messages.success(request, "Termin geändert.")
@@ -81,6 +101,15 @@ def termin_status(request, pk):
     if new not in Termin.Status.values:
         messages.error(request, "Unbekannter Status.")
     else:
+        gone = (Termin.Status.ABGESAGT, Termin.Status.NICHT_ERSCHIENEN)
+        if termin.room_booking_id and new in gone and termin.status not in gone:
+            room_services.release(termin.room_booking_id)
+        elif termin.room_booking_id and new == Termin.Status.GEPLANT and termin.status in gone:
+            try:  # Wiederaufnahme: Raum wieder belegen, falls noch frei
+                room_services.move(termin.room_booking_id, request.user.tenant, termin.start, termin.end)
+            except room_services.RoomError as exc:
+                messages.error(request, f"Termin nicht wieder aufgenommen: {exc}")
+                return redirect(f"/termine/?start={timezone.localtime(termin.start).date().isoformat()}")
         termin.status = new
         termin.save(update_fields=["status"])
     return redirect(f"/termine/?start={timezone.localtime(termin.start).date().isoformat()}")

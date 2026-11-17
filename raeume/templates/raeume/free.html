@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block title %}Freie Räume{% endblock %}
+{% block content %}
+<div class="card">
+  <h1>Freie Räume am {{ start|date:"d.m.Y H:i" }} ({{ minutes }} Minuten)</h1>
+  <ul>{% for r in rooms %}<li>{{ r.name }}</li>{% empty %}<li class="muted">Kein Raum frei.</li>{% endfor %}</ul>
+</div>
+<a href="{% url 'raeume_index' %}">Zurück zum Raumplan</a>
+{% endblock %}

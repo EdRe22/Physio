@@ -16,4 +16,5 @@ urlpatterns = [
     path("buchhaltung/", include("buchhaltung.urls")),
     path("praxis/", include("praxis.urls")),
     path("notfall/", include("notfall.urls")),
+    path("raeume/", include("raeume.urls")),
 ]

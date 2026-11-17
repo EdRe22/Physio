@@ -17,7 +17,8 @@ Konzept: `Konzept WebApp Physio-Praxisgemeinschaft.docx` (bzw. Claude Doc). Stac
 | 6a Produktionshärtung | versiegelter Master-Schlüssel (Passphrase + optionale USB-Datei), Entsperrseite nach Neustart, Wiederherstellungsdatei, DB-Trigger gegen Audit-Manipulation (SQLite getestet, PostgreSQL ungetestet), verschlüsselte Gesamtsicherung mit Wiederherstellung, `verify_audit`, interne Cron-Schnittstelle | fertig, getestet (außer PostgreSQL und echtes Hardware-Token) |
 | 6b Vertretung/Praxisende | Datenkopie je Patient und Gesamtexport, Ausscheiden (Sperre, Frist 10/7 Jahre, Löschung per Schlüsselvernichtung), Notfallzugriff mit Vier-Augen-Freigabe, 24 h, nur lesend, im Protokoll des Betroffenen | fertig, getestet (Fristen rechtlich zu bestätigen) |
 | 6c Sicherheitsprüfung | eigene Prüfung (siehe SECURITY.md): Passwortwechsel, Proxy-IP, Session-Erneuerung, 2FA-Reset; Rundumtests für Anmeldung, 2FA und Mandantentrennung über alle Routen | fertig, Penetrationstest durch Dritte steht aus |
-| 6d | Raumbelegung, Hardware-Token, PostgreSQL-Tests, Go-Live (siehe DEPLOYMENT.md, Abnahme) | offen |
+| 6d Raumbelegung | gemeinsamer Raumplan (nur Raum, Therapeut, Zeit, nie Patient), Konfliktprüfung über alle Therapeuten, Wochenserien alles-oder-nichts, Freie-Räume-Suche, Termine mit Raum buchen/verschieben/freigeben automatisch | fertig, getestet |
+| 6e |  Hardware-Token, PostgreSQL-Tests, Go-Live (siehe DEPLOYMENT.md, Abnahme) | offen |
 
 **Honorarnoten: Ausstellen ist gesperrt**, bis im Rechnungsprofil das Datum „vom Steuerberater bestätigt“ gesetzt ist. Der Platzhaltertext für die Umsatzsteuerbefreiung wird abgelehnt. Das PDF wird bei Bedarf aus den festgeschriebenen Daten erzeugt und nicht gespeichert (Schrift Roboto aus dem Paket `font-roboto`).
 

@@ -133,3 +133,10 @@ Frage der Rechtsnachfolge (Erben, Berufsrecht) offen und ist rechtlich zu kläre
   **gemeinsam mit der Person**, danach sofort Passwort ändern (Menü „Passwort“).
 - Verlorenes Handy: Identität persönlich prüfen, dann `manage.py reset_2fa <benutzer>`, Faktor gemeinsam neu einrichten.
 - Vergessenes Passwort: `manage.py changepassword <benutzer>`, danach Person bitten, es zu ändern.
+
+## 9. Raumbelegung
+
+Der Raumplan liegt in der gemeinsamen Praxis-Datenbank und enthält nur Raum, Therapeut und Zeitraum. Der Eigentümer legt
+die Räume unter „Räume verwalten“ an. Die Konfliktprüfung ist durch eine Sperre im Serverprozess abgesichert
+(deshalb genau ein Prozess, siehe Abschnitt 3). **Auf PostgreSQL fehlt noch eine Ausschluss-Bedingung in der Datenbank**
+(`EXCLUDE USING gist`), die selbst bei mehreren Prozessen Doppelbuchungen unmöglich machen würde.

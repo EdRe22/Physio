@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}Räume verwalten{% endblock %}
+{% block content %}
+<div class="card">
+  <h1>Räume verwalten</h1>
+  <table>
+    {% for r in rooms %}<tr><td>{{ r.name }}<br><span class="muted">{{ r.note }}</span></td><td>{% if r.active %}aktiv{% else %}deaktiviert{% endif %}</td>
+      <td><form method="post" action="{% url 'raeume_toggle' r.pk %}">{% csrf_token %}<button class="primary" style="margin:0">{% if r.active %}Deaktivieren{% else %}Aktivieren{% endif %}</button></form></td></tr>
+    {% empty %}<tr><td class="muted">Noch keine Räume.</td></tr>{% endfor %}
+  </table>
+</div>
+<div class="card"><h2>Neuer Raum</h2><form method="post">{% csrf_token %}{{ form.as_p }}<button class="primary">Anlegen</button></form></div>
+<a href="{% url 'raeume_index' %}">Zurück</a>
+{% endblock %}

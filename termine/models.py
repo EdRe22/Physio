@@ -16,6 +16,7 @@ class Termin(models.Model):
     start = models.DateTimeField()
     duration_min = models.PositiveSmallIntegerField(default=30)
     status = models.CharField(max_length=16, choices=Status.choices, default=Status.GEPLANT)
+    room_booking_id = models.BigIntegerField(null=True, blank=True)  # Raumbelegung liegt in der Praxis-DB (kein FK über Datenbanken)
     reminder_sent_at = models.DateTimeField(null=True, blank=True)
     reminder_failed_at = models.DateTimeField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)

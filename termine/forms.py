@@ -4,6 +4,8 @@ from django import forms
 from django.utils import timezone
 
 from patients.models import Patient
+from raeume import services as room_services
+from raeume.models import Raum
 
 from .models import Termin
 
@@ -18,6 +20,7 @@ class TerminForm(forms.Form):
     date = forms.DateField(label="Datum", widget=forms.DateInput(attrs={"type": "date"}, format="%Y-%m-%d"))
     time = forms.TimeField(label="Uhrzeit", widget=forms.TimeInput(attrs={"type": "time"}, format="%H:%M"))
     duration_min = forms.IntegerField(label="Dauer (Minuten)", min_value=5, max_value=240, initial=30)
+    room = forms.ModelChoiceField(label="Raum (optional, wird automatisch reserviert)", queryset=Raum.objects.none(), required=False)
     repeat = forms.IntegerField(
         label="Wöchentlich wiederholen (Anzahl Termine insgesamt)", min_value=1, max_value=26, initial=1, required=False,
         help_text="1 = nur dieser Termin",
@@ -27,9 +30,11 @@ class TerminForm(forms.Form):
         super().__init__(*args, **kwargs)
         self.editing = editing
         self.fields["patient"].choices = patient_choices()
-        if editing:  # beim Ändern gibt es weder Patientenwechsel noch Serie
+        self.fields["room"].queryset = Raum.objects.filter(active=True)
+        if editing:  # beim Ändern gibt es weder Patientenwechsel noch Serie noch Raumwechsel (Raum bleibt wie gebucht)
             del self.fields["patient"]
             del self.fields["repeat"]
+            del self.fields["room"]
         self.exclude_pk = None
         self.starts = []
 
@@ -47,6 +52,12 @@ class TerminForm(forms.Form):
             self.starts.append(start)
         if busy:
             raise forms.ValidationError("Überschneidung mit einem bestehenden Termin am: " + ", ".join(busy))
+        room = data.get("room")
+        if room:
+            taken = [f"{timezone.localtime(s):%d.%m.%Y %H:%M}" for s in self.starts
+                     if room_services.overlapping(room, s, s + timedelta(minutes=minutes)).exists()]
+            if taken:
+                raise forms.ValidationError(f"{room.name} ist belegt am: " + ", ".join(taken))
         return data
 
     def clean_patient(self):
