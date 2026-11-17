@@ -1,0 +1,16 @@
+<p>Fällt ein Therapeut plötzlich aus (Krankheit, Unfall), müssen seine Patienten weiterbehandelt werden können. Für diesen Ausnahmefall gibt es den Notfallzugriff. Er ist bewusst streng geregelt, weil es um Gesundheitsdaten eines Kollegen geht.</p>
+
+<h2>So läuft es ab</h2>
+<ol>
+  <li><strong>Beantragen:</strong> Unter „Notfall“ wählen Sie den betroffenen Therapeuten und geben eine nachvollziehbare Begründung an (mindestens {{ f.notfall_min_reason }} Zeichen). Ohne Freigabe passiert noch nichts.</li>
+  <li><strong>Freigeben:</strong> Ein <strong>anderer</strong> Therapeut muss den Antrag freigeben. Weder der Antragsteller noch der Betroffene kann das, und der Freigebende bekommt dadurch selbst keinen Datenzugriff (Vier-Augen-Prinzip). Anträge zur Freigabe erscheinen bei den möglichen Freigebenden auf der Notfall-Seite.</li>
+  <li><strong>Nutzen:</strong> Der Antragsteller sieht für {{ f.notfall_hours }} Stunden die Patientenliste und Patientenseiten (Stammdaten, Zuweisungen, Dokumentation) des Betroffenen, <strong>nur lesend</strong>. Nichts kann geändert werden.</li>
+  <li><strong>Ende:</strong> Nach {{ f.notfall_hours }} Stunden läuft der Zugriff automatisch ab. Jeder Beteiligte, auch der Betroffene, kann ihn jederzeit mit „Beenden“ sofort sperren.</li>
+</ol>
+
+<h2>Transparenz</h2>
+<p>Jeder Schritt (Antrag, Freigabe, jeder Aufruf einer Liste oder Patientenseite, Beenden) wird im Protokoll des <strong>Betroffenen</strong> festgehalten, mit dem Namen des Antragstellers. Der Betroffene sieht alle Zugriffe auf seine Daten auf seiner Notfall-Seite und bekommt eine E-Mail (ohne Patientendaten), wenn bei ihm eine Adresse hinterlegt ist.</p>
+<div class="warn">Nutzen Sie den Notfallzugriff nur, wenn es wirklich nötig ist. Jeder Zugriff ist nachvollziehbar, und ein Missbrauch hat berufs- und datenschutzrechtliche Folgen.</div>
+
+<h2>Voraussetzung</h2>
+<p>Es müssen mindestens drei aktive Therapeuten vorhanden sein, sonst gibt es keinen unabhängigen Freigebenden.</p>

@@ -1,0 +1,22 @@
+<p>Dieser Abschnitt ist nur für den Eigentümer sichtbar. Die Schritte laufen über die technische Betreuung, weil sie den Zugriff auf den Server brauchen.</p>
+
+<h2>Wenn ein Kollege die Praxis verlässt</h2>
+<ol>
+  <li><strong>Export:</strong> Der Kollege erstellt selbst über „Gesamtexport“ in der Patientenliste die Kopie seiner Daten (Patienten und Honorarnoten) und nimmt sie mit bzw. übergibt Patienten an Nachfolger. Dafür ist er als Verantwortlicher für seine Patientendaten selbst zuständig.</li>
+  <li><strong>Ausscheiden:</strong> Die technische Betreuung führt „offboard_tenant“ aus (erst nach Ihrer Bestätigung, dass der Export erfolgt ist). Das sperrt das Konto und den Bereich, beendet sein Mietverhältnis zum heutigen Tag und berechnet das Fristende.</li>
+  <li><strong>Aufbewahrung:</strong> Bis zum Fristende bleiben die Daten verschlüsselt erhalten. Niemand kann sich mehr anmelden.</li>
+  <li><strong>Endgültige Löschung:</strong> Nach Fristende führt die Technik „purge_tenant“ aus. Datenbank, Belege und der Datenschlüssel werden vernichtet. Das ist <strong>nicht rückgängig zu machen</strong>.</li>
+</ol>
+
+<h2>Fristen</h2>
+<p>Das Fristende ist der späteste Zeitpunkt aus: letzter Dokumentationseintrag + {{ f.retention_doc_years }} Jahre, letzte Honorarnote + {{ f.retention_tax_years }} Jahre, letzte Buchung + {{ f.retention_tax_years }} Jahre.</p>
+<div class="warn">Diese Fristen sind eine Annahme aus dem Konzept und müssen vor dem Echtbetrieb rechtlich bestätigt werden (Aufbewahrung der Dokumentation und von Buchhaltungsunterlagen).</div>
+
+<h2>Sicherungen</h2>
+<p>Ältere Sicherungen enthalten die Daten des gelöschten Kollegen bis zu ihrem planmäßigen Austausch. Legen Sie fest und dokumentieren Sie, wie lange Sicherungen aufbewahrt werden. Die Löschung gilt erst als vollständig, wenn diese Sicherungen abgelaufen sind.</p>
+
+<h2>Praxisende</h2>
+<p>Schließt die Praxis ganz, durchläuft jeder Kollege diesen Ablauf. Ihr eigener Bereich als Eigentümer wird genauso behandelt.</p>
+
+<h2>Verstorbener oder dauerhaft ausgefallener Kollege</h2>
+<p>Hier hilft der <a href="{% url 'hilfe_topic' 'notfall' %}">Notfallzugriff</a> für den Anfang, er ist aber nur zeitlich begrenzt. Wer bei Tod oder dauerhaftem Ausfall Rechte an den Patientendaten hat (Erben, Nachfolger, Berufsrecht), müssen Sie vorab <strong>rechtlich klären</strong>. Die App kann das nicht entscheiden.</p>

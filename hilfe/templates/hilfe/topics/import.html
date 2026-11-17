@@ -1,0 +1,23 @@
+<p>Mit dem Import übernehmen Sie Bestandsdaten aus Excel- oder CSV-Dateien, etwa aus Ihrem bisherigen Programm. Es werden nur Daten in <strong>Ihren</strong> Bereich importiert.</p>
+
+<h2>Ablauf</h2>
+<ol>
+  <li>Unter „Import“ die Art wählen (Patientenstamm, Dokumentation oder Kontoauszug) und die Datei hochladen. Über „Vorlagen“ laden Sie eine Excel-Vorlage mit den erwarteten Spalten herunter.</li>
+  <li><strong>Spalten zuordnen:</strong> Die App rät die Zuordnung anhand der Spaltenüberschriften. Korrigieren Sie, wo nötig. Mit * markierte Felder sind Pflicht.</li>
+  <li><strong>Prüfung:</strong> Die App prüft alle Zeilen, ohne etwas zu speichern. Sie sehen, wie viele Datensätze importiert würden, wie viele doppelt sind und welche Zeilen fehlerhaft sind (mit Zeilennummer und Grund, ohne die Werte selbst).</li>
+  <li><strong>Importieren</strong> oder „Abbrechen und Daten verwerfen“.</li>
+</ol>
+
+<h2>Reihenfolge</h2>
+<p>Importieren Sie <strong>zuerst den Patientenstamm</strong>, danach die Dokumentation. Die Dokumentation wird über Nachname, Vorname und Geburtsdatum dem Patienten zugeordnet. Importierte Behandlungen verbrauchen keine Einheiten einer Zuweisung.</p>
+
+<h2>Grenzen</h2>
+<ul>
+  <li>Dateigröße höchstens {{ f.import_mb }} MB, höchstens {{ f.import_rows }} Zeilen und {{ f.import_cols }} Spalten.</li>
+  <li>Erlaubt sind .xlsx, .csv und für Kontoauszüge .xml. Alte .xls-Dateien speichern Sie bitte als .xlsx.</li>
+  <li>Formeln in Excel werden <strong>nicht berechnet</strong>, es zählt der gespeicherte Wert.</li>
+</ul>
+
+<h2>Sicherheit</h2>
+<p>Die hochgeladene Datei wird nicht gespeichert. Der Inhalt liegt bis zum Abschluss verschlüsselt in Ihrer Datenbank und wird danach gelöscht, auch bei Abbruch. Das Importprotokoll enthält nur Anzahlen und Zeilennummern, keine Patientendaten.</p>
+<div class="tip">Importieren Sie dieselbe Datei versehentlich zweimal, werden bereits vorhandene Datensätze erkannt und übersprungen.</div>

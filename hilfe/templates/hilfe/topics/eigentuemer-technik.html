@@ -1,0 +1,23 @@
+<p>Dieser Abschnitt ist nur für den Eigentümer sichtbar. Details für die technische Betreuung stehen in der Betriebsanleitung (DEPLOYMENT.md).</p>
+
+<h2>Nach jedem Neustart: System entsperren</h2>
+<p>Der Schlüssel zu allen Daten liegt nie unverschlüsselt auf der Festplatte. Nach einem Neustart des Servers ist die App deshalb gesperrt (Meldung „System gesperrt“). Rufen Sie die Adresse <strong>/entsperren/</strong> auf und geben Sie Ihre Passphrase ein (und, falls eingerichtet, die Schlüsseldatei vom USB-Stick). Ab dem dritten Fehlversuch bremst die App das Raten aus, warten Sie dann kurz.</p>
+<div class="warn"><strong>Verlieren Sie Passphrase und Wiederherstellungsdatei nicht.</strong> Ohne beides sind alle Daten unwiederbringlich verloren. Bewahren Sie die Wiederherstellungsdatei samt eigener Passphrase getrennt vom Server im Tresor auf.</div>
+
+<h2>Sicherungen</h2>
+<p>Die Technik legt täglich eine verschlüsselte Gesamtsicherung an (alle Datenbanken und Belege) und prüft regelmäßig, ob das Protokoll manipuliert wurde. Verlangen Sie vor dem Echtbetrieb eine <strong>Wiederherstellungsübung</strong> und wiederholen Sie diese regelmäßig. Eine Sicherung, die nie zurückgespielt wurde, ist nicht geprüft. Mindestens eine Kopie gehört an einen anderen Ort als den Server.</p>
+
+<h2>Zweiten Faktor eines Kollegen zurücksetzen</h2>
+<p>Verliert ein Kollege sein Handy, prüfen Sie seine Identität <strong>persönlich</strong> und bitten die Technik, den zweiten Faktor zurückzusetzen. Die Sitzungen werden beendet, im Protokoll des Kollegen entsteht ein Eintrag. Richten Sie den neuen Faktor gemeinsam ein und lassen Sie ihn danach das Passwort ändern.</p>
+
+<h2>Neues Konto</h2>
+<p>Die Technik legt Mandant und Benutzer an. Richten Sie das Konto mit der Person gemeinsam ein (zweiter Faktor, neues Passwort), damit niemand anderes das Startpasswort ausnutzen kann.</p>
+
+<h2>Vertragliches und Organisatorisches, das nicht in der App steckt</h2>
+<ul>
+  <li>Auftragsverarbeitungsvertrag mit der technischen Betreuung</li>
+  <li>Datenschutz-Folgenabschätzung und Verarbeitungsverzeichnis</li>
+  <li>Schriftliche Bestätigung des Steuerberaters zu den Steuerhinweisen auf Honorarnoten und Mietabrechnungen</li>
+  <li>Rechtliche Bestätigung der Aufbewahrungsfristen</li>
+  <li>Unabhängiger Sicherheitstest vor dem Echtbetrieb</li>
+</ul>

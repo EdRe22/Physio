@@ -1,0 +1,26 @@
+<p>Alle Namen, Adressen und Gesundheitsdaten sind verschlüsselt gespeichert und nur für Sie lesbar.</p>
+
+<h2>Patient anlegen und ändern</h2>
+<p>Unter „Patienten“ auf „Neuer Patient“ klicken und die Stammdaten eintragen. Pflichtfelder sind Vor- und Nachname, alles andere ist optional. Über „Bearbeiten“ ändern Sie die Daten später.</p>
+
+<h2>Suchen</h2>
+<p>Das Suchfeld oben in der Patientenliste findet Teile des Namens, ohne Rücksicht auf Groß- und Kleinschreibung. Archivierte Patienten blenden Sie mit dem Kästchen „auch archivierte“ ein.</p>
+
+<h2>Archivieren statt löschen</h2>
+<p>Patienten lassen sich nicht löschen. Die Dokumentation muss gesetzlich aufbewahrt werden (Aufbewahrungsfrist laut Konzept {{ f.retention_doc_years }} Jahre ab dem letzten Eintrag, rechtlich noch zu bestätigen). „Archivieren“ sperrt den Patienten: Er verschwindet aus der normalen Liste und kann keine neuen Termine erhalten, die Daten bleiben erhalten.</p>
+
+<h2>Einwilligungen</h2>
+<p>Auf der Patientenseite verwalten Sie, wofür der Patient zugestimmt hat:</p>
+<dl>
+  <dt>Terminerinnerung per E-Mail</dt><dd>Ohne diese Einwilligung und ohne E-Mail-Adresse werden keine Erinnerungen versendet.</dd>
+  <dt>Fotos zur Dokumentation</dt><dd>Nur zur Erfassung der Einwilligung, die App speichert derzeit keine Fotos.</dd>
+  <dt>Weitergabe an Dritte</dt><dd>Zur Erfassung der Einwilligung.</dd>
+</dl>
+<p>„Widerrufen“ beendet die Einwilligung sofort. Sie bleibt mit Datum nachvollziehbar.</p>
+
+<h2>Datenkopie für den Patienten</h2>
+<p>Auf der Patientenseite erstellt „Datenkopie (ZIP)“ alle Daten dieses Patienten (Stammdaten, Zuweisungen, Einwilligungen, Dokumentation mit allen Versionen) als lesbaren Text und als JSON. Damit erfüllen Sie ein Auskunftsbegehren oder übergeben einen Patienten an einen anderen Therapeuten.</p>
+<div class="warn">Die Datei enthält Gesundheitsdaten im Klartext. Übergeben Sie sie persönlich oder verschlüsselt, nicht als normalen E-Mail-Anhang, und löschen Sie Ihre Kopie danach.</div>
+
+<h2>Gesamtexport</h2>
+<p>Am Ende der Patientenliste exportiert „Gesamtexport“ alle Patienten (auch archivierte) und alle ausgestellten Honorarnoten als ZIP, etwa wenn Sie die Praxis verlassen.</p>

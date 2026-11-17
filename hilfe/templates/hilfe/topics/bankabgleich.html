@@ -1,0 +1,27 @@
+<p>Statt jede Überweisung einzeln zu erfassen, laden Sie den Kontoauszug Ihrer Bank hoch. Die App schlägt vor, welche Überweisung zu welcher Honorarnote gehört.</p>
+
+<h2>Kontoauszug importieren</h2>
+<ol>
+  <li>Laden Sie im Online-Banking den Kontoauszug herunter, am besten im Format <strong>camt.053</strong> (XML). CSV und Excel gehen auch.</li>
+  <li>Unter „Import“ als Art „Kontoauszug“ wählen und die Datei hochladen (höchstens {{ f.camt_rows }} Umsätze).</li>
+  <li>Spalten zuordnen (bei camt.053 automatisch), die Prüfung ansehen und importieren.</li>
+  <li>Weiter zu „Bankumsätze“.</li>
+</ol>
+<p>Importieren Sie denselben Auszug nochmals, werden bereits vorhandene Umsätze erkannt und <strong>nicht doppelt</strong> angelegt. Die Datei selbst wird nicht gespeichert.</p>
+
+<h2>Vorschläge und Zuordnung</h2>
+<p>Bei jedem Zahlungseingang zeigt die App einen Vorschlag mit Sicherheitsstufe:</p>
+<dl>
+  <dt>sicher</dt><dd>Die Honorarnotennummer steht im Verwendungszweck und der Betrag stimmt genau mit dem offenen Betrag überein.</dd>
+  <dt>Teilzahlung</dt><dd>Die Honorarnotennummer passt, der Betrag ist kleiner als der offene Rest.</dd>
+  <dt>wahrscheinlich</dt><dd>Es gibt genau eine offene Honorarnote mit gleichem Betrag, und der Nachname steht in den Angaben der Gegenseite.</dd>
+</dl>
+<p>Bei Überzahlung oder wenn mehrere Honorarnoten infrage kommen, macht die App <strong>keinen</strong> Vorschlag. Prüfen Sie dann selbst.</p>
+<ul>
+  <li><strong>„… sichere Zuordnungen übernehmen“</strong> bucht alle als „sicher“ erkannten auf einmal.</li>
+  <li>Den Vorschlag-Knopf bei einer Zeile übernimmt nur diese Zuordnung. Die Zahlung wird bei der Honorarnote erfasst und als Einnahme gebucht.</li>
+</ul>
+
+<h2>Alles andere</h2>
+<p>Für Umsätze ohne Honorarnote wählen Sie eine <strong>Kategorie</strong> und klicken „Buchen“ (Eingang = Einnahme, Ausgang = Ausgabe). Rein private oder durchlaufende Umsätze markieren Sie mit „Ignorieren“. Bearbeitete Umsätze lassen sich über den Statusfilter oben einsehen.</p>
+<div class="tip">Bitten Sie Ihre Patienten, die Honorarnotennummer als Verwendungszweck anzugeben. Dann klappt die automatische Zuordnung am besten.</div>

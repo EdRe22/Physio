@@ -1,0 +1,22 @@
+<p>Alle Therapeuten teilen sich die Räume der Praxis. Der Raumplan verhindert Doppelbelegungen.</p>
+
+<h2>Raumplan</h2>
+<p>Unter „Räume“ sehen Sie pro Raum eine Woche. Jede Belegung zeigt Zeit und Name des Kollegen („belegt von …“). Ihre eigenen Belegungen sind als „meine Belegung“ markiert. <strong>Andere sehen nie, wofür oder für wen ein Raum belegt ist</strong>, es wird nichts über Patienten gespeichert.</p>
+
+<h2>Raum reservieren</h2>
+<p>Raum, Datum, Beginn und Dauer wählen. Eine Belegung darf höchstens {{ f.room_max_hours }} Stunden dauern und nicht in der Vergangenheit liegen. Mit „Wöchentlich wiederholen“ reservieren Sie bis zu {{ f.series_max }} Wochen. Gibt es in einer dieser Wochen einen Konflikt, wird <strong>nichts</strong> reserviert und die App nennt die belegten Termine.</p>
+<p>Eine Belegung, die genau dort endet, wo die nächste beginnt (z. B. 10–11 Uhr und 11–12 Uhr), ist erlaubt.</p>
+
+<h2>Termin mit Raum</h2>
+<p>Wählen Sie beim Anlegen eines Termins einen Raum, wird er automatisch für die Dauer des Termins reserviert, auch bei Serien. Ist der Raum belegt, meldet die App das und legt den Termin nicht an.</p>
+<ul>
+  <li><strong>Termin verschieben:</strong> Der Raum wandert mit. Ist er zur neuen Zeit belegt, bleibt alles unverändert.</li>
+  <li><strong>Termin absagen:</strong> Der Raum wird sofort frei.</li>
+  <li><strong>Absage zurücknehmen</strong> (Status wieder „geplant“): nur möglich, wenn der Raum noch frei ist.</li>
+</ul>
+
+<h2>Welcher Raum ist frei?</h2>
+<p>Unten auf der Seite Datum, Beginn und Dauer eingeben, die App nennt alle freien Räume.</p>
+
+<h2>Stornieren</h2>
+<p>Sie können nur Ihre eigenen Belegungen stornieren. Der Eigentümer kann jede stornieren. Stornierte Belegungen bleiben als Vorgang erhalten, der Raum ist aber wieder frei.</p>

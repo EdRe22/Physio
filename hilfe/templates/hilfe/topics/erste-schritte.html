@@ -1,0 +1,24 @@
+<p>Diese Anwendung verwaltet Ihre Patienten, Termine, Honorarnoten und Buchhaltung. Ihre Daten sind von denen der Kollegen strikt getrennt: Niemand außer Ihnen sieht Ihre Patienten.</p>
+
+<h2>Anmelden</h2>
+<ol>
+  <li>Melden Sie sich mit Benutzername und Passwort an.</li>
+  <li>Geben Sie danach den 6-stelligen Code aus Ihrer Authenticator-App ein. Ohne diesen zweiten Faktor ist keine Seite erreichbar.</li>
+</ol>
+<p><strong>Erstes Mal:</strong> Die App zeigt einen QR-Code. Scannen Sie ihn mit einer Authenticator-App (z. B. Google Authenticator, Microsoft Authenticator oder Aegis) und tippen Sie den angezeigten Code ein.</p>
+<div class="warn">Richten Sie den zweiten Faktor gemeinsam mit dem Eigentümer ein und <strong>ändern Sie danach sofort Ihr Startpasswort</strong> (Link „Passwort“ oben rechts).</div>
+
+<h2>Passwort ändern</h2>
+<p>Oben rechts auf „Passwort“ klicken. Das neue Passwort braucht mindestens {{ f.min_password }} Zeichen und darf nicht zu häufig oder nur aus Ziffern bestehen. Nutzen Sie am besten einen Passwortmanager.</p>
+
+<h2>Automatische Abmeldung</h2>
+<p>Nach {{ f.session_minutes }} Minuten ohne Aktivität werden Sie automatisch abgemeldet, damit niemand an einem liegen gelassenen Gerät mitlesen kann. Nicht gespeicherte Eingaben gehen dabei verloren. Klicken Sie nach der Arbeit auf „Abmelden“.</p>
+
+<h2>Sperre nach Fehlversuchen</h2>
+<p>Nach {{ f.login_max_failures }} falschen Passwörtern ist Ihr Konto {{ f.login_lock_minutes }} Minuten gesperrt. Das schützt vor Ausprobieren. Warten Sie ab oder bitten Sie den Eigentümer um Hilfe.</p>
+
+<h2>Handy verloren oder neues Handy</h2>
+<p>Wenden Sie sich persönlich an den Eigentümer bzw. die technische Betreuung. Der zweite Faktor wird zurückgesetzt, nachdem Ihre Identität geprüft wurde, und Sie richten danach einen neuen ein. Ein Zurücksetzen über die App selbst ist aus Sicherheitsgründen nicht möglich.</p>
+
+<h2>Wenn die App „System gesperrt“ anzeigt</h2>
+<p>Nach einem Neustart des Servers muss der Eigentümer das System erst freigeben. Das dauert nur einen Moment. Bis dahin ist nichts erreichbar. Ihre Daten sind dabei nie gefährdet.</p>

@@ -62,6 +62,7 @@ INSTALLED_APPS = [
     "praxis",
     "notfall",
     "raeume",
+    "hilfe",
 ]
 
 # Diese Apps liegen ausschließlich in der Mandanten-Datenbank des jeweiligen Therapeuten.
@@ -109,6 +110,7 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
+                "hilfe.context.help_link",
             ]
         },
     }

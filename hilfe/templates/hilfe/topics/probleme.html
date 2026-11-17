@@ -1,0 +1,43 @@
+<dl>
+  <dt>„System gesperrt“ beim Öffnen der App</dt>
+  <dd>Der Server wurde neu gestartet. Der Eigentümer muss ihn unter „/entsperren/“ freigeben. Danach funktioniert alles wieder.</dd>
+
+  <dt>Ich komme nicht mehr hinein: Passwort vergessen</dt>
+  <dd>Wenden Sie sich an die technische Betreuung. Das Passwort wird neu gesetzt und Sie ändern es nach der Anmeldung sofort.</dd>
+
+  <dt>Mein Konto ist gesperrt</dt>
+  <dd>Nach {{ f.login_max_failures }} Fehlversuchen sperrt sich das Konto für {{ f.login_lock_minutes }} Minuten. Warten Sie ab.</dd>
+
+  <dt>Neues Handy oder Handy verloren, der Code fehlt</dt>
+  <dd>Der zweite Faktor muss nach persönlicher Identitätsprüfung durch den Eigentümer bzw. die Technik zurückgesetzt werden. Danach richten Sie einen neuen ein.</dd>
+
+  <dt>Ich wurde plötzlich abgemeldet</dt>
+  <dd>Nach {{ f.session_minutes }} Minuten ohne Aktivität meldet die App aus Sicherheitsgründen ab. Nicht gespeicherte Eingaben gehen dabei verloren. Speichern Sie zwischendurch.</dd>
+
+  <dt>Honorarnote lässt sich nicht ausstellen</dt>
+  <dd>Häufige Gründe: Das Rechnungsprofil ist unvollständig, der <strong>Steuerhinweis ist noch nicht vom Steuerberater bestätigt</strong>, die Honorarnote enthält keine Positionen oder der Betrag ist 0, oder bei Beträgen ab {{ f.kleinbetrag_eur }} EUR fehlt die Anschrift des Patienten. Die Meldung nennt den Grund.</dd>
+
+  <dt>Ich habe eine falsche Honorarnote ausgestellt</dt>
+  <dd>Ausgestellte Honorarnoten lassen sich nicht ändern. Stornieren Sie sie (es entsteht eine Stornorechnung) und stellen Sie eine neue aus. Siehe „Honorarnoten“.</dd>
+
+  <dt>Eine Buchung ist falsch</dt>
+  <dd>Buchungen sind unveränderlich. Öffnen Sie die Buchung, klicken Sie „Stornieren“ und buchen Sie neu.</dd>
+
+  <dt>Beim Termin heißt es „Raum ist belegt“</dt>
+  <dd>Ein Kollege hat den Raum zu dieser Zeit. Wählen Sie einen anderen Raum, eine andere Zeit oder nutzen Sie „Welcher Raum ist frei?“. Termin ohne Raum geht immer.</dd>
+
+  <dt>Termin lässt sich nicht wieder auf „geplant“ setzen</dt>
+  <dd>Der Raum wurde inzwischen von jemand anderem belegt. Verschieben Sie den Termin in einen freien Slot oder wählen Sie einen anderen Zeitpunkt.</dd>
+
+  <dt>Patient bekommt keine Terminerinnerung</dt>
+  <dd>Prüfen Sie: Einwilligung „Terminerinnerung per E-Mail“ erteilt? E-Mail-Adresse beim Patienten hinterlegt? Termin hat den Status „geplant“ und liegt innerhalb der nächsten 36 Stunden? Erinnerungen werden einmal täglich verschickt.</dd>
+
+  <dt>Importzeilen werden als fehlerhaft gemeldet</dt>
+  <dd>Die Prüfung nennt Zeilennummer (wie in Excel, Zeile 1 ist die Kopfzeile) und Grund. Häufig: Pflichtfeld leer, Datum nicht als TT.MM.JJJJ, Betrag mit unklarem Format. Korrigieren Sie die Datei und laden Sie sie erneut hoch. Bereits importierte Zeilen werden dabei als doppelt übersprungen.</dd>
+
+  <dt>Ein Bankumsatz wird nicht zugeordnet</dt>
+  <dd>Es gibt nur Vorschläge, wenn Nummer und Betrag zusammenpassen oder genau eine Honorarnote infrage kommt. Sonst buchen Sie den Umsatz in eine Kategorie oder erfassen die Zahlung bei der Honorarnote selbst.</dd>
+
+  <dt>Ich finde eine Funktion nicht</dt>
+  <dd>Nutzen Sie die Suche auf der Hilfe-Startseite. Für Wünsche und Fehler wenden Sie sich an den Eigentümer.</dd>
+</dl>

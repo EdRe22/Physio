@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}Hilfe{% endblock %}
+{% block content %}
+<div class="card">
+  <h1>Hilfe</h1>
+  <form method="get" role="search" style="display:flex;gap:8px">
+    <input type="search" name="q" value="{{ q }}" placeholder="Wonach suchen Sie? (z. B. Storno, Erinnerung, Beleg)" aria-label="Suche in der Hilfe" maxlength="100">
+    <button class="primary" style="margin:0">Suchen</button>
+  </form>
+</div>
+{% if hits is not None %}
+<div class="card">
+  <h2>{{ hits|length }} Treffer für „{{ q }}“</h2>
+  {% for topic, snippet in hits %}<p><a href="{% url 'hilfe_topic' topic.slug %}"><strong>{{ topic.title }}</strong></a><br><span class="muted">{{ snippet }}</span></p>
+  {% empty %}<p class="muted">Nichts gefunden. Versuchen Sie ein anderes Wort oder sehen Sie unter „Probleme und Fragen“ nach.</p>{% endfor %}
+</div>
+{% endif %}
+<div class="card">
+  <h2>Alle Themen</h2>
+  <table>
+    {% for t in topics %}<tr><td><a href="{% url 'hilfe_topic' t.slug %}"><strong>{{ t.title }}</strong></a>{% if t.owner_only %} <span class="muted">(nur Eigentümer)</span>{% endif %}<br><span class="muted">{{ t.summary }}</span></td></tr>{% endfor %}
+  </table>
+</div>
+{% endblock %}

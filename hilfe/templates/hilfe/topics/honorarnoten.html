@@ -1,0 +1,27 @@
+<h2>Einmalig einrichten: Rechnungsprofil und Leistungen</h2>
+<p>Unter „Honorarnoten“ pflegen Sie Ihr <strong>Rechnungsprofil</strong> (Name, Anschrift, IBAN, Zahlungsziel, Hinweis zur Umsatzsteuerbefreiung) und den <strong>Leistungskatalog</strong> mit Preisen.</p>
+<div class="warn"><strong>Ausstellen ist gesperrt, bis der Steuerhinweis bestätigt ist.</strong> Der Text zur Umsatzsteuerbefreiung muss von Ihrem Steuerberater geprüft sein. Tragen Sie erst dann das Datum „vom Steuerberater bestätigt“ ein. Ein Platzhaltertext wird abgelehnt. Entwürfe können Sie vorher beliebig anlegen.</div>
+
+<h2>Honorarnote erstellen</h2>
+<p>Auf der Patientenseite „Neue Honorarnote“ wählen. Die App bietet alle <strong>noch nicht abgerechneten Behandlungen</strong> an. Wählen Sie die gewünschten aus und die passende Leistung, mit „Entwurf anlegen“ entsteht ein <strong>Entwurf</strong>. Im Entwurf können Sie Positionen hinzufügen (frei oder aus dem Katalog) und entfernen, oder den ganzen Entwurf löschen. Ein Entwurf trägt im PDF den deutlichen Vermerk „ENTWURF“ und hat noch keine Nummer.</p>
+
+<h2>Ausstellen</h2>
+<p>Mit „Ausstellen“ vergibt die App die <strong>fortlaufende Nummer</strong> (Jahr-Laufnummer, z. B. 2026-0001, ohne Lücken). Ab jetzt ist die Honorarnote <strong>endgültig</strong>:</p>
+<ul>
+  <li>Beträge, Positionen und Empfängerdaten lassen sich nicht mehr ändern und die Honorarnote nicht löschen.</li>
+  <li>Empfänger- und Ihre eigenen Daten werden festgehalten. Ändert sich später die Adresse des Patienten oder Ihre IBAN, bleibt die ausgestellte Honorarnote unverändert.</li>
+  <li>Ab {{ f.kleinbetrag_eur }} EUR muss die Anschrift des Empfängers vorhanden sein, sonst lässt sich nicht ausstellen.</li>
+</ul>
+
+<h2>Fehler korrigieren: Storno</h2>
+<p>Eine ausgestellte Honorarnote wird mit „Stornieren“ korrigiert. Es entsteht eine <strong>Stornorechnung mit eigener Nummer</strong> über den negativen Betrag, die ursprüngliche bleibt sichtbar und wird als „storniert“ markiert. Die betroffenen Behandlungen sind danach wieder abrechenbar. Danach stellen Sie eine neue, richtige Honorarnote aus.</p>
+
+<h2>PDF</h2>
+<p>Das PDF wird bei jedem Öffnen frisch aus den festgehaltenen Daten erzeugt. Es wird nicht automatisch per E-Mail versendet: Laden Sie es herunter und übergeben es dem Patienten persönlich oder auf einem geeigneten Weg.</p>
+
+<h2>Zahlungen</h2>
+<p>Erfassen Sie eingegangene Überweisungen mit „Zahlung erfassen“ bei der Honorarnote (Datum, Betrag). Teilzahlungen sind möglich. Sobald der Betrag voll beglichen ist, wechselt der Status auf „bezahlt“. Der Betrag darf den offenen Rest nicht übersteigen, das Datum nicht in der Zukunft und nicht vor dem Rechnungsdatum liegen. <strong>Jede Zahlung wird automatisch als Einnahme in die Buchhaltung übernommen.</strong> Zahlungen lassen sich nicht ändern oder löschen.</p>
+<p>Einfacher geht es über den <a href="{% url 'hilfe_topic' 'bankabgleich' %}">Kontoauszug-Import</a>: Die App ordnet Überweisungen den Honorarnoten zu.</p>
+
+<h2>Überfällige Honorarnoten und Mahnstufen</h2>
+<p>Die Seite „Überfällige“ zeigt offene Honorarnoten nach Ablauf des Zahlungsziels. Mit „Mahnung erfassen“ halten Sie fest, dass Sie erinnert haben (Stufe 1 bis {{ f.max_reminder_level }}). Die App erzeugt dabei <strong>kein Mahnschreiben</strong> und berechnet keine Spesen, sie dokumentiert nur den Vorgang.</p>

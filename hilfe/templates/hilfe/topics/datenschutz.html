@@ -1,0 +1,29 @@
+<h2>Wer sieht was?</h2>
+<ul>
+  <li><strong>Ihre Patientendaten</strong> sieht nur Sie. Kollegen und auch der Eigentümer können sie nicht öffnen. Die Daten jedes Therapeuten liegen in einer eigenen, mit einem eigenen Schlüssel verschlüsselten Datenbank.</li>
+  <li><strong>Gemeinsam genutzt</strong> werden nur Beträge und Zeiten: der Raumplan (wer belegt einen Raum, nicht wofür) und die Mietabrechnungen (jeder nur seine eigenen, der Eigentümer alle).</li>
+  <li><strong>Ausnahme Notfall:</strong> Siehe „Notfallzugriff“. Zeitlich begrenzt, vier Augen, nur lesend, im Protokoll sichtbar.</li>
+  <li>Der technische Betreuer (Systemadministrator) arbeitet im Auftrag der Praxis und ist vertraglich zur Vertraulichkeit verpflichtet.</li>
+</ul>
+
+<h2>Was wird protokolliert?</h2>
+<p>Die App führt für jeden Therapeuten ein Protokoll (Audit-Log): wer wann welche Daten angesehen, angelegt, geändert oder exportiert hat. Im Protokoll stehen nur <strong>Kennungen, nie Namen oder Inhalte</strong>. Es ist fälschungssicher verkettet, nachträgliche Änderungen oder Löschungen fallen auf und sind auch in der Datenbank technisch gesperrt.</p>
+
+<h2>Ihre Pflichten im Alltag</h2>
+<ul>
+  <li>Geben Sie Ihr Passwort und Ihren zweiten Faktor nie weiter.</li>
+  <li>Melden Sie sich bei Verlassen des Arbeitsplatzes ab. Nach {{ f.session_minutes }} Minuten ohne Aktivität passiert das automatisch.</li>
+  <li>Exportdateien (Datenkopie, Gesamtexport) enthalten Gesundheitsdaten im Klartext: sicher übergeben und danach löschen.</li>
+  <li>Versenden Sie Gesundheitsdaten nicht per normaler E-Mail.</li>
+</ul>
+
+<h2>Aufbewahrung und Löschung</h2>
+<p>Dokumentation und Honorarnoten unterliegen gesetzlichen Aufbewahrungsfristen. Deshalb gibt es keine Löschfunktion für Patienten oder Einträge, sondern das Archivieren. Beim Ausscheiden aus der Praxis werden die Daten gesperrt und nach Ablauf der Frist endgültig gelöscht (Konzept: Dokumentation {{ f.retention_doc_years }} Jahre, Honorarnoten und Buchhaltung {{ f.retention_tax_years }} Jahre; rechtlich noch zu bestätigen).</p>
+
+<h2>Verdacht auf eine Datenpanne</h2>
+<p>Das kann ein verlorenes Gerät mit Zugang sein, eine falsch versendete Datei oder ein Konto, das jemand anderes benutzt hat. Handeln Sie sofort:</p>
+<ol>
+  <li>Ändern Sie Ihr Passwort. Bei Verdacht auf ein kompromittiertes Konto bitten Sie den Eigentümer, den zweiten Faktor zurückzusetzen.</li>
+  <li>Informieren Sie den Eigentümer und die technische Betreuung <strong>unverzüglich</strong>, nicht erst am nächsten Tag.</li>
+  <li>Notieren Sie, was passiert ist. Ob und wann eine Meldung an die Datenschutzbehörde erfolgen muss (grundsätzlich binnen 72 Stunden nach Bekanntwerden), entscheidet der Verantwortliche, also in der Regel Sie als Therapeut für Ihre Patientendaten.</li>
+</ol>
