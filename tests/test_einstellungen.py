@@ -65,3 +65,14 @@ def test_menu_has_no_import_rent_emergency_but_tabs_do(client_alpha, alpha):
     assert 'href="/buchhaltung/"' in client_alpha.get("/praxis/").content.decode()
     assert "Datenimport" in client_alpha.get("/import/").content.decode()
     assert "Notfallzugriff" in client_alpha.get("/notfall/").content.decode()
+
+
+def test_create_demo_refuses_non_empty_installation(alpha):
+    import pytest
+    from django.core.management import call_command
+    from django.core.management.base import CommandError
+
+    with pytest.raises(CommandError, match="nicht leer"):
+        call_command("create_demo", confirm_fake_data=True)
+    with pytest.raises(CommandError):
+        call_command("create_demo")  # ohne Bestätigung

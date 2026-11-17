@@ -39,6 +39,10 @@ if not DEV and PHYSIO_MASTER_KEY_B64 and not PHYSIO_KEYFILE and os.environ.get("
     )
 
 PHYSIO_TRUST_PROXY = os.environ.get("PHYSIO_TRUST_PROXY") == "1"  # nginx auf Loopback setzt X-Forwarded-For (siehe core/net.py)
+if PHYSIO_TRUST_PROXY:
+    # Der Proxy (Caddy/nginx) beendet TLS und überschreibt X-Forwarded-Proto; die App ist nur über ihn erreichbar (Loopback).
+    # Ohne das hielte Django jede Anfrage für unverschlüsselt und lehnte POSTs über HTTPS wegen der Herkunftsprüfung (CSRF) ab.
+    SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 PHYSIO_JOB_TOKEN = os.environ.get("PHYSIO_JOB_TOKEN", "")  # Cron-Schnittstelle, siehe core/jobs.py
 
 DATA_DIR = Path(os.environ.get("PHYSIO_DATA_DIR", BASE_DIR / "data"))
