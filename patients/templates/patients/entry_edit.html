@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}Eintrag ändern{% endblock %}
+{% block content %}
+<div class="card">
+  <h1>{{ entry.get_kind_display }} vom {{ entry.date|date:"d.m.Y" }}</h1>
+  <p class="muted">Eine Änderung legt eine neue Version an. Frühere Versionen bleiben erhalten.</p>
+  <form method="post">{% csrf_token %}
+    {{ form.text }}
+    {% for e in form.text.errors %}<div class="error">{{ e }}</div>{% endfor %}
+    <button class="primary">Neue Version speichern</button>
+  </form>
+</div>
+<div class="card">
+  <h2>Versionen</h2>
+  {% for v in versions %}
+  <div style="border-top:1px solid #e6e9ee; padding:8px 0">
+    <span class="muted">Version {{ v.version }}, {{ v.created_at|date:"d.m.Y H:i" }}</span>
+    <div>{{ v.text|linebreaksbr }}</div>
+  </div>
+  {% endfor %}
+</div>
+<a href="{% url 'patient_detail' entry.patient_id %}">Zurück zum Patienten</a>
+{% endblock %}

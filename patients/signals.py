@@ -4,7 +4,7 @@ from django.dispatch import receiver
 
 from audit.models import log
 
-from .models import Einwilligung, Patient
+from .models import Eintrag, EintragVersion, Einwilligung, Patient, Zuweisung
 
 
 def _register(model):
@@ -17,5 +17,5 @@ def _register(model):
         log("delete", instance)
 
 
-for _model in (Patient, Einwilligung):
+for _model in (Patient, Einwilligung, Zuweisung, Eintrag, EintragVersion):
     _register(_model)

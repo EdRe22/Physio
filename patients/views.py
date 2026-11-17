@@ -10,8 +10,10 @@ from django.views.decorators.http import require_POST
 from audit.models import log as audit_log
 from core import tenancy
 
-from .forms import PatientForm
-from .models import Patient
+from django.db import transaction
+
+from .forms import EintragForm, EintragTextForm, PatientForm, ZuweisungForm
+from .models import Eintrag, Einwilligung, Patient
 
 
 def tenant_required(view):
@@ -43,7 +45,82 @@ def patient_list(request):
 def patient_detail(request, pk):
     patient = get_object_or_404(Patient, pk=pk)
     audit_log("patient.read", patient)
-    return render(request, "patients/detail.html", {"patient": patient, "consents": patient.consents.all()})
+    entries = [(entry, entry.current) for entry in patient.entries.all()]
+    active = {c.kind: c for c in patient.consents.filter(revoked_at__isnull=True)}
+    consents = [(kind, label, active.get(kind)) for kind, label in Einwilligung.Kind.choices]
+    return render(request, "patients/detail.html", {
+        "patient": patient, "consents": consents, "referrals": patient.referrals.all(), "entries": entries,
+    })
+
+
+@tenant_required
+def referral_create(request, patient_pk):
+    patient = get_object_or_404(Patient, pk=patient_pk)
+    form = ZuweisungForm(request.POST or None)
+    if request.method == "POST" and form.is_valid():
+        referral = form.save(commit=False)
+        referral.patient = patient
+        referral.save()
+        messages.success(request, "Zuweisung gespeichert.")
+        return redirect("patient_detail", pk=patient.pk)
+    return render(request, "patients/form.html", {"form": form, "title": "Neue Zuweisung"})
+
+
+@tenant_required
+def entry_create(request, patient_pk):
+    patient = get_object_or_404(Patient, pk=patient_pk)
+    initial = {"date": timezone.localdate(), "kind": request.GET.get("art", Eintrag.Kind.BEHANDLUNG)}
+    form = EintragForm(request.POST or None, patient=patient, initial=initial)
+    if request.method == "POST" and form.is_valid():
+        data = form.cleaned_data
+        with transaction.atomic(using=tenancy.require().alias):
+            entry = Eintrag.objects.create(
+                patient=patient, referral=data["referral"], kind=data["kind"], date=data["date"]
+            )
+            entry.add_version(data["text"], author_id=request.user.pk)
+        messages.success(request, "Eintrag gespeichert.")
+        return redirect("patient_detail", pk=patient.pk)
+    return render(request, "patients/form.html", {"form": form, "title": "Neuer Eintrag"})
+
+
+@tenant_required
+def entry_edit(request, pk):
+    """Änderung = neue Version. Frühere Versionen bleiben sichtbar und unverändert."""
+    entry = get_object_or_404(Eintrag, pk=pk)
+    current = entry.current
+    form = EintragTextForm(request.POST or None, initial={"text": current.text})
+    if request.method == "POST" and form.is_valid():
+        if form.cleaned_data["text"] != current.text:
+            entry.add_version(form.cleaned_data["text"], author_id=request.user.pk)
+            messages.success(request, "Neue Version gespeichert.")
+        return redirect("patient_detail", pk=entry.patient_id)
+    audit_log("eintrag.read", entry)
+    return render(request, "patients/entry_edit.html", {
+        "form": form, "entry": entry, "versions": list(entry.versions.order_by("-version")),
+    })
+
+
+@tenant_required
+@require_POST
+def consent_grant(request, pk, kind):
+    patient = get_object_or_404(Patient, pk=pk)
+    if kind not in Einwilligung.Kind.values:
+        return HttpResponseForbidden("Unbekannte Einwilligung.")
+    if not patient.has_consent(kind):
+        Einwilligung.objects.create(patient=patient, kind=kind, granted_at=timezone.now())
+        messages.success(request, "Einwilligung erfasst.")
+    return redirect("patient_detail", pk=patient.pk)
+
+
+@tenant_required
+@require_POST
+def consent_revoke(request, pk, kind):
+    patient = get_object_or_404(Patient, pk=pk)
+    for consent in patient.consents.filter(kind=kind, revoked_at__isnull=True):
+        consent.revoked_at = timezone.now()
+        consent.save(update_fields=["revoked_at"])
+    messages.success(request, "Einwilligung widerrufen.")
+    return redirect("patient_detail", pk=patient.pk)
 
 
 @tenant_required

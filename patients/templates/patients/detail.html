@@ -15,10 +15,40 @@
   <form method="post" action="{% url 'patient_archive' patient.pk %}" style="display:inline">{% csrf_token %}<button class="primary">Archivieren</button></form>
   {% else %}<p class="muted">Archiviert (gesperrt, Aufbewahrungsfrist läuft).</p>{% endif %}
 </div>
+
+<div class="card">
+  <h2>Zuweisungen</h2>
+  {% for r in referrals %}
+  <p><strong>{{ r.doctor }}</strong>{% if r.diagnosis %}, {{ r.diagnosis }}{% endif %}<br>
+     <span class="muted">ab {{ r.valid_from|date:"d.m.Y" }}{% if r.valid_until %} bis {{ r.valid_until|date:"d.m.Y" }}{% endif %}
+     · {{ r.units_used }} von {{ r.units_total }} Einheiten verbraucht, {{ r.units_left }} offen</span></p>
+  {% empty %}<p class="muted">Keine Zuweisung erfasst.</p>{% endfor %}
+  <a class="btn" href="{% url 'referral_create' patient.pk %}">Neue Zuweisung</a>
+</div>
+
+<div class="card">
+  <h2>Dokumentation</h2>
+  {% for entry, current in entries %}
+  <div style="border-top:1px solid #e6e9ee; padding:8px 0">
+    <strong>{{ entry.get_kind_display }}</strong> · {{ entry.date|date:"d.m.Y" }}
+    {% if current.version > 1 %}<span class="muted">· Version {{ current.version }}</span>{% endif %}
+    · <a href="{% url 'entry_edit' entry.pk %}">ändern</a>
+    <div>{{ current.text|linebreaksbr }}</div>
+  </div>
+  {% empty %}<p class="muted">Noch keine Einträge.</p>{% endfor %}
+  <a class="btn" href="{% url 'entry_create' patient.pk %}">Neuer Eintrag</a>
+</div>
+
 <div class="card">
   <h2>Einwilligungen</h2>
-  {% for c in consents %}<p>{{ c.get_kind_display }}: seit {{ c.granted_at|date:"d.m.Y" }}{% if c.revoked_at %}, widerrufen am {{ c.revoked_at|date:"d.m.Y" }}{% endif %}</p>
-  {% empty %}<p class="muted">Keine Einwilligungen erfasst.</p>{% endfor %}
+  {% for kind, label, active in consents %}
+  <form method="post" style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid #e6e9ee; padding:6px 0"
+        action="{% if active %}{% url 'consent_revoke' patient.pk kind %}{% else %}{% url 'consent_grant' patient.pk kind %}{% endif %}">
+    {% csrf_token %}
+    <span>{{ label }}: {% if active %}erteilt am {{ active.granted_at|date:"d.m.Y" }}{% else %}<span class="muted">nicht erteilt</span>{% endif %}</span>
+    <button class="primary" style="margin:0">{% if active %}Widerrufen{% else %}Erteilen{% endif %}</button>
+  </form>
+  {% endfor %}
 </div>
 <a href="{% url 'patient_list' %}">Zurück zur Liste</a>
 {% endblock %}
