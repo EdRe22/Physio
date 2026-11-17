@@ -139,9 +139,9 @@
   .txrow { display: grid; grid-template-columns: 130px 1fr auto; gap: 16px; padding: 14px 0; border-top: 1px solid var(--line); align-items: start; }
   .txrow:first-child { border-top: 0; }
   .txrow .amount { font-weight: 700; font-variant-numeric: tabular-nums; } .txrow .amount.in { color: var(--ok); } .txrow .amount.out { color: var(--danger); }
-  .txrow .acts { display: grid; gap: 6px; justify-items: end; } .txrow .acts form { margin: 0; display: flex; gap: 6px; }
+  .txrow .acts { display: flex; flex-wrap: wrap; gap: 6px; justify-content: flex-end; align-items: center; max-width: 520px; } .txrow .acts form { margin: 0; display: flex; gap: 6px; }
   .txrow .acts button, .txrow .acts select { margin: 0; min-height: 34px; width: auto; }
-  @media (max-width: 760px) { .txrow { grid-template-columns: 1fr; } .txrow .acts { justify-items: start; } }
+  @media (max-width: 760px) { .txrow { grid-template-columns: 1fr; } .txrow .acts { justify-content: flex-start; } }
   .login { max-width: 420px; margin: 8vh auto 0; }
 
   /* Formulare zweispaltig (durch static/ui.js) */

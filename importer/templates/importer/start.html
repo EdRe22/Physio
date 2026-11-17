@@ -1,20 +1,22 @@
 {% extends "base.html" %}
 {% block title %}Import{% endblock %}
 {% block content %}
+<div class="pagehead">
+  <div class="grow"><h1>Daten importieren</h1>
+    <div class="sub">Excel (.xlsx), CSV oder Kontoauszug. Die Datei wird nicht gespeichert, der Inhalt liegt bis zum Abschluss verschlüsselt in deiner Datenbank und wird danach verworfen.</div></div>
+</div>
 <div class="card">
-  <h1>Daten aus Excel importieren</h1>
-  <p class="muted">Die Datei wird nicht gespeichert. Der Inhalt liegt bis zum Abschluss verschlüsselt in deiner Datenbank und wird danach verworfen.
-     Importiert werden nur Daten deines eigenen Bereichs.</p>
+  <h2>Schritt 1 von 3: Datei hochladen</h2>
   <form method="post" enctype="multipart/form-data">{% csrf_token %}
     {{ form.non_field_errors }}
     <label for="{{ form.profile.id_for_label }}">{{ form.profile.label }}</label>{{ form.profile }}
     <label for="{{ form.file.id_for_label }}">{{ form.file.label }}</label>{{ form.file }}
     {% for e in form.file.errors %}<div class="error">{{ e }}</div>{% endfor %}
-    <button class="primary">Hochladen und prüfen</button>
+    <div class="actionbar"><button class="primary">Hochladen und prüfen</button></div>
   </form>
-  <p>Vorlagen: {% for p in profiles %}<a href="{% url 'import_template' p.name %}">{{ p.title }}</a>{% if not forloop.last %} · {% endif %}{% endfor %}</p>
-  <p class="muted">Reihenfolge: zuerst den Patientenstamm, danach die Dokumentation. Die Zuordnung der Dokumentation erfolgt über Nachname, Vorname und Geburtsdatum.
-     Importierte Behandlungen verbrauchen keine Einheiten einer Zuweisung.</p>
+  <hr>
+  <p style="margin:0"><strong>Vorlagen:</strong> {% for p in profiles %}<a href="{% url 'import_template' p.name %}">{{ p.title }}</a>{% if not forloop.last %} · {% endif %}{% endfor %}</p>
+  <p class="muted">Reihenfolge: zuerst den Patientenstamm, danach die Dokumentation. Die Zuordnung der Dokumentation erfolgt über Nachname, Vorname und Geburtsdatum. Importierte Behandlungen verbrauchen keine Einheiten einer Zuweisung.</p>
 </div>
 {% if jobs %}
 <div class="card">
