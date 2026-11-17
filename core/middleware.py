@@ -51,6 +51,8 @@ class TenantMiddleware:
 
     def __call__(self, request):
         user = request.user
+        if request.path == "/entsperren/":  # Entsperrseite braucht keinen Mandanten (und der Schlüssel ist ggf. noch gesperrt)
+            return self.get_response(request)
         if user.is_authenticated and user.is_verified() and user.tenant_id:
             tenant = user.tenant
             if not tenant.is_active:
@@ -64,3 +66,21 @@ class TenantMiddleware:
         if isinstance(exception, tenancy.TenantNotSet):
             return HttpResponseForbidden("Kein Mandant zugeordnet.")
         return None
+
+
+class LockedMiddleware:
+    """Solange der Master-Schlüssel nicht entsperrt ist, ist nur die Entsperrseite erreichbar (503)."""
+
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        from django.conf import settings
+        from django.http import HttpResponse
+
+        from . import keystore
+
+        if settings.PHYSIO_KEYFILE and not keystore.is_unlocked() and request.path != "/entsperren/":
+            return HttpResponse("System gesperrt. Der Eigentümer muss es unter /entsperren/ freigeben.", status=503,
+                                content_type="text/plain; charset=utf-8")
+        return self.get_response(request)

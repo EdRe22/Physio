@@ -6,6 +6,13 @@ from core import tenancy
 from patients.models import Patient
 
 
+def _remove_triggers():
+    """Simuliert einen Angreifer mit Schema-Rechten: nur so lassen sich die DB-Trigger umgehen."""
+    with connections["t_alpha"].cursor() as cur:
+        cur.execute("drop trigger audit_no_update")
+        cur.execute("drop trigger audit_no_delete")
+
+
 def test_writes_are_logged_without_patient_data(in_alpha):
     patient = Patient.objects.create(first_name="Maria", last_name="Muster")
     patient.phone = "0660 1234567"
@@ -21,6 +28,7 @@ def test_chain_valid_and_detects_tampering(in_alpha):
     for i in range(4):
         log("test", object_type="x", object_id=str(i))
     assert verify_chain() == (True, None)
+    _remove_triggers()
     with connections["t_alpha"].cursor() as cur:  # Manipulation an der Datenbank vorbei am ORM
         cur.execute("update audit_auditentry set action='harmlos' where id=2")
     ok, bad = verify_chain()
@@ -30,6 +38,7 @@ def test_chain_valid_and_detects_tampering(in_alpha):
 def test_chain_detects_deleted_entry(in_alpha):
     for i in range(4):
         log("test", object_id=str(i))
+    _remove_triggers()
     with connections["t_alpha"].cursor() as cur:
         cur.execute("delete from audit_auditentry where id=2")
     ok, bad = verify_chain()

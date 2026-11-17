@@ -18,6 +18,12 @@ _FIELD_AAD = b"physio/field/v1"
 
 
 def master_key() -> bytes:
+    from . import keystore
+
+    if keystore.current() is not None:
+        return keystore.current()
+    if settings.PHYSIO_KEYFILE:  # Produktion: kein Klartext-Schlüssel aus der Umgebung
+        raise ImproperlyConfigured("Master-Schlüssel ist gesperrt (noch nicht entsperrt).")
     raw = settings.PHYSIO_MASTER_KEY_B64
     if not raw:
         raise ImproperlyConfigured("Master-Schlüssel nicht entsperrt (PHYSIO_MASTER_KEY).")

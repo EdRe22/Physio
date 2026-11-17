@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}System entsperren{% endblock %}
+{% block content %}
+<div class="card">
+  <h1>System entsperren</h1>
+  <p class="muted">Nach jedem Neustart muss der Eigentümer das System freigeben. Bis dahin sind alle Daten unlesbar.</p>
+  {% if error %}<p class="error">{{ error }}</p>{% endif %}
+  <form method="post" enctype="multipart/form-data">{% csrf_token %}
+    <label>Passphrase</label><input type="password" name="passphrase" autocomplete="off" required>
+    <label>Schlüsseldatei (falls eingerichtet)</label><input type="file" name="keyfile">
+    <button class="primary">Entsperren</button>
+  </form>
+</div>
+{% endblock %}

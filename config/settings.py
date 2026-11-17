@@ -28,9 +28,17 @@ ALLOWED_HOSTS = [h for h in os.environ.get("PHYSIO_ALLOWED_HOSTS", "localhost,12
 
 # Master-Schlüssel (Base64, 32 Byte). In Produktion kommt er vom Hardware-Token des
 # Eigentümers beim Systemstart und liegt nie im Klartext auf der Platte.
+PHYSIO_KEYFILE = os.environ.get("PHYSIO_KEYFILE") or None  # versiegelter Master-Schlüssel (siehe core/keystore.py)
 PHYSIO_MASTER_KEY_B64 = os.environ.get("PHYSIO_MASTER_KEY") or (
     base64.b64encode(b"\x01" * 32).decode() if DEV else None
 )
+if not DEV and PHYSIO_MASTER_KEY_B64 and not PHYSIO_KEYFILE and os.environ.get("PHYSIO_ALLOW_ENV_KEY") != "1":
+    raise ImproperlyConfigured(
+        "Produktion: Master-Schlüssel nicht aus der Umgebung lesen. PHYSIO_KEYFILE setzen "
+        "(oder bewusst PHYSIO_ALLOW_ENV_KEY=1, nicht empfohlen)."
+    )
+
+PHYSIO_JOB_TOKEN = os.environ.get("PHYSIO_JOB_TOKEN", "")  # Cron-Schnittstelle, siehe core/jobs.py
 
 DATA_DIR = Path(os.environ.get("PHYSIO_DATA_DIR", BASE_DIR / "data"))
 
@@ -72,6 +80,7 @@ LOGIN_REDIRECT_URL = "patient_list"
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    "core.middleware.LockedMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
