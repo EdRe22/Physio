@@ -13,7 +13,8 @@ Konzept: `Konzept WebApp Physio-Praxisgemeinschaft.docx` (bzw. Claude Doc). Stac
 | 3 Import | Excel/CSV-Import für Patientenstamm und Dokumentation: Spaltenzuordnung, Trockenlauf, Dublettenprüfung, Protokoll ohne Zellwerte, Datei wird nie gespeichert | fertig, getestet |
 | 4a Honorarnoten | Leistungskatalog, Honorarnoten aus Behandlungen oder frei, fortlaufende lückenlose Nummer pro Jahr, Unveränderlichkeit nach dem Ausstellen, Storno, Zahlungen, Mahnstufen, PDF | fertig, getestet |
 | 4b Buchhaltung | Einnahmen-Ausgaben-Journal (unveränderlich, Storno per Gegenbuchung), verschlüsselte Belege, Bankimport (camt.053/CSV/Excel), Zahlungsabgleich, Jahresauswertung, CSV/ZIP-Export für den Steuerberater | fertig, getestet |
-| 5-6 | Praxisbereich/Miete, Vertretung, Go-Live | offen |
+| 5 Praxisbereich | Mietverhältnisse pro Therapeut, monatliche Mietabrechnung (Nummernkreis, PDF, unveränderlich, Storno), Zahlung beim Eigentümer als Einnahme, Übernahme beim Kollegen als Ausgabe; Daten nur Beträge, Sichtbarkeit zentral in `services.visible_invoices` | fertig, getestet |
+| 6 | Raumbelegung, Vertretung/Praxisende, Go-Live | offen |
 
 **Honorarnoten: Ausstellen ist gesperrt**, bis im Rechnungsprofil das Datum „vom Steuerberater bestätigt“ gesetzt ist. Der Platzhaltertext für die Umsatzsteuerbefreiung wird abgelehnt. Das PDF wird bei Bedarf aus den festgeschriebenen Daten erzeugt und nicht gespeichert (Schrift Roboto aus dem Paket `font-roboto`).
 

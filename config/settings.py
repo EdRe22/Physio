@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     "importer",
     "rechnungen",
     "buchhaltung",
+    "praxis",
 ]
 
 # Diese Apps liegen ausschließlich in der Mandanten-Datenbank des jeweiligen Therapeuten.

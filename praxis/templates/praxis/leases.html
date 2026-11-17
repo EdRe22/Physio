@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}Mietverhältnisse{% endblock %}
+{% block content %}
+<div class="card">
+  <h1>Mietverhältnisse</h1>
+  <table>
+    <tr><th>Therapeut</th><th>Miete</th><th>Betriebskosten</th><th>Zeitraum</th></tr>
+    {% for l in leases %}<tr><td>{{ l.tenant.name }}</td><td>{{ l.rent_eur }}</td><td>{{ l.utilities_eur }}</td><td>{{ l.valid_from|date:"d.m.Y" }} – {% if l.valid_until %}{{ l.valid_until|date:"d.m.Y" }}{% else %}unbefristet{% endif %}</td></tr>
+    {% empty %}<tr><td colspan="4" class="muted">Keine Mietverhältnisse.</td></tr>{% endfor %}
+  </table>
+</div>
+<div class="card">
+  <h2>Neues Mietverhältnis</h2>
+  <form method="post">{% csrf_token %}{{ form.as_p }}<button class="primary">Speichern</button></form>
+</div>
+<a href="{% url 'rent_list' %}">Zurück</a>
+{% endblock %}

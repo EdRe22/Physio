@@ -9,4 +9,5 @@ urlpatterns = [
     path("import/", include("importer.urls")),
     path("rechnungen/", include("rechnungen.urls")),
     path("buchhaltung/", include("buchhaltung.urls")),
+    path("praxis/", include("praxis.urls")),
 ]

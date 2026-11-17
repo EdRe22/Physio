@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}Mietabrechnung {{ i.number }}{% endblock %}
+{% block content %}
+<div class="card">
+  <h1>Mietabrechnung {{ i.number }}</h1>
+  <table>
+    <tr><th>Monat</th><td>{{ i.period }}</td></tr>
+    <tr><th>Therapeut</th><td>{{ i.tenant.name }}</td></tr>
+    <tr><th>Miete</th><td>{{ i.rent_eur }}</td></tr>
+    <tr><th>Betriebskosten</th><td>{{ i.utilities_eur }}</td></tr>
+    <tr><th>Gesamt</th><td>{{ i.total_eur }}</td></tr>
+    <tr><th>Fällig</th><td>{{ i.due_on|date:"d.m.Y" }}</td></tr>
+    <tr><th>Status</th><td>{{ i.get_status_display }}{% if i.paid_on %} am {{ i.paid_on|date:"d.m.Y" }}{% endif %}</td></tr>
+  </table>
+  <a class="btn" href="{% url 'rent_pdf' i.pk %}">PDF</a>
+  {% if own and not i.tenant_booked_on and i.status != "storniert" %}<form method="post" action="{% url 'rent_book' i.pk %}">{% csrf_token %}<button class="primary">In meine Buchhaltung übernehmen (Ausgabe Miete)</button></form>{% endif %}
+  {% if own and i.tenant_booked_on %}<p class="muted">In Ihrer Buchhaltung gebucht am {{ i.tenant_booked_on|date:"d.m.Y" }}.</p>{% endif %}
+  {% if owner and i.status == "offen" %}
+    <form method="post" action="{% url 'rent_paid' i.pk %}">{% csrf_token %}{{ paid_form.as_p }}<button class="primary">Als bezahlt markieren und als Einnahme buchen</button></form>
+    <form method="post" action="{% url 'rent_storno' i.pk %}">{% csrf_token %}<button class="primary" style="background:#a4161a">Stornieren</button></form>
+  {% endif %}
+</div>
+<a href="{% url 'rent_list' %}">Zurück</a>
+{% endblock %}

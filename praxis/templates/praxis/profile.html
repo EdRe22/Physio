@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block title %}Praxisprofil{% endblock %}
+{% block content %}
+<div class="card">
+  <h1>Praxisprofil für Mietabrechnungen</h1>
+  <form method="post">{% csrf_token %}{{ form.as_p }}<button class="primary">Speichern</button></form>
+  <p class="muted">Der Steuerhinweis (Vermietung) muss vom Steuerberater bestätigt sein, sonst bleibt das Ausstellen gesperrt.</p>
+</div>
+{% endblock %}
