@@ -25,6 +25,12 @@ class PraxisProfil(models.Model):
         return bool(self.name and self.address and self.iban and self.tax_text and self.tax_confirmed_on)
 
 
+class Erscheinungsbild(models.Model):
+    """Gewählte Farbpalette der Oberfläche (Einzelsatz, gilt für die ganze Praxis). Auswahl siehe verwaltung/themes.py."""
+
+    palette = models.CharField(max_length=20, default="teal")
+
+
 class Mietverhaeltnis(models.Model):
     tenant = models.ForeignKey("core.Tenant", on_delete=models.PROTECT, related_name="leases")
     rent_cents = models.PositiveIntegerField("Miete pro Monat (Cent)")

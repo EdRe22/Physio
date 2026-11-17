@@ -155,6 +155,7 @@
   @media (max-width: 1000px) { .week { grid-template-columns: 1fr; } .daycol { min-height: 0; } }
 </style>
 <link rel="stylesheet" href="/static/theme.css">
+{% if theme_css %}<style>{{ theme_css|safe }}</style>{% endif %}
 </head>
 <body class="{% if user.is_authenticated %}app{% else %}guest{% endif %}">
 <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">

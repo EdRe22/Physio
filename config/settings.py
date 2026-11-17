@@ -112,6 +112,7 @@ TEMPLATES = [
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
                 "hilfe.context.help_link",
+                "verwaltung.context.theme",
             ]
         },
     }

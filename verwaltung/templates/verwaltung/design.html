@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}Farben{% endblock %}
+{% block content %}
+<div class="pagehead">
+  <div class="grow"><h1>Farben</h1><div class="sub">Wählen Sie die Hauptfarbe der Oberfläche. Sie gilt für alle in der Praxis, auch auf der Anmeldeseite, und passt sich dem hellen und dunklen Modus an.</div></div>
+</div>
+{% include "verwaltung/_tabs.html" with active="design" %}
+<div class="card">
+  <form method="post" id="palette-form">{% csrf_token %}
+    <div class="swatches" role="radiogroup" aria-label="Farbpalette">
+      {% for o in options %}
+      <label class="swatch">
+        <input type="radio" name="palette" value="{{ o.p.slug }}" {% if o.checked %}checked{% endif %} data-light="{{ o.light }}" data-dark="{{ o.dark }}">
+        <span class="chip" style="background:{{ o.gradient }}"></span>
+        <span class="swname">{{ o.p.name }}</span>
+      </label>
+      {% endfor %}
+    </div>
+    <p class="muted">Die Vorschau zeigt die Farbe sofort. Gespeichert wird erst mit „Speichern“.</p>
+    <button class="primary">Speichern</button>
+  </form>
+</div>
+<script src="/static/palette.js" defer></script>
+{% endblock %}

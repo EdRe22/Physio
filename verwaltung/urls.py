@@ -11,5 +11,6 @@ urlpatterns = [
     path("benutzer/<int:pk>/zweiter-faktor/", views.user_2fa, name="verwaltung_user_2fa"),
     path("benutzer/<int:pk>/sperren/", views.user_lock, name="verwaltung_user_lock"),
     path("benutzer/<int:pk>/ausscheiden/", views.user_offboard, name="verwaltung_user_offboard"),
+    path("erscheinungsbild/", views.design, name="verwaltung_design"),
     path("protokoll-pruefen/", views.audit_check, name="verwaltung_audit_check"),
 ]

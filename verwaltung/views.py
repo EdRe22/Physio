@@ -1,3 +1,4 @@
+import json
 from datetime import date
 
 from django.contrib import messages
@@ -11,9 +12,10 @@ from audit.models import log as audit_log
 from core import provision, tenancy
 from core.net import client_ip
 from praxis import offboarding
+from praxis.models import Erscheinungsbild
 from praxis.views import owner_required
 
-from . import services
+from . import services, themes
 from .forms import NewTherapistForm
 
 
@@ -163,3 +165,22 @@ def audit_check(request):
     else:
         messages.success(request, f"Alle {checked} Protokollketten sind unverändert und lückenlos.")
     return redirect("verwaltung_index")
+
+
+@owner_required
+def design(request):
+    current = Erscheinungsbild.objects.first()
+    chosen = current.palette if current else themes.DEFAULT
+    if request.method == "POST":
+        slug = request.POST.get("palette", "")
+        if slug not in themes.BY_SLUG:
+            messages.error(request, "Bitte eine der angebotenen Farben auswählen.")
+        else:
+            obj = current or Erscheinungsbild()
+            obj.palette = slug
+            obj.save()
+            audit_log("admin.theme_change", object_type="theme", object_id=slug)
+            messages.success(request, f"Farbe „{themes.BY_SLUG[slug].name}“ gespeichert. Sie gilt jetzt für alle in der Praxis.")
+            return redirect("verwaltung_design")
+    options = [{"p": p, "light": json.dumps(p.light), "dark": json.dumps(p.dark), "gradient": f"linear-gradient(135deg,{p.light['side-from']},{p.light['brand']} 60%,{p.light['brand-2']})", "checked": p.slug == chosen} for p in themes.PALETTES]
+    return render(request, "verwaltung/design.html", {"options": options})
