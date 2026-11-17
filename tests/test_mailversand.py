@@ -136,10 +136,10 @@ def test_default_mail_text_when_empty(in_alpha):
 def test_settings_page_saves_mail_texts(client_alpha, in_alpha):
     profile()
     data = {"reminder_days": 7, "reminder_fee": "0", "mail_text_invoice": "Mein Text {nummer}", "mail_text_reminder": ""}
-    assert client_alpha.post("/rechnungen/mahnwesen/", data).status_code == 302
+    assert client_alpha.post("/einstellungen/mahnwesen/", data).status_code == 302
     from rechnungen.models import Rechnungsprofil
     assert Rechnungsprofil.objects.get().mail_text_invoice == "Mein Text {nummer}"
-    assert client_alpha.post("/rechnungen/mahnwesen/", {**data, "mail_text_invoice": "x" * 1501}).status_code == 200
+    assert client_alpha.post("/einstellungen/mahnwesen/", {**data, "mail_text_invoice": "x" * 1501}).status_code == 200
 
 
 def test_auto_reminders_opt_in_levels_and_deadline(in_alpha):
@@ -183,13 +183,19 @@ def test_settings_page_saves_auto_options(client_alpha, in_alpha):
     from rechnungen.models import Rechnungsprofil
     profile()
     data = {"reminder_days": 7, "reminder_fee": "0", "auto_reminders": "on", "auto_max_level": "1"}
-    assert client_alpha.post("/rechnungen/mahnwesen/", data).status_code == 302
+    assert client_alpha.post("/einstellungen/mahnwesen/", data).status_code == 302
     p = Rechnungsprofil.objects.get()
     assert p.auto_reminders is True and p.auto_max_level == 1
-    assert client_alpha.post("/rechnungen/mahnwesen/", {**data, "auto_max_level": "3"}).status_code == 200
+    assert client_alpha.post("/einstellungen/mahnwesen/", {**data, "auto_max_level": "3"}).status_code == 200
 
 
-def test_profile_page_links_to_mahnwesen_settings(client_alpha, in_alpha):
+def test_settings_tabs_on_every_settings_page_and_old_buttons_gone(client_alpha, in_alpha):
     profile()
-    page = client_alpha.get("/rechnungen/profil/").content.decode()
-    assert "/rechnungen/mahnwesen/" in page and "automatischen Mahnversand" in page
+    for path in ("profil/", "mahnwesen/", "mailserver/", "farbe/", "konto/"):
+        page = client_alpha.get(f"/einstellungen/{path}").content.decode()
+        for target in ("/einstellungen/profil/", "/einstellungen/mahnwesen/", "/einstellungen/mailserver/", "/einstellungen/farbe/", "/einstellungen/konto/"):
+            assert target in page, (path, target)
+    for old in ("/rechnungen/", "/rechnungen/ueberfaellig/"):
+        page = client_alpha.get(old).content.decode()
+        assert "/einstellungen/mahnwesen/" not in page and "/einstellungen/mailserver/" not in page
+    assert client_alpha.get("/einstellungen/").status_code == 302

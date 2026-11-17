@@ -19,10 +19,10 @@ def public_dns(monkeypatch):
 
 def test_save_encrypts_password_and_never_shows_it(client_alpha, in_alpha):
     profile()
-    assert client_alpha.post("/rechnungen/mailserver/", GOOD).status_code == 302
+    assert client_alpha.post("/einstellungen/mailserver/", GOOD).status_code == 302
     p = Rechnungsprofil.objects.get()
     assert p.smtp_host == "smtp.mailanbieter.at" and p.smtp_password == "geheim-123"
-    page = client_alpha.get("/rechnungen/mailserver/").content.decode()
+    page = client_alpha.get("/einstellungen/mailserver/").content.decode()
     assert "geheim-123" not in page and "smtp.mailanbieter.at" in page
     from django.db import connections
     with connections["t_alpha"].cursor() as cur:
@@ -32,11 +32,11 @@ def test_save_encrypts_password_and_never_shows_it(client_alpha, in_alpha):
 
 def test_blank_password_keeps_old_and_remove_clears(client_alpha, in_alpha):
     profile()
-    client_alpha.post("/rechnungen/mailserver/", GOOD)
-    client_alpha.post("/rechnungen/mailserver/", {**GOOD, "smtp_password_new": "", "smtp_user": "neu@alpha.at"})
+    client_alpha.post("/einstellungen/mailserver/", GOOD)
+    client_alpha.post("/einstellungen/mailserver/", {**GOOD, "smtp_password_new": "", "smtp_user": "neu@alpha.at"})
     p = Rechnungsprofil.objects.get()
     assert p.smtp_password == "geheim-123" and p.smtp_user == "neu@alpha.at"
-    client_alpha.post("/rechnungen/mailserver/", {"remove": "on"})
+    client_alpha.post("/einstellungen/mailserver/", {"remove": "on"})
     p = Rechnungsprofil.objects.get()
     assert p.smtp_host == "" and not p.smtp_password and p.smtp_from == ""
 
@@ -48,20 +48,20 @@ def test_blank_password_keeps_old_and_remove_clears(client_alpha, in_alpha):
 ])
 def test_invalid_or_internal_settings_rejected(client_alpha, in_alpha, change):
     profile()
-    assert client_alpha.post("/rechnungen/mailserver/", {**GOOD, **change}).status_code == 200
+    assert client_alpha.post("/einstellungen/mailserver/", {**GOOD, **change}).status_code == 200
     assert Rechnungsprofil.objects.get().smtp_host == ""
 
 
 def test_hostname_resolving_to_private_address_is_rejected(client_alpha, in_alpha, monkeypatch):
     profile()
     monkeypatch.setattr(mailconfig, "_resolve", lambda host: ["10.1.2.3"])
-    assert client_alpha.post("/rechnungen/mailserver/", GOOD).status_code == 200
+    assert client_alpha.post("/einstellungen/mailserver/", GOOD).status_code == 200
     assert Rechnungsprofil.objects.get().smtp_host == ""
 
 
 def test_password_required_for_new_server(client_alpha, in_alpha):
     profile()
-    assert client_alpha.post("/rechnungen/mailserver/", {**GOOD, "smtp_password_new": ""}).status_code == 200
+    assert client_alpha.post("/einstellungen/mailserver/", {**GOOD, "smtp_password_new": ""}).status_code == 200
 
 
 def test_send_uses_own_server_and_sender(in_alpha, monkeypatch):
@@ -97,13 +97,13 @@ def test_default_central_sender_without_own_server(in_alpha):
 def test_test_mail_button(client_alpha, in_alpha, monkeypatch):
     profile()
     monkeypatch.setattr(mailconfig, "get_connection", lambda *a, **k: __import__("django.core.mail", fromlist=["x"]).get_connection("django.core.mail.backends.locmem.EmailBackend"))
-    client_alpha.post("/rechnungen/mailserver/", GOOD)
-    r = client_alpha.post("/rechnungen/mailserver/", {"action": "test"}, follow=True)
+    client_alpha.post("/einstellungen/mailserver/", GOOD)
+    r = client_alpha.post("/einstellungen/mailserver/", {"action": "test"}, follow=True)
     assert mail.outbox and mail.outbox[-1].to == ["praxis@alpha.at"] and "Test-E-Mail wurde" in r.content.decode()
 
 
 def test_other_therapist_has_own_settings(client_alpha, client_beta, in_alpha):
     profile()
-    client_alpha.post("/rechnungen/mailserver/", GOOD)
-    body = client_beta.get("/rechnungen/mailserver/", follow=True).content.decode()
+    client_alpha.post("/einstellungen/mailserver/", GOOD)
+    body = client_beta.get("/einstellungen/mailserver/", follow=True).content.decode()
     assert "smtp.mailanbieter.at" not in body

@@ -1,0 +1,7 @@
+<div class="tabs" role="navigation" aria-label="Einstellungen">
+  <a href="{% url 'profile_edit' %}" {% if active == "profile" %}class="on" aria-current="page"{% endif %}>Rechnungsprofil</a>
+  <a href="{% url 'reminder_settings' %}" {% if active == "reminders" %}class="on" aria-current="page"{% endif %}>Mahnwesen &amp; E-Mail-Texte</a>
+  <a href="{% url 'mail_server' %}" {% if active == "mailserver" %}class="on" aria-current="page"{% endif %}>Mailserver</a>
+  <a href="{% url 'my_design' %}" {% if active == "design" %}class="on" aria-current="page"{% endif %}>Farbe</a>
+  <a href="{% url 'my_account' %}" {% if active == "account" %}class="on" aria-current="page"{% endif %}>Konto</a>
+</div>

@@ -80,7 +80,7 @@ Die Seite „Verwaltung → Einrichtung“ zeigt den Stand und führt zu jedem S
 |---|---|---|
 | ☐ | Erstes Konto des Eigentümers angelegt (`create_tenant`, `create_therapist … --owner`), zweiter Faktor eingerichtet, Passwort geändert | |
 | ☐ | Praxisprofil (Miete): Name, Anschrift, IBAN, Zahlungsziel, **vom Steuerberater bestätigter** Hinweis; optional Logo | |
-| ☐ | Eigenes Rechnungsprofil mit bestätigtem Befreiungshinweis; optional Logo | |
+| ☐ | Eigenes Rechnungsprofil (Einstellungen) mit bestätigtem Befreiungshinweis; optional Logo | |
 | ☐ | Behandlungsräume angelegt | |
 | ☐ | Praxisfarbe gewählt (Verwaltung → Farben) | |
 | ☐ | Kollegen angelegt (Verwaltung → Benutzer → Therapeut anlegen); Startpasswort persönlich übergeben, **gemeinsam** zweiten Faktor einrichten | |

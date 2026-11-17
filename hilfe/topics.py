@@ -38,7 +38,7 @@ BY_SLUG = {t.slug: t for t in TOPICS}
 AREAS = [
     ("/patients/", "patienten"), ("/termine/", "termine"), ("/raeume/", "raeume"), ("/rechnungen/", "honorarnoten"),
     ("/buchhaltung/bank/", "bankabgleich"), ("/buchhaltung/", "buchhaltung"), ("/import/", "import"),
-    ("/verwaltung/", "eigentuemer-verwaltung"), ("/praxis/", "miete"), ("/notfall/", "notfall"), ("/passwort/", "erste-schritte"), ("/2fa/", "erste-schritte"),
+    ("/verwaltung/", "eigentuemer-verwaltung"), ("/einstellungen/", "honorarnoten"), ("/praxis/", "miete"), ("/notfall/", "notfall"), ("/passwort/", "erste-schritte"), ("/2fa/", "erste-schritte"),
 ]
 
 

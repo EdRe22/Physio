@@ -24,4 +24,5 @@ urlpatterns = [
     path("raeume/", include("raeume.urls")),
     path("hilfe/", include("hilfe.urls")),
     path("verwaltung/", include("verwaltung.urls")),
+    path("einstellungen/", include("einstellungen.urls")),
 ]

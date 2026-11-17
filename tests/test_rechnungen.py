@@ -349,7 +349,7 @@ def post_profile(client, **kw):
     data = dict(name="Therapeut Alpha", title="Physiotherapeut", address="Praxisgasse 1\n1010 Wien", payment_days=14,
                 exemption_text="Fake-Befreiungstext", iban=IBAN, phone="", email="", tax_no="", uid="", bic="")
     data.update(kw)
-    return client.post("/rechnungen/profil/", data)
+    return client.post("/einstellungen/profil/", data)
 
 
 def test_profile_form_rules(client_alpha, alpha):
@@ -436,5 +436,5 @@ def test_invoice_data_encrypted_at_rest(alpha):
 def test_requires_login():
     from django.test import Client
 
-    for path in ("/rechnungen/", "/rechnungen/profil/", "/rechnungen/1/pdf/"):
+    for path in ("/rechnungen/", "/einstellungen/profil/", "/rechnungen/1/pdf/"):
         assert Client().get(path).status_code == 302

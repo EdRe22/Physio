@@ -32,9 +32,12 @@ def _guard(request, func, *args, ok=None, **kwargs):
 def profile_edit(request):
     form = ProfilForm(request.POST or None, request.FILES or None, instance=services.get_profile())
     if request.method == "POST" and form.is_valid():
-        form.save()
+        saved = form.save()
+        from einstellungen.views import refresh_own_logo_theme
+
+        refresh_own_logo_theme(request.user, saved)
         messages.success(request, "Rechnungsprofil gespeichert.")
-        return redirect("invoice_list")
+        return redirect("profile_edit")
     return render(request, "rechnungen/profile.html", {"form": form, "has_logo": bool(form.instance.logo_b64)})
 
 

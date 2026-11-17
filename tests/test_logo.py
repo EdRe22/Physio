@@ -72,23 +72,23 @@ def profile_data(**extra):
 
 
 def test_therapist_uploads_and_sees_own_logo_only(client_alpha, client_beta, in_alpha):
-    r = client_alpha.post("/rechnungen/profil/", profile_data(logo=upload(png_bytes())))
+    r = client_alpha.post("/einstellungen/profil/", profile_data(logo=upload(png_bytes())))
     assert r.status_code == 302, r.content.decode()[:2000]
-    assert client_alpha.get("/rechnungen/profil/logo/")["Content-Type"] == "image/png"
-    assert client_alpha.get("/rechnungen/profil/logo/")["X-Content-Type-Options"] == "nosniff"
-    assert client_beta.get("/rechnungen/profil/logo/").status_code == 404  # Beta hat keins und sieht nie das von Alpha
+    assert client_alpha.get("/einstellungen/profil/logo/")["Content-Type"] == "image/png"
+    assert client_alpha.get("/einstellungen/profil/logo/")["X-Content-Type-Options"] == "nosniff"
+    assert client_beta.get("/einstellungen/profil/logo/").status_code == 404  # Beta hat keins und sieht nie das von Alpha
 
 
 def test_bad_upload_shows_error_and_saves_nothing(client_alpha, in_alpha):
-    r = client_alpha.post("/rechnungen/profil/", profile_data(logo=upload(b"<svg/>", "x.svg", "image/svg+xml")))
+    r = client_alpha.post("/einstellungen/profil/", profile_data(logo=upload(b"<svg/>", "x.svg", "image/svg+xml")))
     assert r.status_code == 200 and "PNG oder JPEG" in r.content.decode()
     assert not Rechnungsprofil.objects.exists()
 
 
 def test_remove_logo(client_alpha, in_alpha):
-    client_alpha.post("/rechnungen/profil/", profile_data(logo=upload(png_bytes())))
+    client_alpha.post("/einstellungen/profil/", profile_data(logo=upload(png_bytes())))
     assert Rechnungsprofil.objects.get().logo_b64
-    client_alpha.post("/rechnungen/profil/", profile_data(remove_logo="on"))
+    client_alpha.post("/einstellungen/profil/", profile_data(remove_logo="on"))
     assert Rechnungsprofil.objects.get().logo_b64 == ""
 
 
@@ -99,7 +99,7 @@ def test_logo_frozen_in_issued_invoice_and_drawn_in_pdf(client_alpha, in_alpha):
     from rechnungen import services
     from rechnungen.pdf import render_pdf
 
-    client_alpha.post("/rechnungen/profil/", profile_data(logo=upload(png_bytes())))
+    client_alpha.post("/einstellungen/profil/", profile_data(logo=upload(png_bytes())))
     patient = Patient.objects.create(first_name="Pia", last_name="Muster")
     inv = Honorarnote.objects.create(patient=patient)
     inv.positions.create(date=date(2026, 1, 5), description="Behandlung", quantity=1, unit_price_cents=5000)
@@ -107,7 +107,7 @@ def test_logo_frozen_in_issued_invoice_and_drawn_in_pdf(client_alpha, in_alpha):
     assert json.loads(inv.issuer_snapshot)["logo"]
     with_logo = render_pdf(inv)
     # späteres Entfernen des Logos ändert den ausgestellten Beleg nicht
-    client_alpha.post("/rechnungen/profil/", profile_data(remove_logo="on"))
+    client_alpha.post("/einstellungen/profil/", profile_data(remove_logo="on"))
     inv.refresh_from_db()
     again = render_pdf(inv)
     assert len(PdfReader(io.BytesIO(again)).pages[0].images) == 1

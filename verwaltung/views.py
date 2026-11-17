@@ -200,7 +200,7 @@ def design(request):
         obj.save()
         audit_log("admin.theme_change", object_type="theme", object_id=slug)
         name = themes.palette_for(slug, custom).name
-        messages.success(request, f"Farbe „{name}“ gespeichert. Sie gilt jetzt für alle in der Praxis.")
+        messages.success(request, f"Farbe „{name}“ gespeichert. Sie gilt jetzt als Standard für alle, die keine eigene Farbe gewählt haben.")
         return redirect("verwaltung_design")
     options = [{"p": p, "light": json.dumps(p.light), "dark": json.dumps(p.dark), "gradient": _gradient(p),
                 "checked": p.slug == chosen} for p in themes.PALETTES]

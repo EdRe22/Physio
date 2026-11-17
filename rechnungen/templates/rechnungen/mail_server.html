@@ -2,10 +2,12 @@
 {% block title %}Mailserver{% endblock %}
 {% block content %}
 <div class="pagehead">
-  <div class="grow"><h1>Eigener Mailserver</h1><div class="sub">Von welcher Adresse Ihre Honorarnoten, Mahnungen und Terminerinnerungen versendet werden. Gilt nur für Sie.</div></div>
-  <div class="actions"><a class="btn secondary" href="{% url 'reminder_settings' %}">Mahnwesen</a></div>
+  <div class="grow"><h1>Einstellungen</h1><div class="sub">Alle Einstellungen für Ihr Konto an einem Ort.</div></div>
 </div>
+{% include "einstellungen/_tabs.html" with active="mailserver" %}
 <div class="card">
+  <h2>Eigener Mailserver</h2>
+  <p class="muted">Von welcher Adresse Ihre Honorarnoten, Mahnungen und Terminerinnerungen versendet werden. Gilt nur für Sie.</p>
   {% if custom %}<div class="callout ok">Ihr eigener Mailserver ist eingerichtet. Es wird über <strong>{{ form.instance.smtp_host }}</strong> von <strong>{{ form.instance.smtp_from }}</strong> gesendet.</div>
   {% else %}<div class="callout">Es ist kein eigener Mailserver hinterlegt. Gesendet wird über den zentralen Zugang der Praxis, sofern dieser eingerichtet ist.</div>{% endif %}
   <form method="post">{% csrf_token %}

@@ -101,14 +101,14 @@ def test_settings_page_saves_days_fee_and_texts(client_alpha, in_alpha):
     profile()
     data = {"reminder_days": 10, "reminder_days_2": 5, "reminder_days_3": "", "reminder_fee": "7,50",
             "reminder_text_1": "Hallo, bitte {betrag} zu {nummer} bis {frist}.", "reminder_text_2": "", "reminder_text_3": ""}
-    assert client_alpha.post("/rechnungen/mahnwesen/", data).status_code == 302
+    assert client_alpha.post("/einstellungen/mahnwesen/", data).status_code == 302
     p = Rechnungsprofil.objects.get()
     assert (p.reminder_days, p.reminder_days_2, p.reminder_days_3, p.reminder_fee_cents) == (10, 5, None, 750)
     assert services.reminder_days_for(p, 1) == 10 and services.reminder_days_for(p, 2) == 5 and services.reminder_days_for(p, 3) == 10
-    bad = client_alpha.post("/rechnungen/mahnwesen/", {**data, "reminder_fee": "-5", "reminder_days": 0})
+    bad = client_alpha.post("/einstellungen/mahnwesen/", {**data, "reminder_fee": "-5", "reminder_days": 0})
     assert bad.status_code == 200 and Rechnungsprofil.objects.get().reminder_fee_cents == 750
-    assert client_alpha.post("/rechnungen/mahnwesen/", {**data, "reminder_days_3": 99}).status_code == 200
-    assert client_alpha.get("/rechnungen/mahnwesen/").status_code == 200
+    assert client_alpha.post("/einstellungen/mahnwesen/", {**data, "reminder_days_3": 99}).status_code == 200
+    assert client_alpha.get("/einstellungen/mahnwesen/").status_code == 200
 
 
 def test_own_text_and_days_used_and_frozen(in_alpha):
@@ -125,9 +125,9 @@ def test_own_text_and_days_used_and_frozen(in_alpha):
 
 def test_settings_page_is_per_therapist(client_alpha, client_beta, in_alpha):
     profile()
-    client_alpha.post("/rechnungen/mahnwesen/", {"reminder_days": 9, "reminder_fee": "0", "reminder_text_1": "Nur Alpha"})
-    assert client_beta.get("/rechnungen/mahnwesen/").status_code in (200, 302)
-    assert "Nur Alpha" not in client_beta.get("/rechnungen/mahnwesen/", follow=True).content.decode()
+    client_alpha.post("/einstellungen/mahnwesen/", {"reminder_days": 9, "reminder_fee": "0", "reminder_text_1": "Nur Alpha"})
+    assert client_beta.get("/einstellungen/mahnwesen/").status_code in (200, 302)
+    assert "Nur Alpha" not in client_beta.get("/einstellungen/mahnwesen/", follow=True).content.decode()
 
 
 def test_reminder_is_one_page(in_alpha):

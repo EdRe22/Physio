@@ -64,6 +64,7 @@ INSTALLED_APPS = [
     "raeume",
     "hilfe",
     "verwaltung",
+    "einstellungen",
 ]
 
 # Diese Apps liegen ausschließlich in der Mandanten-Datenbank des jeweiligen Therapeuten.
