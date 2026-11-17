@@ -2,7 +2,7 @@
 {% block title %}Mahnwesen einstellen{% endblock %}
 {% block content %}
 <div class="pagehead">
-  <div class="grow"><h1>Mahnwesen einstellen</h1><div class="sub">Zahlungsfristen, Mahnspesen und der Wortlaut Ihrer drei Schreiben. Diese Einstellungen gelten nur für Sie und nur für neu erstellte Schreiben.</div></div>
+  <div class="grow"><h1>Mahnwesen und E-Mail-Texte</h1><div class="sub">Zahlungsfristen, Mahnspesen, der Wortlaut Ihrer drei Schreiben und der Text der E-Mails. Diese Einstellungen gelten nur für Sie und nur für neu erstellte Schreiben.</div></div>
   <div class="actions"><a class="btn secondary" href="{% url 'overdue_list' %}">Überfällige</a></div>
 </div>
 <div class="card">
@@ -21,6 +21,14 @@
     {% for field in form %}{% if field.name == "reminder_text_1" or field.name == "reminder_text_2" or field.name == "reminder_text_3" %}
       <label for="{{ field.id_for_label }}">{{ field.label }}</label>
       {{ field }}
+      {% for e in field.errors %}<div class="error">{{ e }}</div>{% endfor %}
+    {% endif %}{% endfor %}
+    <h2 style="margin-top:1.5rem">Text der E-Mails</h2>
+    <p class="muted">Gilt für den Versand per E-Mail. Der Betreff ist fest. Schreiben Sie keine Namen oder Behandlungsangaben in den Text, das PDF im Anhang enthält die Details. Der Hinweis zur Einwilligung wird automatisch angehängt.</p>
+    {% for field in form %}{% if field.name == "mail_text_invoice" or field.name == "mail_text_reminder" %}
+      <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+      {{ field }}
+      {% if field.help_text %}<span class="muted">{{ field.help_text }}</span>{% endif %}
       {% for e in field.errors %}<div class="error">{{ e }}</div>{% endfor %}
     {% endif %}{% endfor %}
     <div class="callout warn">Mahnspesen sind nur zulässig, wenn sie mit dem Patienten vertraglich vereinbart sind. Eigene Texte sollten Sie vor Verwendung rechtlich prüfen lassen. Bereits erstellte Schreiben bleiben unverändert.</div>

@@ -34,15 +34,28 @@ def mail_block_reason(patient) -> str:
     return ""
 
 
-def _body(profile_name, kind_text, number, pay_until=None):
-    text = f"Guten Tag,\n\nim Anhang finden Sie {kind_text} {number} von {profile_name} als PDF.\n"
-    if pay_until:
-        text += f"Bitte beachten Sie die Zahlungsfrist bis {pay_until:%d.%m.%Y}.\n"
-    text += (
-        "\nSie erhalten diese Nachricht, weil Sie dem Versand per E-Mail zugestimmt haben. "
-        "Die Zustimmung können Sie jederzeit bei Ihrer Therapeutin bzw. Ihrem Therapeuten widerrufen.\n"
-    )
-    return text
+DEFAULT_MAIL_TEXTS = {
+    "invoice": "Guten Tag,\n\nim Anhang finden Sie die Honorarnote {nummer} von {praxis} als PDF.",
+    "reminder": ("Guten Tag,\n\nim Anhang finden Sie das Schreiben zur Honorarnote {nummer} von {praxis} als PDF. "
+                 "Bitte beachten Sie die Zahlungsfrist bis {frist}."),
+}
+FOOTER = (
+    "\n\nSie erhalten diese Nachricht, weil Sie dem Versand per E-Mail zugestimmt haben. "
+    "Die Zustimmung können Sie jederzeit bei Ihrer Therapeutin bzw. Ihrem Therapeuten widerrufen.\n"
+)
+
+
+def mail_text_for(profile, kind):
+    own = (getattr(profile, f"mail_text_{kind}", "") or "").strip() if profile else ""
+    return own or DEFAULT_MAIL_TEXTS[kind]
+
+
+def _body(profile, kind, number, praxis, frist=""):
+    """Eigener Text oder Vorlage; die Hinweiszeile zur Einwilligung wird immer angehängt."""
+    text = mail_text_for(profile, kind)
+    for token, value in (("{nummer}", number), ("{praxis}", praxis), ("{frist}", frist)):
+        text = text.replace(token, value)
+    return text + FOOTER
 
 
 def _send(invoice, reminder):
@@ -53,15 +66,16 @@ def _send(invoice, reminder):
     if invoice.is_draft:
         raise MailError("Entwürfe können nicht versendet werden. Bitte zuerst ausstellen.")
     snap = services_snapshot(invoice)
+    profile = services.get_profile()
     name = snap.get("name") or "Ihrer Praxis"
     if reminder is None:
         subject = f"Honorarnote {invoice.number}"
-        body = _body(name, "die Honorarnote" if invoice.kind == Honorarnote.Kind.RECHNUNG else "die Stornorechnung", invoice.number)
+        body = _body(profile, "invoice", invoice.number, name)
         pdf, filename = render_pdf(invoice), f"Honorarnote_{invoice.number}.pdf"
     else:
         title = services.REMINDER_TITLES[reminder.level]
         subject = f"{title} zur Honorarnote {invoice.number}"
-        body = _body(name, f"die {title}", f"zur Honorarnote {invoice.number}", reminder.pay_until)
+        body = _body(profile, "reminder", invoice.number, name, f"{reminder.pay_until:%d.%m.%Y}" if reminder.pay_until else "")
         pdf, filename = render_reminder_pdf(reminder), f"{title.replace('. ', '_').replace(' ', '_')}_{invoice.number}.pdf"
     message = EmailMessage(
         subject=subject, body=body, from_email=f"{name} <{settings.DEFAULT_FROM_EMAIL}>", to=[patient.email],

@@ -49,6 +49,8 @@ class Rechnungsprofil(models.Model):
     reminder_text_1 = models.TextField("Text Zahlungserinnerung", blank=True, default="")
     reminder_text_2 = models.TextField("Text 1. Mahnung", blank=True, default="")
     reminder_text_3 = models.TextField("Text letzte Mahnung", blank=True, default="")
+    mail_text_invoice = models.TextField("E-Mail-Text Honorarnote", blank=True, default="")
+    mail_text_reminder = models.TextField("E-Mail-Text Mahnung", blank=True, default="")
     reminder_fee_cents = models.PositiveIntegerField(default=0)  # Mahnspesen ab Stufe 2, nur bei vertraglicher Vereinbarung
     logo_b64 = models.TextField(blank=True, default="", editable=False)  # fertig umgerechnetes PNG, siehe core/logo.py
     exemption_confirmed_on = models.DateField(

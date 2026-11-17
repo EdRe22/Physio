@@ -41,8 +41,10 @@ class MahnForm(forms.ModelForm):
 
     class Meta:
         model = Rechnungsprofil
-        fields = ["reminder_days", "reminder_days_2", "reminder_days_3", "reminder_text_1", "reminder_text_2", "reminder_text_3"]
-        widgets = {f"reminder_text_{i}": forms.Textarea(attrs={"rows": 6}) for i in (1, 2, 3)}
+        fields = ["reminder_days", "reminder_days_2", "reminder_days_3", "reminder_text_1", "reminder_text_2", "reminder_text_3",
+                  "mail_text_invoice", "mail_text_reminder"]
+        widgets = {**{f"reminder_text_{i}": forms.Textarea(attrs={"rows": 6}) for i in (1, 2, 3)},
+                   "mail_text_invoice": forms.Textarea(attrs={"rows": 5}), "mail_text_reminder": forms.Textarea(attrs={"rows": 5})}
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -57,6 +59,13 @@ class MahnForm(forms.ModelForm):
             f.required = False
             f.help_text = "Leer lassen = Vorlage der App. Platzhalter: {frist}, {betrag}, {nummer}."
             f.widget.attrs["placeholder"] = DEFAULT_REMINDER_TEXTS[lvl]
+        from .mailing import DEFAULT_MAIL_TEXTS
+
+        for kind in ("invoice", "reminder"):
+            f = self.fields[f"mail_text_{kind}"]
+            f.required = False
+            f.help_text = "Leer lassen = Vorlage der App. Platzhalter: {nummer}, {praxis}" + (", {frist}." if kind == "reminder" else ".")
+            f.widget.attrs["placeholder"] = DEFAULT_MAIL_TEXTS[kind]
         if self.instance and self.instance.pk:
             self.fields["reminder_fee"].initial = f"{self.instance.reminder_fee_cents / 100:.2f}".replace(".", ",")
 
@@ -91,6 +100,12 @@ class MahnForm(forms.ModelForm):
 
     def clean_reminder_text_2(self):
         return self._clean_text("reminder_text_2")
+
+    def clean_mail_text_invoice(self):
+        return self._clean_text("mail_text_invoice")
+
+    def clean_mail_text_reminder(self):
+        return self._clean_text("mail_text_reminder")
 
     def clean_reminder_text_3(self):
         return self._clean_text("reminder_text_3")

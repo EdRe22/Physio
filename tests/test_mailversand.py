@@ -115,3 +115,28 @@ def test_other_therapist_cannot_mail(client_beta, client_alpha, in_alpha):
     invoice = issued()
     assert client_beta.post(f"/rechnungen/{invoice.pk}/mail/").status_code in (403, 404)
     assert mail.outbox == []
+
+
+def test_own_mail_text_per_therapist(in_alpha):
+    invoice = issued(mail_text_invoice="Hallo, anbei {nummer} von {praxis}.", mail_text_reminder="Mahnung {nummer} bis {frist}")
+    mailing.send_invoice(invoice)
+    body = mail.outbox[0].body
+    assert body.startswith(f"Hallo, anbei {invoice.number} von Therapeut Alpha.") and "zugestimmt" in body  # Hinweiszeile immer dabei
+    reminder = services.record_reminder(invoice, TODAY)
+    mailing.send_reminder(reminder)
+    assert f"Mahnung {invoice.number} bis {reminder.pay_until:%d.%m.%Y}" in mail.outbox[1].body
+
+
+def test_default_mail_text_when_empty(in_alpha):
+    invoice = issued()
+    mailing.send_invoice(invoice)
+    assert f"die Honorarnote {invoice.number} von Therapeut Alpha" in mail.outbox[0].body
+
+
+def test_settings_page_saves_mail_texts(client_alpha, in_alpha):
+    profile()
+    data = {"reminder_days": 7, "reminder_fee": "0", "mail_text_invoice": "Mein Text {nummer}", "mail_text_reminder": ""}
+    assert client_alpha.post("/rechnungen/mahnwesen/", data).status_code == 302
+    from rechnungen.models import Rechnungsprofil
+    assert Rechnungsprofil.objects.get().mail_text_invoice == "Mein Text {nummer}"
+    assert client_alpha.post("/rechnungen/mahnwesen/", {**data, "mail_text_invoice": "x" * 1501}).status_code == 200
