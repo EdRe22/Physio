@@ -47,10 +47,16 @@ INSTALLED_APPS = [
     "audit",
     "patients",
     "termine",
+    "importer",
 ]
 
 # Diese Apps liegen ausschließlich in der Mandanten-Datenbank des jeweiligen Therapeuten.
-TENANT_APP_LABELS = {"audit", "patients", "termine"}
+TENANT_APP_LABELS = {"audit", "patients", "termine", "importer"}
+
+# Uploads bleiben im Arbeitsspeicher und landen nie unverschlüsselt als Temp-Datei auf der Platte.
+FILE_UPLOAD_HANDLERS = ["django.core.files.uploadhandler.MemoryFileUploadHandler"]
+FILE_UPLOAD_MAX_MEMORY_SIZE = 6 * 1024 * 1024
+DATA_UPLOAD_MAX_MEMORY_SIZE = 6 * 1024 * 1024
 
 AUTH_USER_MODEL = "accounts.Therapist"
 AUTHENTICATION_BACKENDS = ["accounts.backends.LockoutBackend"]

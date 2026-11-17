@@ -6,4 +6,5 @@ urlpatterns = [
     path("", include("accounts.urls")),
     path("patients/", include("patients.urls")),
     path("termine/", include("termine.urls")),
+    path("import/", include("importer.urls")),
 ]

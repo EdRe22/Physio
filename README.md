@@ -10,7 +10,10 @@ Konzept: `Konzept WebApp Physio-Praxisgemeinschaft.docx` (bzw. Claude Doc). Stac
 | 2 Modul A | Patientenstamm (verschlüsselt), Zuweisungen mit Einheitenzähler und Gültigkeit, versionierte Dokumentation (Anamnese, Befund, Behandlung, Verlauf), Einwilligungen mit Widerruf, Archivieren statt Löschen | fertig, getestet |
 | 2 Modul B | Terminkalender pro Therapeut (Woche), Serientermine, Überschneidungsprüfung, E-Mail-Erinnerung (`send_reminders`, nur mit Einwilligung, ohne Gesundheitsdaten) | fertig, getestet |
 | 2 Rest | Dokumenten-Upload (Befunde, Fotos), Raumbelegung (gemeinsam, mit Modul E) | offen |
-| 3-6 | Excel-Import, Honorarnoten, Buchhaltung, Praxisbereich/Miete, Vertretung, Go-Live | offen |
+| 3 Import | Excel/CSV-Import für Patientenstamm und Dokumentation: Spaltenzuordnung, Trockenlauf, Dublettenprüfung, Protokoll ohne Zellwerte, Datei wird nie gespeichert | fertig, getestet |
+| 4-6 | Honorarnoten, Bankimport, Buchhaltung, Praxisbereich/Miete, Vertretung, Go-Live | offen |
+
+Import: `/import/`. Liegengebliebene Zwischendaten verwirft `python manage.py purge_imports` (täglich per Timer). Grenzen: 5 MB, 5000 Zeilen, 30 Spalten, Formeln werden nicht ausgewertet.
 
 Erinnerungen täglich auslösen (Cron/systemd-Timer auf dem Pi): `python manage.py send_reminders` (Standard: Termine in den nächsten 36 Stunden). SMTP über `PHYSIO_EMAIL_HOST`, `PHYSIO_EMAIL_USER`, `PHYSIO_EMAIL_PASSWORD`, `PHYSIO_FROM_EMAIL`; ohne Konfiguration wird in Produktion nichts versendet.
 

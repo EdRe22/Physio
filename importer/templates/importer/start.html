@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}Import{% endblock %}
+{% block content %}
+<div class="card">
+  <h1>Daten aus Excel importieren</h1>
+  <p class="muted">Die Datei wird nicht gespeichert. Der Inhalt liegt bis zum Abschluss verschlüsselt in deiner Datenbank und wird danach verworfen.
+     Importiert werden nur Daten deines eigenen Bereichs.</p>
+  <form method="post" enctype="multipart/form-data">{% csrf_token %}
+    {{ form.non_field_errors }}
+    <label for="{{ form.profile.id_for_label }}">{{ form.profile.label }}</label>{{ form.profile }}
+    <label for="{{ form.file.id_for_label }}">{{ form.file.label }}</label>{{ form.file }}
+    {% for e in form.file.errors %}<div class="error">{{ e }}</div>{% endfor %}
+    <button class="primary">Hochladen und prüfen</button>
+  </form>
+  <p>Vorlagen: {% for p in profiles %}<a href="{% url 'import_template' p.name %}">{{ p.title }}</a>{% if not forloop.last %} · {% endif %}{% endfor %}</p>
+  <p class="muted">Reihenfolge: zuerst den Patientenstamm, danach die Dokumentation. Die Zuordnung der Dokumentation erfolgt über Nachname, Vorname und Geburtsdatum.
+     Importierte Behandlungen verbrauchen keine Einheiten einer Zuweisung.</p>
+</div>
+{% if jobs %}
+<div class="card">
+  <h2>Letzte Importe</h2>
+  <table>
+    {% for j in jobs %}<tr><td>{{ j.created_at|date:"d.m.Y H:i" }}</td><td>{{ j.get_status_display }}</td><td>{{ j.row_count }} Zeilen</td>
+      <td>{% if j.status == "done" or j.status == "checked" %}<a href="{% url 'import_preview' j.pk %}">Protokoll</a>{% elif j.status == "uploaded" %}<a href="{% url 'import_mapping' j.pk %}">fortsetzen</a>{% endif %}</td></tr>{% endfor %}
+  </table>
+</div>
+{% endif %}
+{% endblock %}

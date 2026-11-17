@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}Spalten zuordnen{% endblock %}
+{% block content %}
+<div class="card">
+  <h1>Spalten zuordnen: {{ profile.title }}</h1>
+  <p class="muted">{{ job.row_count }} Zeilen gelesen. Wähle für jedes Feld die passende Spalte. Es wird noch nichts importiert.</p>
+  {% for e in errors %}<p class="error">{{ e }}</p>{% endfor %}
+  <form method="post">{% csrf_token %}
+    {% for row in rows %}
+    <label for="f_{{ row.field.key }}">{{ row.field.label }}{% if row.field.required %} *{% endif %}</label>
+    <select id="f_{{ row.field.key }}" name="{{ row.field.key }}">
+      <option value="">– nicht importieren –</option>
+      {% for index, header, selected in row.options %}<option value="{{ index }}" {% if selected %}selected{% endif %}>{{ header|default:"(ohne Überschrift)" }}</option>{% endfor %}
+    </select>
+    {% endfor %}
+    <button class="primary">Prüfen (Trockenlauf)</button>
+  </form>
+  <form method="post" action="{% url 'import_cancel' job.pk %}">{% csrf_token %}<button class="primary" style="background:#6b7280">Abbrechen und Daten verwerfen</button></form>
+</div>
+{% endblock %}
