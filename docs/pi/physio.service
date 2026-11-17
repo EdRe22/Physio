@@ -1,0 +1,18 @@
+[Unit]
+Description=Physio-Praxisverwaltung (physio.rendl.at)
+After=network.target
+
+[Service]
+User=pi
+WorkingDirectory=/home/pi/physio
+EnvironmentFile=/etc/physio.env
+# Genau EIN Prozess: Der entsperrte Master-Schluessel liegt nur im Arbeitsspeicher dieses Prozesses.
+ExecStart=/home/pi/physio/.venv/bin/gunicorn --workers 1 --threads 4 --bind 127.0.0.1:3010 config.wsgi
+Restart=on-failure
+RestartSec=5
+NoNewPrivileges=true
+ProtectSystem=full
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

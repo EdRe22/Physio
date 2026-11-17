@@ -1,0 +1,28 @@
+# Diesen Block ans ENDE von /etc/caddy/Caddyfile anfuegen (die Bloecke der anderen Apps unveraendert lassen).
+physio.rendl.at {
+	encode zstd gzip
+
+	# Interne Cron-Schnittstelle nie von aussen erreichbar.
+	@intern path /intern/*
+	respond @intern 404
+
+	header {
+		Strict-Transport-Security "max-age=31536000"
+		X-Content-Type-Options "nosniff"
+		Referrer-Policy "same-origin"
+		-Server
+	}
+
+	# Optional, empfohlen fuer die Demo: zusaetzlicher Zugangsschutz vor der App.
+	# Hash erzeugen mit:  caddy hash-password
+	# Zum Aktivieren die drei Zeilen einkommentieren und <HASH> ersetzen.
+	# basic_auth {
+	# 	demo <HASH>
+	# }
+
+	reverse_proxy 127.0.0.1:3010 {
+		# Ueberschreiben (nicht anhaengen), damit die IP im Audit-Log nicht faelschbar ist.
+		header_up X-Forwarded-For {remote_host}
+		header_up X-Forwarded-Proto {scheme}
+	}
+}
