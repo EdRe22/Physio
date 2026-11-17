@@ -46,10 +46,11 @@ INSTALLED_APPS = [
     "accounts",
     "audit",
     "patients",
+    "termine",
 ]
 
 # Diese Apps liegen ausschließlich in der Mandanten-Datenbank des jeweiligen Therapeuten.
-TENANT_APP_LABELS = {"audit", "patients"}
+TENANT_APP_LABELS = {"audit", "patients", "termine"}
 
 AUTH_USER_MODEL = "accounts.Therapist"
 AUTHENTICATION_BACKENDS = ["accounts.backends.LockoutBackend"]
@@ -135,6 +136,20 @@ SECURE_HSTS_SECONDS = 0 if DEV else 31536000
 SECURE_CONTENT_TYPE_NOSNIFF = True
 SECURE_REFERRER_POLICY = "same-origin"
 X_FRAME_OPTIONS = "DENY"
+
+# E-Mail (Terminerinnerungen): EU-basierter SMTP-Dienst mit AV-Vertrag, nur TLS.
+if os.environ.get("PHYSIO_EMAIL_HOST"):
+    EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+    EMAIL_HOST = os.environ["PHYSIO_EMAIL_HOST"]
+    EMAIL_PORT = int(os.environ.get("PHYSIO_EMAIL_PORT", "587"))
+    EMAIL_HOST_USER = os.environ.get("PHYSIO_EMAIL_USER", "")
+    EMAIL_HOST_PASSWORD = os.environ.get("PHYSIO_EMAIL_PASSWORD", "")
+    EMAIL_USE_TLS = True
+elif DEV:
+    EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+else:
+    EMAIL_BACKEND = "django.core.mail.backends.dummy.EmailBackend"  # ohne Konfiguration wird nichts versendet
+DEFAULT_FROM_EMAIL = os.environ.get("PHYSIO_FROM_EMAIL", "praxis@example.invalid")
 
 # Zweiter Faktor und Sperre nach Fehlversuchen
 OTP_TOTP_ISSUER = "Physio Praxisgemeinschaft"

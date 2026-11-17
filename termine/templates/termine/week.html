@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}Termine{% endblock %}
+{% block content %}
+<div class="card">
+  <h1>Termine {{ monday|date:"d.m." }} bis {{ sunday|date:"d.m.Y" }}</h1>
+  <a href="?start={{ prev|date:'Y-m-d' }}">&laquo; Vorwoche</a> ·
+  <a href="?start={{ next|date:'Y-m-d' }}">Folgewoche &raquo;</a> ·
+  <a href="{% url 'patient_list' %}">Patienten</a>
+  <br><a class="btn" href="{% url 'termin_create' %}">Neuer Termin</a>
+</div>
+{% for day, items in days %}
+<div class="card">
+  <h2>{{ day|date:"l, d.m.Y" }}</h2>
+  <table>
+    {% for t in items %}
+    <tr>
+      <td>{{ t.start|time:"H:i" }}–{{ t.end|time:"H:i" }}</td>
+      <td><a href="{% url 'patient_detail' t.patient_id %}">{{ t.patient.full_name }}</a></td>
+      <td>{{ t.get_status_display }}
+        {% if t.reminder_sent_at %}<span class="muted">· Erinnerung gesendet</span>{% endif %}
+        {% if t.reminder_failed_at %}<span class="error">· Erinnerung fehlgeschlagen</span>{% endif %}</td>
+      <td>
+        {% if t.status == "geplant" %}
+        <a href="{% url 'termin_edit' t.pk %}">ändern</a>
+        <form method="post" action="{% url 'termin_status' t.pk %}" style="display:inline">{% csrf_token %}
+          <select name="status" style="width:auto" aria-label="Status">{% for value, label in statuses %}<option value="{{ value }}" {% if value == t.status %}selected{% endif %}>{{ label }}</option>{% endfor %}</select>
+          <button class="primary" style="margin:0; padding:4px 10px">OK</button>
+        </form>
+        {% endif %}
+      </td>
+    </tr>
+    {% endfor %}
+  </table>
+</div>
+{% empty %}<div class="card"><p class="muted">Keine Termine in dieser Woche.</p></div>{% endfor %}
+{% endblock %}
