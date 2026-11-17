@@ -187,3 +187,9 @@ def test_settings_page_saves_auto_options(client_alpha, in_alpha):
     p = Rechnungsprofil.objects.get()
     assert p.auto_reminders is True and p.auto_max_level == 1
     assert client_alpha.post("/rechnungen/mahnwesen/", {**data, "auto_max_level": "3"}).status_code == 200
+
+
+def test_profile_page_links_to_mahnwesen_settings(client_alpha, in_alpha):
+    profile()
+    page = client_alpha.get("/rechnungen/profil/").content.decode()
+    assert "/rechnungen/mahnwesen/" in page and "automatischen Mahnversand" in page
