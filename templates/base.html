@@ -124,6 +124,24 @@
   .badge.warn { background: var(--warn-soft); color: #9a5b00; }
   .actionbar { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-top: 16px; }
   .actionbar a.btn, .actionbar button { margin: 0; } .actionbar form { margin: 0; }
+
+  /* Listenseiten */
+  .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 12px; margin-bottom: 16px; }
+  .tile { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 14px 18px; box-shadow: var(--shadow); }
+  .tile .label { color: var(--muted); font-size: .82rem; } .tile .value { font-size: 1.5rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+  .tile.good .value { color: var(--ok); } .tile.bad .value { color: var(--danger); }
+  .tabs { display: inline-flex; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 3px; gap: 2px; flex-wrap: wrap; margin-bottom: 14px; }
+  .tabs a { padding: 6px 14px; border-radius: 8px; text-decoration: none; color: var(--muted); font-size: .9rem; font-weight: 500; }
+  .tabs a:hover { background: var(--brand-soft); color: var(--ink); } .tabs a.on { background: var(--brand); color: var(--brand-ink); font-weight: 600; }
+  .callout { background: var(--warn-soft); border-left: 4px solid #c77b13; border-radius: 8px; padding: 10px 14px; margin-bottom: 16px; }
+  .callout.bad { background: var(--danger-soft); border-left-color: var(--danger); }
+  .emptystate { text-align: center; color: var(--muted); padding: 28px 10px; }
+  .txrow { display: grid; grid-template-columns: 130px 1fr auto; gap: 16px; padding: 14px 0; border-top: 1px solid var(--line); align-items: start; }
+  .txrow:first-child { border-top: 0; }
+  .txrow .amount { font-weight: 700; font-variant-numeric: tabular-nums; } .txrow .amount.in { color: var(--ok); } .txrow .amount.out { color: var(--danger); }
+  .txrow .acts { display: grid; gap: 6px; justify-items: end; } .txrow .acts form { margin: 0; display: flex; gap: 6px; }
+  .txrow .acts button, .txrow .acts select { margin: 0; min-height: 34px; width: auto; }
+  @media (max-width: 760px) { .txrow { grid-template-columns: 1fr; } .txrow .acts { justify-items: start; } }
   .login { max-width: 420px; margin: 8vh auto 0; }
 
   /* Formulare zweispaltig (durch static/ui.js) */

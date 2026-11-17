@@ -1,17 +1,21 @@
 {% extends "base.html" %}
 {% block title %}Mietverhältnisse{% endblock %}
 {% block content %}
+<div class="pagehead">
+  <div class="grow"><h1>Mietverhältnisse</h1></div>
+  <div class="actions"><a class="btn secondary" href="{% url 'rent_list' %}">&larr; Mietabrechnungen</a></div>
+</div>
 <div class="card">
-  <h1>Mietverhältnisse</h1>
-  <table>
-    <tr><th>Therapeut</th><th>Miete</th><th>Betriebskosten</th><th>Zeitraum</th></tr>
-    {% for l in leases %}<tr><td>{{ l.tenant.name }}</td><td>{{ l.rent_eur }}</td><td>{{ l.utilities_eur }}</td><td>{{ l.valid_from|date:"d.m.Y" }} – {% if l.valid_until %}{{ l.valid_until|date:"d.m.Y" }}{% else %}unbefristet{% endif %}</td></tr>
-    {% empty %}<tr><td colspan="4" class="muted">Keine Mietverhältnisse.</td></tr>{% endfor %}
-  </table>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Therapeut</th><th class="num">Miete</th><th class="num">Betriebskosten</th><th>Zeitraum</th></tr></thead>
+    <tbody>
+    {% for l in leases %}<tr><td><strong>{{ l.tenant.name }}</strong></td><td class="num">{{ l.rent_eur }}</td><td class="num">{{ l.utilities_eur }}</td><td>{{ l.valid_from|date:"d.m.Y" }} – {% if l.valid_until %}{{ l.valid_until|date:"d.m.Y" }}{% else %}unbefristet{% endif %}</td></tr>
+    {% empty %}<tr><td colspan="4" class="emptystate">Keine Mietverhältnisse.</td></tr>{% endfor %}
+    </tbody>
+  </table></div>
 </div>
 <div class="card">
   <h2>Neues Mietverhältnis</h2>
   <form method="post">{% csrf_token %}{{ form.as_p }}<button class="primary">Speichern</button></form>
 </div>
-<a href="{% url 'rent_list' %}">Zurück</a>
 {% endblock %}

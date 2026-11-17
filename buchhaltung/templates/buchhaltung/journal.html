@@ -1,18 +1,29 @@
 {% extends "base.html" %}
 {% block title %}Buchhaltung{% endblock %}
 {% block content %}
+<div class="pagehead">
+  <div class="grow"><h1>Journal {{ year }}</h1></div>
+  <div class="actions">
+    <a class="btn" href="{% url 'buchung_new' %}">+ Neue Buchung</a>
+    <a class="btn secondary" href="{% url 'bank_list' %}">Bankumsätze{% if open_tx %} <span class="badge warn">{{ open_tx }} offen</span>{% endif %}</a>
+    <a class="btn secondary" href="{% url 'report' %}?jahr={{ year }}">Auswertung</a>
+    <a class="btn secondary" href="{% url 'export' %}?jahr={{ year }}">CSV</a>
+    <a class="btn secondary" href="{% url 'export' %}?jahr={{ year }}&amp;format=zip">ZIP mit Belegen</a>
+  </div>
+</div>
+<div class="tabs" role="group" aria-label="Art filtern">
+  <a href="?jahr={{ year }}" {% if not request.GET.art %}class="on"{% endif %}>Alle</a>
+  <a href="?jahr={{ year }}&amp;art=einnahme" {% if request.GET.art == "einnahme" %}class="on"{% endif %}>Einnahmen</a>
+  <a href="?jahr={{ year }}&amp;art=ausgabe" {% if request.GET.art == "ausgabe" %}class="on"{% endif %}>Ausgaben</a>
+</div>
 <div class="card">
-  <h1>Journal {{ year }}</h1>
-  <p><a class="btn" href="{% url 'buchung_new' %}">Neue Buchung</a>
-  <a class="btn" href="{% url 'bank_list' %}">Bankumsätze{% if open_tx %} ({{ open_tx }} offen){% endif %}</a>
-  <a class="btn" href="{% url 'report' %}?jahr={{ year }}">Auswertung</a>
-  <a class="btn" href="{% url 'export' %}?jahr={{ year }}">CSV</a>
-  <a class="btn" href="{% url 'export' %}?jahr={{ year }}&format=zip">ZIP mit Belegen</a></p>
-  <p class="muted">Filter: <a href="?jahr={{ year }}">alle</a> · <a href="?jahr={{ year }}&art=einnahme">Einnahmen</a> · <a href="?jahr={{ year }}&art=ausgabe">Ausgaben</a></p>
-  <table>
-    <tr><th>Nr.</th><th>Datum</th><th>Kategorie</th><th>Art</th><th>Betrag</th></tr>
-    {% for b in buchungen %}<tr><td><a href="{% url 'buchung_detail' b.pk %}">{{ b.number }}</a></td><td>{{ b.date|date:"d.m.Y" }}</td><td>{{ b.category.name }}</td><td>{{ b.get_kind_display }}</td><td>{{ b.amount_eur }}</td></tr>
-    {% empty %}<tr><td colspan="5" class="muted">Keine Buchungen.</td></tr>{% endfor %}
-  </table>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Nr.</th><th>Datum</th><th>Kategorie</th><th>Art</th><th class="num">Betrag</th></tr></thead>
+    <tbody>
+    {% for b in buchungen %}<tr><td><a href="{% url 'buchung_detail' b.pk %}"><strong>{{ b.number }}</strong></a></td><td>{{ b.date|date:"d.m.Y" }}</td><td>{{ b.category.name }}</td>
+      <td><span class="badge {% if b.kind == 'einnahme' %}ok{% else %}bad{% endif %}">{{ b.get_kind_display }}</span></td><td class="num">{{ b.amount_eur }}</td></tr>
+    {% empty %}<tr><td colspan="5" class="emptystate">Keine Buchungen in diesem Jahr.</td></tr>{% endfor %}
+    </tbody>
+  </table></div>
 </div>
 {% endblock %}

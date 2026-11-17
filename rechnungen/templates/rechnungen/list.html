@@ -1,26 +1,34 @@
 {% extends "base.html" %}
 {% block title %}Honorarnoten{% endblock %}
 {% block content %}
-<div class="card">
-  <h1>Honorarnoten</h1>
-  {% if not profile_ready %}
-  <p class="error">Honorarnoten können erst ausgestellt werden, wenn das <a href="{% url 'profile_edit' %}">Rechnungsprofil</a> vollständig ist und der Hinweis zur Umsatzsteuerbefreiung vom Steuerberater bestätigt wurde.</p>
-  {% endif %}
-  <p>Offen insgesamt: <strong>{{ open_total }}</strong></p>
-  <a href="{% url 'profile_edit' %}">Rechnungsprofil</a> · <a href="{% url 'leistung_list' %}">Leistungskatalog</a> · <a href="{% url 'overdue_list' %}">Überfällige</a>
-  <form method="get" style="margin-top:8px"><select name="status" onchange="this.form.submit()" aria-label="Status" style="width:auto">
-    <option value="">Alle</option>{% for value, label in statuses %}<option value="{{ value }}" {% if value == status %}selected{% endif %}>{{ label }}</option>{% endfor %}
-  </select></form>
+<div class="pagehead">
+  <div class="grow"><h1>Honorarnoten</h1><div class="sub">Neue Honorarnoten legst du in der Patientenakte an.</div></div>
+  <div class="actions">
+    <a class="btn secondary" href="{% url 'overdue_list' %}">Überfällige</a>
+    <a class="btn secondary" href="{% url 'leistung_list' %}">Leistungskatalog</a>
+    <a class="btn secondary" href="{% url 'profile_edit' %}">Rechnungsprofil</a>
+  </div>
+</div>
+{% if not profile_ready %}
+<div class="callout bad">Honorarnoten können erst ausgestellt werden, wenn das <a href="{% url 'profile_edit' %}">Rechnungsprofil</a> vollständig ist und der Hinweis zur Umsatzsteuerbefreiung vom Steuerberater bestätigt wurde.</div>
+{% endif %}
+<div class="stats"><div class="tile"><div class="label">Offen insgesamt</div><div class="value">{{ open_total }}</div></div></div>
+<div class="tabs" role="group" aria-label="Status filtern">
+  <a href="?" {% if not status %}class="on"{% endif %}>Alle</a>
+  {% for value, label in statuses %}<a href="?status={{ value }}" {% if value == status %}class="on"{% endif %}>{{ label }}</a>{% endfor %}
 </div>
 <div class="card">
   {% if invoices %}
-  <table>
-    <tr><th>Nr.</th><th>Datum</th><th>Patient</th><th>Betrag</th><th>Status</th></tr>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Nr.</th><th>Datum</th><th>Patient</th><th class="num">Betrag</th><th>Status</th></tr></thead>
+    <tbody>
     {% for i in invoices %}
-    <tr><td><a href="{% url 'invoice_detail' i.pk %}">{{ i.number|default:"Entwurf" }}</a>{% if i.kind == "storno" %} (Storno){% endif %}</td>
-        <td>{{ i.issue_date|date:"d.m.Y" }}</td><td>{{ i.patient.full_name }}</td><td>{{ i.total_eur }}</td><td>{{ i.get_status_display }}</td></tr>
+    <tr><td><a href="{% url 'invoice_detail' i.pk %}"><strong>{{ i.number|default:"Entwurf" }}</strong></a>{% if i.kind == "storno" %} <span class="muted">(Storno)</span>{% endif %}</td>
+        <td>{{ i.issue_date|date:"d.m.Y" }}</td><td>{{ i.patient.full_name }}</td><td class="num">{{ i.total_eur }}</td>
+        <td><span class="badge {% if i.status == 'bezahlt' %}ok{% elif i.status == 'storniert' %}bad{% elif i.status == 'ausgestellt' %}warn{% endif %}">{{ i.get_status_display }}</span></td></tr>
     {% endfor %}
-  </table>
-  {% else %}<p class="muted">Noch keine Honorarnoten. Neue Honorarnoten legst du beim Patienten an.</p>{% endif %}
+    </tbody>
+  </table></div>
+  {% else %}<div class="emptystate">Keine Honorarnoten{% if status %} mit diesem Status{% endif %}.</div>{% endif %}
 </div>
 {% endblock %}

@@ -1,17 +1,28 @@
 {% extends "base.html" %}
 {% block title %}Miete{% endblock %}
 {% block content %}
+<div class="pagehead">
+  <div class="grow"><h1>{% if owner %}Mietabrechnungen der Praxis{% else %}Meine Mietabrechnungen{% endif %}</h1></div>
+  {% if owner %}<div class="actions">
+    <a class="btn secondary" href="{% url 'lease_list' %}">Mietverhältnisse</a>
+    <a class="btn secondary" href="{% url 'rent_profile' %}">Praxisprofil</a>
+  </div>{% endif %}
+</div>
+{% if owner %}
+  {% if not profile or not profile.ready %}<div class="callout bad">Das Praxisprofil ist unvollständig oder der Steuerhinweis ist nicht vom Steuerberater bestätigt. Ausstellen ist gesperrt.</div>{% endif %}
+  <div class="card">
+    <h2>Monat abrechnen</h2>
+    <form method="post" action="{% url 'rent_issue' %}" class="row" style="align-items:end">{% csrf_token %}{{ period_form.as_p }}<button class="primary" style="margin:0">Für alle Kollegen ausstellen</button></form>
+  </div>
+{% endif %}
 <div class="card">
-  <h1>{% if owner %}Mietabrechnungen der Praxis{% else %}Meine Mietabrechnungen{% endif %}</h1>
-  {% if owner %}
-    <p><a class="btn" href="{% url 'rent_profile' %}">Praxisprofil</a> <a class="btn" href="{% url 'lease_list' %}">Mietverhältnisse</a></p>
-    {% if not profile or not profile.ready %}<p class="error">Das Praxisprofil ist unvollständig oder der Steuerhinweis ist nicht vom Steuerberater bestätigt. Ausstellen ist gesperrt.</p>{% endif %}
-    <form method="post" action="{% url 'rent_issue' %}">{% csrf_token %}{{ period_form.as_p }}<button class="primary">Für alle Kollegen ausstellen</button></form>
-  {% endif %}
-  <table>
-    <tr><th>Nr.</th><th>Monat</th>{% if owner %}<th>Therapeut</th>{% endif %}<th>Betrag</th><th>Status</th></tr>
-    {% for i in invoices %}<tr><td><a href="{% url 'rent_detail' i.pk %}">{{ i.number }}</a></td><td>{{ i.period }}</td>{% if owner %}<td>{{ i.tenant.name }}</td>{% endif %}<td>{{ i.total_eur }}</td><td>{{ i.get_status_display }}</td></tr>
-    {% empty %}<tr><td colspan="5" class="muted">Keine Mietabrechnungen.</td></tr>{% endfor %}
-  </table>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Nr.</th><th>Monat</th>{% if owner %}<th>Therapeut</th>{% endif %}<th class="num">Betrag</th><th>Status</th></tr></thead>
+    <tbody>
+    {% for i in invoices %}<tr><td><a href="{% url 'rent_detail' i.pk %}"><strong>{{ i.number }}</strong></a></td><td>{{ i.period }}</td>{% if owner %}<td>{{ i.tenant.name }}</td>{% endif %}<td class="num">{{ i.total_eur }}</td>
+      <td><span class="badge {% if i.status == 'bezahlt' %}ok{% elif i.status == 'storniert' %}bad{% endif %}">{{ i.get_status_display }}</span></td></tr>
+    {% empty %}<tr><td colspan="5" class="emptystate">Keine Mietabrechnungen.</td></tr>{% endfor %}
+    </tbody>
+  </table></div>
 </div>
 {% endblock %}

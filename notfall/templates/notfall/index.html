@@ -1,37 +1,41 @@
 {% extends "base.html" %}
 {% block title %}Notfallzugriff{% endblock %}
 {% block content %}
-<div class="card">
-  <h1>Notfallzugriff (Vertretung)</h1>
-  <p class="muted">Nur für Ausfälle (Krankheit, Unfall). Ein anderer Therapeut muss freigeben. Der Zugriff gilt 24 Stunden, ist nur lesend und steht im Protokoll der betroffenen Person.</p>
+<div class="pagehead">
+  <div class="grow"><h1>Notfallzugriff (Vertretung)</h1>
+    <div class="sub">Nur für Ausfälle (Krankheit, Unfall). Ein anderer Therapeut muss freigeben. Der Zugriff gilt 24 Stunden, ist nur lesend und steht im Protokoll der betroffenen Person.</div></div>
 </div>
 {% if pending %}
-<div class="card">
-  <h2>Anträge zur Freigabe</h2>
+<div class="callout">
+  <h2 style="margin-top:0">Anträge zur Freigabe</h2>
   {% for g in pending %}
-  <form method="post" action="{% url 'notfall_approve' g.pk %}">{% csrf_token %}
+  <form method="post" action="{% url 'notfall_approve' g.pk %}" data-plain>{% csrf_token %}
     <p><strong>{{ g.requested_by.username }}</strong> beantragt Zugriff auf die Daten von <strong>{{ g.target.name }}</strong>:<br>{{ g.reason|linebreaksbr }}</p>
     <button class="primary">Freigeben (24 Stunden, nur lesend)</button>
   </form>
   {% endfor %}
 </div>
 {% endif %}
-<div class="card">
-  <h2>Zugriff beantragen</h2>
-  <form method="post">{% csrf_token %}{{ form.as_p }}<button class="primary">Beantragen</button></form>
-</div>
-<div class="card">
-  <h2>Vorgänge</h2>
-  <table>
-    <tr><th>Datum</th><th>Betroffen</th><th>Antragsteller</th><th>Status</th><th></th></tr>
-    {% for g in grants %}<tr>
-      <td>{{ g.requested_at|date:"d.m.Y H:i" }}</td><td>{{ g.target.name }}</td><td>{{ g.requested_by.username }}</td>
-      <td>{{ g.state }}{% if g.expires_at %} bis {{ g.expires_at|date:"d.m.Y H:i" }}{% endif %}</td>
-      <td>
-        {% if g.requested_by_id == me.pk and g.state == "aktiv" %}<a href="{% url 'notfall_patients' g.pk %}">Patienten ansehen</a>{% endif %}
-        {% if not g.ended_at %}<form method="post" action="{% url 'notfall_end' g.pk %}" style="display:inline">{% csrf_token %}<button class="danger">Beenden</button></form>{% endif %}
-      </td></tr>
-    {% empty %}<tr><td colspan="5" class="muted">Keine Vorgänge.</td></tr>{% endfor %}
-  </table>
+<div class="layout">
+  <div class="card">
+    <h2>Vorgänge</h2>
+    <div class="tablewrap"><table>
+      <thead><tr><th>Datum</th><th>Betroffen</th><th>Antragsteller</th><th>Status</th><th></th></tr></thead>
+      <tbody>
+      {% for g in grants %}<tr>
+        <td>{{ g.requested_at|date:"d.m.Y H:i" }}</td><td>{{ g.target.name }}</td><td>{{ g.requested_by.username }}</td>
+        <td><span class="badge {% if g.state == 'aktiv' %}warn{% endif %}">{{ g.state }}</span>{% if g.expires_at %}<div class="muted" style="font-size:.8rem">bis {{ g.expires_at|date:"d.m.Y H:i" }}</div>{% endif %}</td>
+        <td>
+          {% if g.requested_by_id == me.pk and g.state == "aktiv" %}<a href="{% url 'notfall_patients' g.pk %}">Patienten ansehen</a>{% endif %}
+          {% if not g.ended_at %}<form method="post" action="{% url 'notfall_end' g.pk %}" class="inline">{% csrf_token %}<button class="danger">Beenden</button></form>{% endif %}
+        </td></tr>
+      {% empty %}<tr><td colspan="5" class="emptystate">Keine Vorgänge.</td></tr>{% endfor %}
+      </tbody>
+    </table></div>
+  </div>
+  <div class="card">
+    <h2>Zugriff beantragen</h2>
+    <form method="post">{% csrf_token %}{{ form.as_p }}<button class="primary">Beantragen</button></form>
+  </div>
 </div>
 {% endblock %}
