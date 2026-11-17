@@ -95,6 +95,35 @@
   .badge { display: inline-block; padding: 1px 9px; border-radius: 999px; font-size: .78rem; font-weight: 600; background: var(--brand-soft); color: var(--brand); }
   .badge.ok { background: var(--ok-soft); color: var(--ok); } .badge.bad { background: var(--danger-soft); color: var(--danger); }
   hr { border: 0; border-top: 1px solid var(--line); margin: 18px 0; }
+
+  /* Detailseiten */
+  .pagehead { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; margin-bottom: 16px; }
+  .pagehead .grow { flex: 1; min-width: 200px; }
+  .pagehead h1 { margin: 0; } .pagehead .sub { color: var(--muted); font-size: .92rem; }
+  .pagehead .actions { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+  .pagehead .actions a.btn, .pagehead .actions button { margin: 0; }
+  .avatar { width: 52px; height: 52px; border-radius: 50%; background: var(--brand-soft); color: var(--brand); display: grid; place-items: center; font-weight: 700; font-size: 1.1rem; flex: none; }
+  .layout { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); gap: 16px; align-items: start; }
+  @media (max-width: 900px) { .layout { grid-template-columns: 1fr; } }
+  .card h2 .count { font-weight: 400; color: var(--muted); font-size: .9rem; }
+  .cardhead { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 10px; }
+  .cardhead h2 { margin: 0; } .cardhead a.btn, .cardhead button { margin: 0; min-height: 32px; padding: 4px 12px; font-size: .86rem; }
+  .kv { display: grid; grid-template-columns: auto 1fr; gap: 6px 14px; margin: 0; font-size: .94rem; }
+  .kv dt { color: var(--muted); } .kv dd { margin: 0; overflow-wrap: anywhere; }
+  .item { padding: 12px 0; border-top: 1px solid var(--line); } .item:first-of-type { border-top: 0; padding-top: 0; }
+  .item .meta { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; font-size: .88rem; color: var(--muted); margin-bottom: 4px; }
+  .item .body { white-space: normal; }
+  .progress { height: 8px; border-radius: 999px; background: var(--line); overflow: hidden; margin: 6px 0 4px; }
+  .progress > span { display: block; height: 100%; background: var(--brand); border-radius: 999px; }
+  .progress.low > span { background: var(--danger); }
+  .listrow { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 9px 0; border-top: 1px solid var(--line); }
+  .listrow:first-of-type { border-top: 0; }
+  .listrow form { margin: 0; } .listrow button { margin: 0; min-height: 30px; padding: 3px 12px; font-size: .84rem; }
+  .totalbox { display: grid; gap: 4px; justify-items: end; margin-top: 12px; }
+  .totalbox .big { font-size: 1.5rem; font-weight: 700; }
+  .badge.warn { background: var(--warn-soft); color: #9a5b00; }
+  .actionbar { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-top: 16px; }
+  .actionbar a.btn, .actionbar button { margin: 0; } .actionbar form { margin: 0; }
   .login { max-width: 420px; margin: 8vh auto 0; }
 
   /* Formulare zweispaltig (durch static/ui.js) */

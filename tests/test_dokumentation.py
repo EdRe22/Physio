@@ -188,4 +188,4 @@ def test_detail_page_shows_documentation(client_alpha, alpha):
         entry.add_version("Mobilisation LWS")
         pid = p.pk
     body = client_alpha.get(f"/patients/{pid}/").content.decode()
-    assert "Mobilisation LWS" in body and "1 von 4 Einheiten verbraucht, 3 offen" in body
+    assert "Mobilisation LWS" in body and "1 von 4 Einheiten" in body and "3 offen" in body

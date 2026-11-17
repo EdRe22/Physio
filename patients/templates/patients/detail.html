@@ -1,63 +1,84 @@
 {% extends "base.html" %}
-{% block title %}Patient{% endblock %}
+{% block title %}{{ patient.first_name }} {{ patient.last_name }}{% endblock %}
 {% block content %}
-<div class="card">
-  <h1>{{ patient.first_name }} {{ patient.last_name }}</h1>
-  <table>
-    <tr><th>Geburtsdatum</th><td>{{ patient.birth_date }}</td></tr>
-    <tr><th>Versicherung</th><td>{{ patient.insurer }} {{ patient.insurance_no }}</td></tr>
-    <tr><th>Adresse</th><td>{{ patient.address|linebreaksbr }}</td></tr>
-    <tr><th>Telefon</th><td>{{ patient.phone }}</td></tr>
-    <tr><th>E-Mail</th><td>{{ patient.email }}</td></tr>
-  </table>
-  <a class="btn" href="{% url 'patient_edit' patient.pk %}">Bearbeiten</a>
-  <a class="btn" href="{% url 'patient_export' patient.pk %}">Datenkopie (ZIP)</a>
-  {% if not patient.archived_at %}
-  <form method="post" action="{% url 'patient_archive' patient.pk %}" style="display:inline">{% csrf_token %}<button class="primary">Archivieren</button></form>
-  {% else %}<p class="muted">Archiviert (gesperrt, Aufbewahrungsfrist läuft).</p>{% endif %}
-</div>
-
-<div class="card">
-  <h2>Zuweisungen</h2>
-  {% for r in referrals %}
-  <p><strong>{{ r.doctor }}</strong>{% if r.diagnosis %}, {{ r.diagnosis }}{% endif %}<br>
-     <span class="muted">ab {{ r.valid_from|date:"d.m.Y" }}{% if r.valid_until %} bis {{ r.valid_until|date:"d.m.Y" }}{% endif %}
-     · {{ r.units_used }} von {{ r.units_total }} Einheiten verbraucht, {{ r.units_left }} offen</span></p>
-  {% empty %}<p class="muted">Keine Zuweisung erfasst.</p>{% endfor %}
-  <a class="btn" href="{% url 'referral_create' patient.pk %}">Neue Zuweisung</a>
-</div>
-
-<div class="card">
-  <h2>Dokumentation</h2>
-  {% for entry, current in entries %}
-  <div style="border-top:1px solid var(--line); padding:8px 0">
-    <strong>{{ entry.get_kind_display }}</strong> · {{ entry.date|date:"d.m.Y" }}
-    {% if current.version > 1 %}<span class="muted">· Version {{ current.version }}</span>{% endif %}
-    · <a href="{% url 'entry_edit' entry.pk %}">ändern</a>
-    <div>{{ current.text|linebreaksbr }}</div>
+<div class="pagehead">
+  <div class="avatar" aria-hidden="true">{{ patient.first_name|slice:":1" }}{{ patient.last_name|slice:":1" }}</div>
+  <div class="grow">
+    <h1>{{ patient.first_name }} {{ patient.last_name }}{% if patient.archived_at %} <span class="badge">archiviert</span>{% endif %}</h1>
+    <div class="sub">{% if patient.birth_date %}geboren {{ patient.birth_date }}{% endif %}{% if patient.insurer %} · {{ patient.insurer }}{% endif %}</div>
   </div>
-  {% empty %}<p class="muted">Noch keine Einträge.</p>{% endfor %}
-  <a class="btn" href="{% url 'entry_create' patient.pk %}">Neuer Eintrag</a>
+  <div class="actions">
+    <a class="btn" href="{% url 'termin_create' %}?patient={{ patient.pk }}">+ Termin</a>
+    <a class="btn secondary" href="{% url 'patient_edit' patient.pk %}">Bearbeiten</a>
+    <a class="btn secondary" href="{% url 'patient_export' patient.pk %}">Datenkopie (ZIP)</a>
+    {% if not patient.archived_at %}
+    <form method="post" action="{% url 'patient_archive' patient.pk %}" class="inline">{% csrf_token %}<button>Archivieren</button></form>
+    {% endif %}
+  </div>
 </div>
+{% if patient.archived_at %}<div class="msg warning">Archiviert (gesperrt). Die Daten bleiben bis zum Ende der Aufbewahrungsfrist erhalten.</div>{% endif %}
 
-<div class="card">
-  <h2>Honorarnoten</h2>
-  {% for i in patient.invoices.all %}
-  <p><a href="{% url 'invoice_detail' i.pk %}">{{ i.number|default:"Entwurf" }}</a>{% if i.kind == "storno" %} (Storno){% endif %} · {{ i.total_eur }} · {{ i.get_status_display }}</p>
-  {% empty %}<p class="muted">Noch keine Honorarnote.</p>{% endfor %}
-  <a class="btn" href="{% url 'invoice_new' patient.pk %}">Neue Honorarnote</a>
-</div>
+<div class="layout">
+  <div>
+    <div class="card">
+      <div class="cardhead"><h2>Dokumentation <span class="count">({{ entries|length }})</span></h2>
+        <a class="btn" href="{% url 'entry_create' patient.pk %}">+ Neuer Eintrag</a></div>
+      {% for entry, current in entries %}
+      <div class="item">
+        <div class="meta"><span class="badge">{{ entry.get_kind_display }}</span> {{ entry.date|date:"d.m.Y" }}
+          {% if current.version > 1 %}· Version {{ current.version }}{% endif %}
+          · <a href="{% url 'entry_edit' entry.pk %}">ändern</a></div>
+        <div class="body">{{ current.text|linebreaksbr }}</div>
+      </div>
+      {% empty %}<p class="muted">Noch keine Einträge.</p>{% endfor %}
+    </div>
 
-<div class="card">
-  <h2>Einwilligungen</h2>
-  {% for kind, label, active in consents %}
-  <form method="post" style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid var(--line); padding:6px 0"
-        action="{% if active %}{% url 'consent_revoke' patient.pk kind %}{% else %}{% url 'consent_grant' patient.pk kind %}{% endif %}">
-    {% csrf_token %}
-    <span>{{ label }}: {% if active %}erteilt am {{ active.granted_at|date:"d.m.Y" }}{% else %}<span class="muted">nicht erteilt</span>{% endif %}</span>
-    <button class="primary" style="margin:0">{% if active %}Widerrufen{% else %}Erteilen{% endif %}</button>
-  </form>
-  {% endfor %}
+    <div class="card">
+      <div class="cardhead"><h2>Honorarnoten</h2><a class="btn" href="{% url 'invoice_new' patient.pk %}">+ Neue Honorarnote</a></div>
+      {% for i in patient.invoices.all %}
+      <div class="listrow">
+        <span><a href="{% url 'invoice_detail' i.pk %}"><strong>{{ i.number|default:"Entwurf" }}</strong></a>{% if i.kind == "storno" %} <span class="muted">(Storno)</span>{% endif %}</span>
+        <span>{{ i.total_eur }} <span class="badge {% if i.status == 'bezahlt' %}ok{% elif i.status == 'storniert' %}bad{% elif i.status == 'ausgestellt' %}warn{% endif %}">{{ i.get_status_display }}</span></span>
+      </div>
+      {% empty %}<p class="muted">Noch keine Honorarnote.</p>{% endfor %}
+    </div>
+  </div>
+
+  <div>
+    <div class="card">
+      <h2>Kontakt</h2>
+      <dl class="kv">
+        <dt>Adresse</dt><dd>{{ patient.address|linebreaksbr|default:"–" }}</dd>
+        <dt>Telefon</dt><dd>{{ patient.phone|default:"–" }}</dd>
+        <dt>E-Mail</dt><dd>{{ patient.email|default:"–" }}</dd>
+        <dt>Vers.-Nr.</dt><dd>{{ patient.insurance_no|default:"–" }}</dd>
+      </dl>
+    </div>
+
+    <div class="card">
+      <div class="cardhead"><h2>Zuweisungen</h2><a class="btn secondary" href="{% url 'referral_create' patient.pk %}">+ Neu</a></div>
+      {% for r in referrals %}
+      <div class="item">
+        <strong>{{ r.doctor }}</strong>{% if r.diagnosis %}<div class="muted">{{ r.diagnosis }}</div>{% endif %}
+        <div class="progress{% if r.units_left <= 2 %} low{% endif %}" role="img" aria-label="{{ r.units_used }} von {{ r.units_total }} Einheiten"><span style="width:{% widthratio r.units_used r.units_total 100 %}%"></span></div>
+        <div class="muted" style="font-size:.86rem">{{ r.units_used }} von {{ r.units_total }} Einheiten · <strong>{{ r.units_left }} offen</strong><br>
+          ab {{ r.valid_from|date:"d.m.Y" }}{% if r.valid_until %} bis {{ r.valid_until|date:"d.m.Y" }}{% endif %}</div>
+      </div>
+      {% empty %}<p class="muted">Keine Zuweisung erfasst.</p>{% endfor %}
+    </div>
+
+    <div class="card">
+      <h2>Einwilligungen</h2>
+      {% for kind, label, active in consents %}
+      <form method="post" class="listrow" data-plain
+            action="{% if active %}{% url 'consent_revoke' patient.pk kind %}{% else %}{% url 'consent_grant' patient.pk kind %}{% endif %}">
+        {% csrf_token %}
+        <span>{{ label }}<br>{% if active %}<span class="badge ok">erteilt {{ active.granted_at|date:"d.m.Y" }}</span>{% else %}<span class="muted" style="font-size:.85rem">nicht erteilt</span>{% endif %}</span>
+        <button>{% if active %}Widerrufen{% else %}Erteilen{% endif %}</button>
+      </form>
+      {% endfor %}
+    </div>
+  </div>
 </div>
-<a href="{% url 'patient_list' %}">Zurück zur Liste</a>
+<p><a href="{% url 'patient_list' %}">&larr; Zurück zur Liste</a></p>
 {% endblock %}
