@@ -31,14 +31,15 @@ def week(request):
     lo = timezone.make_aware(datetime.combine(monday, time.min))
     hi = lo + timedelta(days=7)
     termine = Termin.objects.filter(start__gte=lo, start__lt=hi).select_related("patient")
-    days = []
+    by_day = {d: [] for d in (monday + timedelta(days=i) for i in range(7))}
     for day, items in groupby(termine, key=lambda t: timezone.localtime(t.start).date()):
-        days.append((day, list(items)))
+        by_day.setdefault(day, []).extend(items)
+    days = list(by_day.items())
     audit_log("termine.list")
     return render(request, "termine/week.html", {
         "days": days, "monday": monday, "sunday": monday + timedelta(days=6),
         "prev": monday - timedelta(days=7), "next": monday + timedelta(days=7),
-        "statuses": Termin.Status.choices,
+        "statuses": Termin.Status.choices, "today": timezone.localdate(),
     })
 
 

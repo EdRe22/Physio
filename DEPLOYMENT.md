@@ -140,3 +140,7 @@ Der Raumplan liegt in der gemeinsamen Praxis-Datenbank und enthält nur Raum, Th
 die Räume unter „Räume verwalten“ an. Die Konfliktprüfung ist durch eine Sperre im Serverprozess abgesichert
 (deshalb genau ein Prozess, siehe Abschnitt 3). **Auf PostgreSQL fehlt noch eine Ausschluss-Bedingung in der Datenbank**
 (`EXCLUDE USING gist`), die selbst bei mehreren Prozessen Doppelbuchungen unmöglich machen würde.
+
+## 10. Statische Dateien
+
+Die Oberfläche lädt `static/ui.js` (Formularlayout). Django liefert den Ordner `static/` selbst aus, ein eigener Webserver-Eintrag ist nicht nötig. Die Datei enthält keine Daten und ist ohne Anmeldung abrufbar. Inline-Skripte bleiben durch die Sicherheitsregeln (CSP) verboten.

@@ -6,13 +6,21 @@
   {% if rooms %}
   <p>{% for r in rooms %}{% if r.pk == room.pk %}<strong>{{ r.name }}</strong>{% else %}<a href="?raum={{ r.pk }}&start={{ monday|date:'Y-m-d' }}">{{ r.name }}</a>{% endif %}{% if not forloop.last %} · {% endif %}{% endfor %}</p>
   <p><a href="?raum={{ room.pk }}&start={{ prev|date:'Y-m-d' }}">&larr; Vorwoche</a> · {{ monday|date:"d.m." }} – {{ sunday|date:"d.m.Y" }} · <a href="?raum={{ room.pk }}&start={{ next|date:'Y-m-d' }}">Folgewoche &rarr;</a></p>
-  <table>
-    {% for day, items in days %}<tr><th style="width:110px">{{ day|date:"D d.m." }}</th><td>
-      {% for x in items %}<div>{{ x.b.start|date:"H:i" }}–{{ x.b.end|date:"H:i" }} · {% if x.mine %}<strong>meine Belegung</strong>{% else %}belegt von {{ x.b.tenant.name }}{% endif %} <span class="muted">({{ x.b.get_kind_display }})</span>
-        {% if x.can_cancel %}<form method="post" action="{% url 'raeume_cancel' x.b.pk %}" style="display:inline">{% csrf_token %}<button class="danger">Stornieren</button></form>{% endif %}</div>
-      {% empty %}<span class="muted">frei</span>{% endfor %}
-    </td></tr>{% endfor %}
-  </table>
+  <div class="week">
+    {% for day, items in days %}
+    <section class="daycol{% if day.weekday >= 5 %} weekend{% endif %}" aria-label="{{ day|date:'l, d.m.Y' }}">
+      <header><strong>{{ day|date:"D" }}</strong><span>{{ day|date:"d.m." }}</span></header>
+      {% for x in items %}
+      <div class="slot {% if x.mine %}mine{% else %}other{% endif %}">
+        <span class="time">{{ x.b.start|date:"H:i" }}–{{ x.b.end|date:"H:i" }}</span>
+        {% if x.mine %}<strong>meine Belegung</strong>{% else %}belegt von {{ x.b.tenant.name }}{% endif %}
+        <div class="muted" style="font-size:.8rem">{{ x.b.get_kind_display }}</div>
+        {% if x.can_cancel %}<form method="post" action="{% url 'raeume_cancel' x.b.pk %}" data-plain>{% csrf_token %}<button class="danger">Stornieren</button></form>{% endif %}
+      </div>
+      {% empty %}<div class="empty">frei</div>{% endfor %}
+    </section>
+    {% endfor %}
+  </div>
   {% else %}<p class="muted">Es sind noch keine Räume angelegt. Der Eigentümer legt sie unter „Räume verwalten“ an.</p>{% endif %}
   {% if user.is_owner %}<p><a href="{% url 'raeume_manage' %}">Räume verwalten</a></p>{% endif %}
 </div>

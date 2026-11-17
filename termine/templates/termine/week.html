@@ -1,36 +1,35 @@
 {% extends "base.html" %}
 {% block title %}Termine{% endblock %}
 {% block content %}
-<div class="card">
-  <h1>Termine {{ monday|date:"d.m." }} bis {{ sunday|date:"d.m.Y" }}</h1>
-  <a href="?start={{ prev|date:'Y-m-d' }}">&laquo; Vorwoche</a> ·
-  <a href="?start={{ next|date:'Y-m-d' }}">Folgewoche &raquo;</a> ·
-  <a href="{% url 'patient_list' %}">Patienten</a>
-  <br><a class="btn" href="{% url 'termin_create' %}">Neuer Termin</a>
+<div class="weekbar">
+  <h1 class="title" style="margin:0 8px 0 0">{{ monday|date:"d.m." }} – {{ sunday|date:"d.m.Y" }}</h1>
+  <a class="btn secondary" href="?start={{ prev|date:'Y-m-d' }}" aria-label="Vorwoche">&larr;</a>
+  <a class="btn secondary" href="?start={{ today|date:'Y-m-d' }}">Heute</a>
+  <a class="btn secondary" href="?start={{ next|date:'Y-m-d' }}" aria-label="Folgewoche">&rarr;</a>
+  <span style="flex:1"></span>
+  <a class="btn" href="{% url 'termin_create' %}">+ Neuer Termin</a>
 </div>
+<div class="week">
 {% for day, items in days %}
-<div class="card">
-  <h2>{{ day|date:"l, d.m.Y" }}</h2>
-  <table>
+  <section class="daycol{% if day == today %} today{% endif %}{% if day.weekday >= 5 %} weekend{% endif %}" aria-label="{{ day|date:'l, d.m.Y' }}">
+    <header><strong>{{ day|date:"l" }}</strong><span>{{ day|date:"d.m." }}</span></header>
     {% for t in items %}
-    <tr>
-      <td>{{ t.start|time:"H:i" }}–{{ t.end|time:"H:i" }}</td>
-      <td><a href="{% url 'patient_detail' t.patient_id %}">{{ t.patient.full_name }}</a></td>
-      <td>{{ t.get_status_display }}
-        {% if t.reminder_sent_at %}<span class="muted">· Erinnerung gesendet</span>{% endif %}
-        {% if t.reminder_failed_at %}<span class="error">· Erinnerung fehlgeschlagen</span>{% endif %}</td>
-      <td>
-        {% if t.status == "geplant" %}
-        <a href="{% url 'termin_edit' t.pk %}">ändern</a>
-        <form method="post" action="{% url 'termin_status' t.pk %}" style="display:inline">{% csrf_token %}
-          <select name="status" style="width:auto" aria-label="Status">{% for value, label in statuses %}<option value="{{ value }}" {% if value == t.status %}selected{% endif %}>{{ label }}</option>{% endfor %}</select>
-          <button class="primary" style="margin:0; padding:4px 10px">OK</button>
-        </form>
-        {% endif %}
-      </td>
-    </tr>
-    {% endfor %}
-  </table>
+    <div class="slot mine{% if t.status == 'erledigt' %} done{% elif t.status == 'abgesagt' or t.status == 'nicht_erschienen' %} cancelled{% endif %}">
+      <span class="time">{{ t.start|time:"H:i" }}–{{ t.end|time:"H:i" }}</span>
+      <a href="{% url 'patient_detail' t.patient_id %}">{{ t.patient.full_name }}</a>
+      <div class="muted" style="font-size:.8rem">{{ t.get_status_display }}
+        {% if t.reminder_sent_at %}· Erinnerung gesendet{% endif %}
+        {% if t.reminder_failed_at %}<span class="error">· Erinnerung fehlgeschlagen</span>{% endif %}</div>
+      {% if t.status == "geplant" %}
+      <a href="{% url 'termin_edit' t.pk %}" style="font-size:.82rem">ändern</a>
+      <form method="post" action="{% url 'termin_status' t.pk %}" data-plain style="flex-wrap:wrap">{% csrf_token %}
+        <select name="status" aria-label="Status">{% for value, label in statuses %}<option value="{{ value }}" {% if value == t.status %}selected{% endif %}>{{ label }}</option>{% endfor %}</select>
+        <button class="primary">OK</button>
+      </form>
+      {% endif %}
+    </div>
+    {% empty %}<div class="empty">frei</div>{% endfor %}
+  </section>
+{% endfor %}
 </div>
-{% empty %}<div class="card"><p class="muted">Keine Termine in dieser Woche.</p></div>{% endfor %}
 {% endblock %}

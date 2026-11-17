@@ -101,6 +101,7 @@ PUBLIC = {
     "/entsperren/": {404},  # ohne Schlüsseldatei nicht vorhanden
 }
 JOB_PREFIX = "/intern/job/"
+STATIC_PREFIX = "/static/"  # öffentliche Oberflächen-Dateien (Skript), enthalten keine Daten
 
 
 def _routes(patterns=None, prefix=""):
@@ -130,6 +131,8 @@ def test_every_route_rejects_anonymous_users():
                 assert Client().get("/patients/").status_code == 302
             elif path in PUBLIC:
                 assert r.status_code in PUBLIC[path] | {302, 405, 403}, (method, path, r.status_code)
+            elif path.startswith(STATIC_PREFIX):
+                assert r.status_code in (200, 404, 405)
             elif path.startswith(JOB_PREFIX):
                 assert r.status_code in (403, 404, 405), (method, path, r.status_code)  # ohne Token nie ausführbar
             else:
@@ -141,7 +144,7 @@ def test_every_route_requires_second_factor(user_alpha):
     only_password.force_login(user_alpha)
     allowed = {"/login/", "/logout/", "/2fa/", "/2fa/setup/", "/entsperren/"}
     for path in sorted({_concrete(r) for r in _routes()}):
-        if path in allowed or path.startswith(JOB_PREFIX):
+        if path in allowed or path.startswith((JOB_PREFIX, STATIC_PREFIX)):
             continue
         for method in ("get", "post"):
             r = getattr(only_password, method)(path)
@@ -252,3 +255,10 @@ def test_reset_2fa_removes_device_ends_sessions_and_logs(alpha, user_alpha, user
         assert AuditEntry.objects.filter(action="auth.2fa_reset").count() == 1 and verify_chain()[0]
     with pytest.raises(CommandError, match="nicht gefunden"):
         call_command("reset_2fa", "gibtesnicht")
+
+
+def test_static_files_are_limited_to_the_static_folder():
+    c = Client()
+    assert c.get("/static/ui.js").status_code == 200
+    for bad in ("/static/../manage.py", "/static/..%2fmanage.py", "/static/%2e%2e/config/settings.py"):
+        assert c.get(bad).status_code in (301, 400, 403, 404), bad
