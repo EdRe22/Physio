@@ -1,24 +1,38 @@
 {% extends "base.html" %}
 {% block title %}Mietabrechnung {{ i.number }}{% endblock %}
 {% block content %}
-<div class="card">
-  <h1>Mietabrechnung {{ i.number }}</h1>
-  <table>
-    <tr><th>Monat</th><td>{{ i.period }}</td></tr>
-    <tr><th>Therapeut</th><td>{{ i.tenant.name }}</td></tr>
-    <tr><th>Miete</th><td>{{ i.rent_eur }}</td></tr>
-    <tr><th>Betriebskosten</th><td>{{ i.utilities_eur }}</td></tr>
-    <tr><th>Gesamt</th><td>{{ i.total_eur }}</td></tr>
-    <tr><th>Fällig</th><td>{{ i.due_on|date:"d.m.Y" }}</td></tr>
-    <tr><th>Status</th><td>{{ i.get_status_display }}{% if i.paid_on %} am {{ i.paid_on|date:"d.m.Y" }}{% endif %}</td></tr>
-  </table>
-  <a class="btn" href="{% url 'rent_pdf' i.pk %}">PDF</a>
-  {% if own and not i.tenant_booked_on and i.status != "storniert" %}<form method="post" action="{% url 'rent_book' i.pk %}">{% csrf_token %}<button class="primary">In meine Buchhaltung übernehmen (Ausgabe Miete)</button></form>{% endif %}
-  {% if own and i.tenant_booked_on %}<p class="muted">In Ihrer Buchhaltung gebucht am {{ i.tenant_booked_on|date:"d.m.Y" }}.</p>{% endif %}
+<div class="pagehead">
+  <div class="grow"><h1>Mietabrechnung {{ i.number }} <span class="badge {% if i.status == 'bezahlt' %}ok{% elif i.status == 'storniert' %}bad{% else %}warn{% endif %}">{{ i.get_status_display }}</span></h1>
+    <div class="sub">{{ i.period }} · {{ i.tenant.name }}</div></div>
+  <div class="actions">
+    <a class="btn secondary" href="{% url 'rent_list' %}">&larr; Übersicht</a>
+    <a class="btn secondary" href="{% url 'rent_pdf' i.pk %}">PDF</a>
+    {% if own and not i.tenant_booked_on and i.status != "storniert" %}
+    <form method="post" action="{% url 'rent_book' i.pk %}" class="inline">{% csrf_token %}<button class="primary">In meine Buchhaltung übernehmen</button></form>
+    {% endif %}
+    {% if owner and i.status == "offen" %}
+    <form method="post" action="{% url 'rent_storno' i.pk %}" class="inline">{% csrf_token %}<button class="danger">Stornieren</button></form>
+    {% endif %}
+  </div>
+</div>
+{% if own and i.tenant_booked_on %}<div class="msg success">In Ihrer Buchhaltung gebucht am {{ i.tenant_booked_on|date:"d.m.Y" }}.</div>{% endif %}
+<div class="layout">
+  <div class="card">
+    <table>
+      <tr><td>Miete</td><td class="num">{{ i.rent_eur }}</td></tr>
+      <tr><td>Betriebskosten</td><td class="num">{{ i.utilities_eur }}</td></tr>
+      <tr><th>Gesamt</th><th class="num">{{ i.total_eur }}</th></tr>
+    </table>
+    <dl class="kv" style="margin-top:14px">
+      <dt>Fällig</dt><dd>{{ i.due_on|date:"d.m.Y" }}</dd>
+      <dt>Status</dt><dd>{{ i.get_status_display }}{% if i.paid_on %} am {{ i.paid_on|date:"d.m.Y" }}{% endif %}</dd>
+    </dl>
+  </div>
   {% if owner and i.status == "offen" %}
+  <div class="card">
+    <h2>Zahlung eingegangen?</h2>
     <form method="post" action="{% url 'rent_paid' i.pk %}">{% csrf_token %}{{ paid_form.as_p }}<button class="primary">Als bezahlt markieren und als Einnahme buchen</button></form>
-    <form method="post" action="{% url 'rent_storno' i.pk %}">{% csrf_token %}<button class="danger">Stornieren</button></form>
+  </div>
   {% endif %}
 </div>
-<a href="{% url 'rent_list' %}">Zurück</a>
 {% endblock %}

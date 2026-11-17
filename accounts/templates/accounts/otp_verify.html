@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block title %}Zweiter Faktor{% endblock %}
 {% block content %}
-<div class="card">
+<div class="card login">
   <h1>Bestätigungscode</h1>
   <p class="muted">Gib den 6-stelligen Code aus deiner Authenticator-App ein.</p>
   <form method="post">{% csrf_token %}

@@ -1,32 +1,45 @@
 {% extends "base.html" %}
 {% block title %}Importprotokoll{% endblock %}
 {% block content %}
+<div class="pagehead">
+  <div class="grow"><h1>{{ profile.title }}</h1>
+    <div class="sub">{% if job.status == "done" %}Importprotokoll{% elif job.status == "cancelled" %}Abgebrochen{% else %}Schritt 3 von 3: Ergebnis der Prüfung, noch nichts importiert{% endif %}</div></div>
+  <div class="actions"><a class="btn secondary" href="{% url 'import_start' %}">&larr; Zurück zum Import</a></div>
+</div>
+<div class="stats">
+  <div class="tile"><div class="label">Zeilen in der Datei</div><div class="value">{{ report.total }}</div></div>
+  <div class="tile good"><div class="label">{% if job.status == "done" %}Importiert{% else %}Würden importiert{% endif %}</div><div class="value">{% if job.status == "done" %}{{ report.imported }}{% else %}{{ report.valid }}{% endif %}</div></div>
+  <div class="tile"><div class="label">Schon vorhanden (übersprungen)</div><div class="value">{{ report.duplicates }}</div></div>
+  <div class="tile {% if report.invalid %}bad{% endif %}"><div class="label">Fehlerhaft (übersprungen)</div><div class="value">{{ report.invalid }}</div></div>
+</div>
+{% if job.status == "checked" %}
 <div class="card">
-  <h1>{{ profile.title }}: {% if job.status == "done" %}Importprotokoll{% elif job.status == "cancelled" %}abgebrochen{% else %}Ergebnis der Prüfung{% endif %}</h1>
-  <table>
-    <tr><th>Zeilen in der Datei</th><td>{{ report.total }}</td></tr>
-    <tr><th>{% if job.status == "done" %}Importiert{% else %}Würden importiert{% endif %}</th><td>{% if job.status == "done" %}{{ report.imported }}{% else %}{{ report.valid }}{% endif %}</td></tr>
-    <tr><th>Bereits vorhanden / doppelt (übersprungen)</th><td>{{ report.duplicates }}</td></tr>
-    <tr><th>Fehlerhaft (übersprungen)</th><td>{{ report.invalid }}</td></tr>
-  </table>
-  {% if job.status == "checked" %}
-    {% if report.valid %}
+  {% if report.valid %}
+  <div class="actionbar" style="margin-top:0">
     <form method="post" action="{% url 'import_run' job.pk %}">{% csrf_token %}<button class="primary">{{ report.valid }} Datensätze jetzt importieren</button></form>
-    {% else %}<p class="error">Es gibt nichts Importierbares. Bitte Datei oder Zuordnung korrigieren.</p>{% endif %}
-    <a href="{% url 'import_mapping' job.pk %}">Zuordnung ändern</a>
+    <a class="btn secondary" href="{% url 'import_mapping' job.pk %}">Zuordnung ändern</a>
     <form method="post" action="{% url 'import_cancel' job.pk %}">{% csrf_token %}<button class="secondary">Abbrechen und Daten verwerfen</button></form>
-  {% elif job.status == "done" %}
-    <p class="muted">Der zwischengespeicherte Dateiinhalt wurde gelöscht.</p>
-    {% if job.profile == "bank" %}<a class="btn" href="{% url 'bank_list' %}">Weiter zur Zuordnung der Bankumsätze</a>{% endif %}
+  </div>
+  {% else %}
+  <p class="error">Es gibt nichts Importierbares. Bitte Datei oder Zuordnung korrigieren.</p>
+  <div class="actionbar" style="margin-top:0">
+    <a class="btn secondary" href="{% url 'import_mapping' job.pk %}">Zuordnung ändern</a>
+    <form method="post" action="{% url 'import_cancel' job.pk %}">{% csrf_token %}<button class="secondary">Abbrechen und Daten verwerfen</button></form>
+  </div>
   {% endif %}
 </div>
+{% elif job.status == "done" %}
+<div class="card">
+  <p class="muted" style="margin-top:0">Der zwischengespeicherte Dateiinhalt wurde gelöscht.</p>
+  {% if job.profile == "bank" %}<a class="btn" href="{% url 'bank_list' %}">Weiter zur Zuordnung der Bankumsätze</a>{% endif %}
+</div>
+{% endif %}
 {% if report.errors %}
 <div class="card">
   <h2>Fehlerhafte Zeilen</h2>
   <p class="muted">Zeilennummern wie in Excel (Zeile 1 ist die Kopfzeile). Die Werte selbst werden aus Datenschutzgründen nicht protokolliert.</p>
-  <table>{% for e in report.errors %}<tr><td>Zeile {{ e.row }}</td><td>{{ e.message }}</td></tr>{% endfor %}</table>
+  <table>{% for e in report.errors %}<tr><td style="width:110px"><span class="badge bad">Zeile {{ e.row }}</span></td><td>{{ e.message }}</td></tr>{% endfor %}</table>
   {% if report.invalid > report.errors|length %}<p class="muted">… und {{ report.invalid|add:"-200" }} weitere.</p>{% endif %}
 </div>
 {% endif %}
-<a href="{% url 'import_start' %}">Zurück zum Import</a>
 {% endblock %}

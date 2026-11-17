@@ -1,13 +1,14 @@
 {% extends "base.html" %}
 {% block title %}Leistungskatalog{% endblock %}
 {% block content %}
-<div class="card">
-  <h1>Leistungskatalog</h1>
-  <table>
-    {% for l in leistungen %}<tr><td><a href="{% url 'leistung_edit' l.pk %}">{{ l.name }}</a></td><td>{{ l.price_eur }}</td><td class="muted">{% if not l.active %}inaktiv{% endif %}</td></tr>
-    {% empty %}<tr><td class="muted">Noch keine Leistungen.</td></tr>{% endfor %}
-  </table>
-  <a class="btn" href="{% url 'leistung_create' %}">Neue Leistung</a>
+<div class="pagehead">
+  <div class="grow"><h1>Leistungskatalog</h1></div>
+  <div class="actions"><a class="btn secondary" href="{% url 'invoice_list' %}">&larr; Honorarnoten</a><a class="btn" href="{% url 'leistung_create' %}">+ Neue Leistung</a></div>
 </div>
-<a href="{% url 'invoice_list' %}">Zurück zu den Honorarnoten</a>
+<div class="card">
+  <table>
+    {% for l in leistungen %}<tr><td><a href="{% url 'leistung_edit' l.pk %}"><strong>{{ l.name }}</strong></a></td><td class="num">{{ l.price_eur }}</td><td>{% if not l.active %}<span class="badge">inaktiv</span>{% endif %}</td></tr>
+    {% empty %}<tr><td class="emptystate">Noch keine Leistungen. Lege zuerst deine Leistungen mit Preis an.</td></tr>{% endfor %}
+  </table>
+</div>
 {% endblock %}

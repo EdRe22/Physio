@@ -1,25 +1,30 @@
 {% extends "base.html" %}
 {% block title %}Buchung {{ b.number }}{% endblock %}
 {% block content %}
-<div class="card">
-  <h1>Buchung {{ b.number }}</h1>
-  <table>
-    <tr><th>Datum</th><td>{{ b.date|date:"d.m.Y" }}</td></tr>
-    <tr><th>Art</th><td>{{ b.get_kind_display }}</td></tr>
-    <tr><th>Kategorie</th><td>{{ b.category.name }}</td></tr>
-    <tr><th>Betrag</th><td>{{ b.amount_eur }}</td></tr>
-    <tr><th>Text</th><td>{{ b.text }}</td></tr>
-    <tr><th>Gegenseite</th><td>{{ b.counterpart }}</td></tr>
-    <tr><th>Herkunft</th><td>{{ b.get_source_display }}</td></tr>
-  </table>
-  {% if reversible %}<form method="post" action="{% url 'buchung_reverse' b.pk %}">{% csrf_token %}<button class="primary">Stornieren</button></form>{% endif %}
+<div class="pagehead">
+  <div class="grow"><h1>Buchung {{ b.number }} <span class="badge {% if b.kind == 'einnahme' %}ok{% else %}bad{% endif %}">{{ b.get_kind_display }}</span></h1>
+    <div class="sub">{{ b.date|date:"d.m.Y" }} · {{ b.category.name }} · {{ b.get_source_display }}</div></div>
+  <div class="actions">
+    <a class="btn secondary" href="{% url 'journal' %}">&larr; Journal</a>
+    {% if reversible %}<form method="post" action="{% url 'buchung_reverse' b.pk %}" class="inline">{% csrf_token %}<button class="danger">Stornieren</button></form>{% endif %}
+  </div>
 </div>
-<div class="card">
-  <h2>Belege</h2>
-  <ul>{% for x in belege %}<li><a href="{% url 'beleg_download' x.pk %}">{{ x.number }}</a> ({{ x.size }} Bytes)</li>{% empty %}<li class="muted">Kein Beleg.</li>{% endfor %}</ul>
-  <form method="post" action="{% url 'beleg_attach' b.pk %}" enctype="multipart/form-data">{% csrf_token %}
-    <input type="file" name="beleg" accept=".pdf,.jpg,.jpeg,.png"><button class="primary">Beleg anhängen</button>
-  </form>
+<div class="layout">
+  <div class="card">
+    <div class="totalbox" style="justify-items:start;margin-top:0"><span class="muted">Betrag</span><span class="big">{{ b.amount_eur }}</span></div>
+    <hr>
+    <dl class="kv">
+      <dt>Text</dt><dd>{{ b.text|default:"–" }}</dd>
+      <dt>Gegenseite</dt><dd>{{ b.counterpart|default:"–" }}</dd>
+    </dl>
+  </div>
+  <div class="card">
+    <h2>Belege</h2>
+    {% for x in belege %}<div class="listrow"><a href="{% url 'beleg_download' x.pk %}">{{ x.number }}</a><span class="muted">{{ x.size }} Bytes</span></div>
+    {% empty %}<p class="muted">Kein Beleg.</p>{% endfor %}
+    <form method="post" action="{% url 'beleg_attach' b.pk %}" enctype="multipart/form-data" data-plain>{% csrf_token %}
+      <input type="file" name="beleg" accept=".pdf,.jpg,.jpeg,.png"><button class="primary">Beleg anhängen</button>
+    </form>
+  </div>
 </div>
-<a href="{% url 'journal' %}">Zurück zum Journal</a>
 {% endblock %}
