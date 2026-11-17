@@ -48,10 +48,75 @@ def _decls(values: dict) -> str:
     return "".join(f"--{k}:{v};" for k, v in values.items())
 
 
-def css_for(slug: str) -> str:
+def css_for(slug: str, custom: str = "") -> str:
     """Überschreibt die Farbvariablen der Oberfläche. Die Standardpalette braucht keine Überschreibung."""
-    palette = BY_SLUG.get(slug)
+    palette = palette_for(slug, custom)
     if palette is None or slug == DEFAULT:
         return ""
     return (f":root{{{_decls(palette.light)}}}"
             f"@media (prefers-color-scheme: dark){{:root{{{_decls(palette.dark)}}}}}")
+
+
+# ---- Palette aus einer Einzelfarbe (z. B. Hauptfarbe des Logos) ------------------------------------------------------
+import colorsys  # noqa: E402
+import re  # noqa: E402
+
+HEX_RE = re.compile(r"^#[0-9a-f]{6}$")
+LOGO_SLUG = "logo"
+
+
+def _rgb(hex_color):
+    return tuple(int(hex_color[i:i + 2], 16) / 255 for i in (1, 3, 5))
+
+
+def _hex(h, s, l):
+    r, g, b = colorsys.hls_to_rgb(h, min(max(l, 0), 1), min(max(s, 0), 1))
+    return "#%02x%02x%02x" % (round(r * 255), round(g * 255), round(b * 255))
+
+
+def _lum(hex_color):
+    lin = [c / 12.92 if c <= 0.03928 else ((c + 0.055) / 1.055) ** 2.4 for c in _rgb(hex_color)]
+    return 0.2126 * lin[0] + 0.7152 * lin[1] + 0.0722 * lin[2]
+
+
+def contrast(a, b):
+    la, lb = sorted((_lum(a), _lum(b)), reverse=True)
+    return (la + 0.05) / (lb + 0.05)
+
+
+def derive_palette(base_hex: str) -> Palette:
+    """Erzeugt eine vollständige, kontrastgeprüfte Palette aus einer Farbe. Helligkeit wird so lange angepasst, bis
+    Text auf Schaltflächen, Links und Menü die Mindestkontraste (4,5 : 1) einhalten."""
+    if not HEX_RE.match(base_hex or ""):
+        raise ValueError("Ungültige Farbe.")
+    h, _, s = colorsys.rgb_to_hls(*_rgb(base_hex))
+    s = min(max(s, 0.45), 0.9)
+    # hell
+    l = 0.42
+    while l > 0.15 and (contrast("#ffffff", _hex(h, s, l)) < 4.8 or contrast("#e6f6f3", _hex(h, s, l)) < 4.6):
+        l -= 0.01
+    brand = _hex(h, s, l)
+    light = dict(zip(LIGHT_KEYS, (
+        _hex(h, .30, .96), _hex(h, .28, .91), _hex(h, .22, .80), _hex(h, .35, .14), _hex(h, .12, .40),
+        brand, _hex(h, s, min(l + .12, .62)), _hex(h, .55, .93), _hex(h, s, max(l * .55, .12)), brand)))
+    # dunkel
+    dl = 0.68
+    while dl < 0.9 and contrast(_hex(h, .65, dl), _hex(h, .25, .12)) < 4.8:
+        dl += 0.01
+    dbrand = _hex(h, .65, dl)
+    il = 0.12
+    while il > 0.02 and contrast(_hex(h, .6, il), dbrand) < 4.8:
+        il -= 0.01
+    dark = dict(zip(DARK_KEYS, (
+        _hex(h, .30, .08), _hex(h, .25, .12), _hex(h, .22, .19), _hex(h, .20, .27), _hex(h, .30, .93), _hex(h, .18, .68),
+        dbrand, _hex(h, .65, min(dl + .08, .92)), _hex(h, .6, il), _hex(h, .40, .18), _hex(h, .40, .07), _hex(h, .50, .15))))
+    return Palette(LOGO_SLUG, "Aus Praxislogo", light, dark)
+
+
+def palette_for(slug: str, custom: str = ""):
+    if slug == LOGO_SLUG:
+        try:
+            return derive_palette(custom)
+        except ValueError:
+            return None
+    return BY_SLUG.get(slug)

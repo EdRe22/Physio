@@ -29,6 +29,7 @@ class Erscheinungsbild(models.Model):
     """Gewählte Farbpalette der Oberfläche (Einzelsatz, gilt für die ganze Praxis). Auswahl siehe verwaltung/themes.py."""
 
     palette = models.CharField(max_length=20, default="teal")
+    custom_color = models.CharField(max_length=7, blank=True, default="")  # nur bei Palette "logo": aus dem Logo berechnete Hauptfarbe
 
 
 class Mietverhaeltnis(models.Model):

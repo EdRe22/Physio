@@ -12,9 +12,13 @@
       <label class="swatch">
         <input type="radio" name="palette" value="{{ o.p.slug }}" {% if o.checked %}checked{% endif %} data-light="{{ o.light }}" data-dark="{{ o.dark }}">
         <span class="chip" style="background:{{ o.gradient }}"></span>
-        <span class="swname">{{ o.p.name }}</span>
+        <span class="swname">{{ o.p.name }}</span>{% if o.sample %}<div class="muted" style="font-weight:400;font-size:.82rem">aus Hauptfarbe {{ o.sample }}</div>{% endif %}
       </label>
       {% endfor %}
+      {% if not logo_color %}
+      <div class="swatch" style="opacity:.75;cursor:default"><span class="chip" style="background:repeating-linear-gradient(45deg,var(--line),var(--line) 8px,var(--surface) 8px,var(--surface) 16px)"></span>
+        <span class="swname">Aus Praxislogo</span><div class="muted" style="font-weight:400;font-size:.82rem">Zuerst im Praxisprofil ein farbiges Logo hochladen.</div></div>
+      {% endif %}
     </div>
     <p class="muted">Die Vorschau zeigt die Farbe sofort. Gespeichert wird erst mit „Speichern“.</p>
     <button class="primary">Speichern</button>

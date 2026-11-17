@@ -52,11 +52,26 @@ def rent_list(request):
     })
 
 
+def _refresh_logo_theme(profile):
+    """Ist die Praxisfarbe aus dem Logo abgeleitet, folgt sie einem neuen Logo. Ohne verwertbares Logo fällt sie auf Standard zurück."""
+    from .models import Erscheinungsbild
+
+    theme = Erscheinungsbild.objects.filter(palette="logo").first()
+    if theme:
+        color = logo.dominant_color(profile.logo_b64)
+        if color:
+            theme.custom_color = color
+        else:
+            theme.palette, theme.custom_color = "teal", ""
+        theme.save()
+
+
 @owner_required
 def profile_edit(request):
     form = ProfilForm(request.POST or None, request.FILES or None, instance=services.profile())
     if request.method == "POST" and form.is_valid():
-        form.save()
+        saved = form.save()
+        _refresh_logo_theme(saved)
         messages.success(request, "Praxisprofil gespeichert.")
         return redirect("rent_list")
     return render(request, "praxis/profile.html", {"form": form, "has_logo": bool(form.instance.logo_b64)})

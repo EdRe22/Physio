@@ -8,7 +8,8 @@ def theme(request):
     from praxis.models import Erscheinungsbild
 
     try:
-        choice = Erscheinungsbild.objects.values_list("palette", flat=True).first()
+        row = Erscheinungsbild.objects.values_list("palette", "custom_color").first()
     except (OperationalError, ProgrammingError):  # Tabelle fehlt noch (vor der Migration)
-        choice = None
-    return {"theme_css": themes.css_for(choice or themes.DEFAULT)}
+        row = None
+    palette, custom = row or (themes.DEFAULT, "")
+    return {"theme_css": themes.css_for(palette, custom)}

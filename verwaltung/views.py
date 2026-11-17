@@ -9,7 +9,7 @@ from django_otp.plugins.otp_totp.models import TOTPDevice
 from accounts import admin_ops
 from accounts.models import Therapist
 from audit.models import log as audit_log
-from core import provision, tenancy
+from core import logo, provision, tenancy
 from core.net import client_ip
 from praxis import offboarding
 from praxis.models import Erscheinungsbild
@@ -167,20 +167,45 @@ def audit_check(request):
     return redirect("verwaltung_index")
 
 
+def _gradient(p):
+    return f"linear-gradient(135deg,{p.light['side-from']},{p.light['brand']} 60%,{p.light['brand-2']})"
+
+
+def _logo_color():
+    """Hauptfarbe des Praxislogos (oder None, wenn kein Logo oder keine eindeutige Farbe)."""
+    from praxis.models import PraxisProfil
+
+    profile = PraxisProfil.objects.first()
+    return logo.dominant_color(profile.logo_b64) if profile and profile.logo_b64 else None
+
+
 @owner_required
 def design(request):
     current = Erscheinungsbild.objects.first()
     chosen = current.palette if current else themes.DEFAULT
+    logo_color = _logo_color()
     if request.method == "POST":
         slug = request.POST.get("palette", "")
-        if slug not in themes.BY_SLUG:
+        custom = ""
+        if slug == themes.LOGO_SLUG:
+            custom = logo_color or ""
+            if not custom:
+                messages.error(request, "Aus dem Praxislogo lässt sich keine Farbe ableiten. Bitte zuerst im Praxisprofil ein farbiges Logo hochladen.")
+                return redirect("verwaltung_design")
+        elif slug not in themes.BY_SLUG:
             messages.error(request, "Bitte eine der angebotenen Farben auswählen.")
-        else:
-            obj = current or Erscheinungsbild()
-            obj.palette = slug
-            obj.save()
-            audit_log("admin.theme_change", object_type="theme", object_id=slug)
-            messages.success(request, f"Farbe „{themes.BY_SLUG[slug].name}“ gespeichert. Sie gilt jetzt für alle in der Praxis.")
             return redirect("verwaltung_design")
-    options = [{"p": p, "light": json.dumps(p.light), "dark": json.dumps(p.dark), "gradient": f"linear-gradient(135deg,{p.light['side-from']},{p.light['brand']} 60%,{p.light['brand-2']})", "checked": p.slug == chosen} for p in themes.PALETTES]
-    return render(request, "verwaltung/design.html", {"options": options})
+        obj = current or Erscheinungsbild()
+        obj.palette, obj.custom_color = slug, custom
+        obj.save()
+        audit_log("admin.theme_change", object_type="theme", object_id=slug)
+        name = themes.palette_for(slug, custom).name
+        messages.success(request, f"Farbe „{name}“ gespeichert. Sie gilt jetzt für alle in der Praxis.")
+        return redirect("verwaltung_design")
+    options = [{"p": p, "light": json.dumps(p.light), "dark": json.dumps(p.dark), "gradient": _gradient(p),
+                "checked": p.slug == chosen} for p in themes.PALETTES]
+    if logo_color:
+        p = themes.derive_palette(logo_color)
+        options.append({"p": p, "light": json.dumps(p.light), "dark": json.dumps(p.dark), "gradient": _gradient(p),
+                        "checked": chosen == themes.LOGO_SLUG, "sample": logo_color})
+    return render(request, "verwaltung/design.html", {"options": options, "logo_color": logo_color})

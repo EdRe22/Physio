@@ -104,3 +104,29 @@ class LogoFormMixin(forms.ModelForm):
         if commit:
             obj.save()
         return obj
+
+
+def dominant_color(b64: str):
+    """Hauptfarbe des Logos als '#rrggbb' oder None, wenn es nur Weiß/Grau/Schwarz enthält."""
+    import colorsys
+
+    if not b64:
+        return None
+    with Image.open(io.BytesIO(decode(b64))) as img:
+        small = img.convert("RGB")
+        small.thumbnail((64, 64))
+        raw = small.tobytes()
+    pixels = [(raw[i], raw[i + 1], raw[i + 2]) for i in range(0, len(raw), 3)]
+    bins = {}
+    for r, g, b in pixels:
+        h, s, v = colorsys.rgb_to_hsv(r / 255, g / 255, b / 255)
+        if s < 0.25 or v < 0.2:  # Weiß, Grau, Schwarz zählen nicht
+            continue
+        key = int(h * 24) % 24
+        w, sr, sg, sb = bins.get(key, (0, 0, 0, 0))
+        weight = s * v
+        bins[key] = (w + weight, sr + r * weight, sg + g * weight, sb + b * weight)
+    if not bins:
+        return None
+    w, sr, sg, sb = max(bins.values(), key=lambda t: t[0])
+    return "#%02x%02x%02x" % (round(sr / w), round(sg / w), round(sb / w))
