@@ -182,6 +182,12 @@ Im Browser `https://physio.rendl.at/entsperren/` öffnen, Passphrase eingeben. D
 Bei gesichertem Standort lässt sich das automatisieren: `DEPLOYMENT.md`, „Optional: automatisch entsperren“ (für diese Anleitung mit
 `sudo PHYSIO_SERVICE=physio-demo PHYSIO_ENVFILE=/etc/physio-demo.env bash docs/pi/auto-unlock.sh einrichten`).
 
+**Optional ohne zweiten Faktor (nur Demo):** `PHYSIO_DEMO_OHNE_2FA=1` in der Umgebungsdatei, danach Dienst neu starten.
+Nur die vier Demo-Konten (Benutzername und `@example.invalid`-Adresse) kommen dann mit Passwort allein hinein; alle
+anderen Konten und wer selbst einen zweiten Faktor eingerichtet hat, brauchen ihn weiterhin. Mit PostgreSQL startet
+die App mit diesem Schalter nicht. Weil die Demo aus dem Internet erreichbar sein kann: zusätzlich `basic_auth`
+oder VPN verwenden und den Schalter nach der Vorführung entfernen.
+
 ### 8. Aktualisieren und zurücksetzen
 - **Update:** neuen Code einspielen (`git pull` oder neues ZIP), dann
   `sudo systemctl stop physio-demo` → `.venv/bin/pip install -r requirements.txt` → `manage.py migrate` und `manage.py migrate_tenants` → `sudo systemctl start physio-demo` → entsperren. Vorher die Daten sichern (`manage.py backup …`).

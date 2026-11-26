@@ -3,6 +3,7 @@ from django.shortcuts import redirect
 from django.urls import reverse
 
 from . import tenancy
+from .demo import second_factor_waived
 from .net import client_ip
 
 
@@ -37,6 +38,8 @@ class TwoFactorRequiredMiddleware:
 
     def __call__(self, request):
         user = request.user
+        if user.is_authenticated and not user.is_verified() and second_factor_waived(user):
+            user.is_verified = lambda: True  # nur Demo-Konten (core/demo.py); gilt für diesen Request
         if user.is_authenticated and not user.is_verified():
             if request.path not in self._open_paths() and not request.path.startswith("/static/"):
                 has_device = user.totpdevice_set.filter(confirmed=True).exists()

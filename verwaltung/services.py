@@ -72,7 +72,9 @@ def system_status() -> list[tuple[str, str, str]]:
         rows.append(("Master-Schlüssel", "entsperrt" if keystore.is_unlocked() else "GESPERRT", "ok" if keystore.is_unlocked() else "bad"))
     else:
         rows.append(("Master-Schlüssel", "keine Schlüsseldatei (nur Entwicklung)", "warn" if settings.DEV else "bad"))
-    rows.append(("Betriebsart", "Entwicklung (Fake-Daten)" if settings.DEV else "Produktion", "warn" if settings.DEV else "ok"))
+    if settings.PHYSIO_DEMO_OHNE_2FA:
+        rows.append(("Zwei-Faktor-Anmeldung", "für Demo-Konten NICHT verlangt (nur Vorführung)", "bad"))
+    rows.append(("Betriebsart","Entwicklung (Fake-Daten)" if settings.DEV else "Produktion", "warn" if settings.DEV else "ok"))
     rows.append(("Datenbank", "PostgreSQL" if "postgresql" in engine else "SQLite", "ok" if "postgresql" in engine else "warn"))
     rows.append(("Zeitgesteuerte Aufgaben", "Zugangswort gesetzt" if len(settings.PHYSIO_JOB_TOKEN) >= 32 else "nicht eingerichtet",
                  "ok" if len(settings.PHYSIO_JOB_TOKEN) >= 32 else "warn"))

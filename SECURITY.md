@@ -51,6 +51,8 @@ aller Ansichten und automatisierten Tests. Nicht geprüft: Betriebssystem, nginx
     Akzeptiert nur bei gesichertem Standort (alarmgesicherter Raum); bei Standortwechsel neu bewerten. Außerdem
     kann jeder Prozess unter demselben Benutzer wie der Dienst die bereitgestellte Datei möglicherweise lesen:
     Vor Echtdaten braucht Physio einen eigenen Systembenutzer.
+12. **Demo ohne zweiten Faktor (optional, standardmäßig aus):** `PHYSIO_DEMO_OHNE_2FA=1` lässt die vier Demo-Konten
+    nur mit Passwort hinein (`core/demo.py`), auch das Eigentümer-Konto. Nur mit erfundenen Daten; vor Echtdaten entfernen.
 
 ## Empfehlung vor Echtbetrieb
 

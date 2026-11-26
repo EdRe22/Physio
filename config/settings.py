@@ -38,6 +38,11 @@ if not DEV and PHYSIO_MASTER_KEY_B64 and not PHYSIO_KEYFILE and os.environ.get("
         "(oder bewusst PHYSIO_ALLOW_ENV_KEY=1, nicht empfohlen)."
     )
 
+# Nur für Vorführungen: Die Demo-Konten (core/demo.py) dürfen sich ohne zweiten Faktor anmelden.
+PHYSIO_DEMO_OHNE_2FA = os.environ.get("PHYSIO_DEMO_OHNE_2FA") == "1"
+if PHYSIO_DEMO_OHNE_2FA and os.environ.get("PHYSIO_DB_ENGINE") == "postgres":
+    raise ImproperlyConfigured("PHYSIO_DEMO_OHNE_2FA ist nur für Demo-Installationen (nicht mit PostgreSQL/Echtbetrieb).")
+
 PHYSIO_TRUST_PROXY = os.environ.get("PHYSIO_TRUST_PROXY") == "1"  # nginx auf Loopback setzt X-Forwarded-For (siehe core/net.py)
 if PHYSIO_TRUST_PROXY:
     # Der Proxy (Caddy/nginx) beendet TLS und überschreibt X-Forwarded-Proto; die App ist nur über ihn erreichbar (Loopback).
