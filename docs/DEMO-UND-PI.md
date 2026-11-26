@@ -178,7 +178,9 @@ sudo caddy validate --config /etc/caddy/Caddyfile && sudo systemctl reload caddy
 
 ### 7. Entsperren und Test
 Im Browser `https://physio.rendl.at/entsperren/` öffnen, Passphrase eingeben. Danach Anmeldung mit einem Demo-Konto (zweiten Faktor einrichten).
-**Nach jedem Neustart des Pi oder des Dienstes** muss neu entsperrt werden (Absicht: Der Schlüssel liegt nie auf der Platte).
+**Nach jedem Neustart des Pi oder des Dienstes** muss neu entsperrt werden (Absicht: Der Schlüssel liegt nie im Klartext auf der Platte).
+Bei gesichertem Standort lässt sich das automatisieren: `DEPLOYMENT.md`, „Optional: automatisch entsperren“ (für diese Anleitung mit
+`sudo PHYSIO_SERVICE=physio-demo PHYSIO_ENVFILE=/etc/physio-demo.env bash docs/pi/auto-unlock.sh einrichten`).
 
 ### 8. Aktualisieren und zurücksetzen
 - **Update:** neuen Code einspielen (`git pull` oder neues ZIP), dann

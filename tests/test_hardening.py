@@ -1,6 +1,8 @@
 import base64
+import importlib
 import json
 import sqlite3
+import sys
 
 import pytest
 from django.core.exceptions import ImproperlyConfigured
@@ -10,7 +12,7 @@ from django.db import IntegrityError, OperationalError, connections
 from django.test import Client, override_settings
 
 from audit.models import log
-from core import backup, crypto, keystore, tenancy
+from core import autounlock, backup, crypto, keystore, tenancy
 from core.management.commands.init_master_key import Command as InitKey
 from tests.conftest import verified_client
 
@@ -115,6 +117,60 @@ def test_logged_in_user_can_open_unlock_page_while_locked(tmp_path, user_alpha):
     client = verified_client(user_alpha)
     with override_settings(PHYSIO_KEYFILE=str(keyfile)):
         assert client.get("/entsperren/").status_code == 200  # TenantMiddleware darf nicht am gesperrten Schlüssel scheitern
+
+
+# --- Automatisches Entsperren (systemd-Credential) ---
+
+@pytest.fixture
+def sealed(tmp_path, monkeypatch):
+    keyfile = tmp_path / "k.json"
+    keyfile.write_text(keystore.seal(MASTER, PASS, params=FAST))
+    creds = tmp_path / "creds"
+    creds.mkdir()
+    monkeypatch.setenv("CREDENTIALS_DIRECTORY", str(creds))
+    with override_settings(PHYSIO_KEYFILE=str(keyfile)):
+        yield creds / autounlock.CREDENTIAL_NAME
+
+
+@pytest.mark.parametrize("content", [PASS, PASS + "\n"])
+def test_auto_unlock_with_credential(sealed, content, caplog):
+    sealed.write_text(content, newline="")
+    assert autounlock.try_unlock() is True
+    assert keystore.current() == MASTER
+    assert Client().get("/login/").status_code == 200
+    assert PASS not in caplog.text
+
+
+@pytest.mark.parametrize("content", [b"falsch-falsch-falsch", b"", b"\xff\xfe\x00"])
+def test_auto_unlock_with_bad_credential_stays_locked_without_throttle(sealed, content, caplog):
+    sealed.write_bytes(content)
+    for _ in range(5):  # z. B. Neustart-Schleife
+        assert autounlock.try_unlock() is False
+    assert not keystore.is_unlocked() and keystore.retry_wait() == 0
+    assert "/entsperren/" in caplog.text and "falsch-falsch" not in caplog.text
+    ok = Client().post("/entsperren/", {"passphrase": PASS})  # von Hand geht es weiterhin sofort
+    assert ok.status_code == 302
+
+
+def test_auto_unlock_does_nothing_without_credential(sealed, monkeypatch):
+    assert autounlock.try_unlock() is False  # Ordner da, Datei fehlt
+    sealed.write_text(PASS)
+    monkeypatch.delenv("CREDENTIALS_DIRECTORY")
+    assert autounlock.try_unlock() is False
+    assert not keystore.is_unlocked()
+
+
+def test_auto_unlock_ignores_passphrase_in_environment(sealed, monkeypatch):
+    monkeypatch.setenv("PHYSIO_PASSPHRASE", PASS)
+    monkeypatch.setenv(autounlock.CREDENTIAL_NAME, PASS)
+    assert autounlock.try_unlock() is False and not keystore.is_unlocked()
+
+
+def test_server_start_calls_auto_unlock(sealed):
+    sealed.write_text(PASS)
+    sys.modules.pop("config.wsgi", None)
+    importlib.import_module("config.wsgi")
+    assert keystore.current() == MASTER
 
 
 # --- Audit-Trigger ---

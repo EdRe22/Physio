@@ -78,6 +78,25 @@ python manage.py init_master_key --keyfile /opt/physio/keys/master.sealed --reco
 Die App antwortet mit 503, bis der Eigentümer unter `https://praxis.example.at/entsperren/` Passphrase
 (und ggf. Schlüsseldatei) eingibt. Falsche Eingaben werden ab dem dritten Versuch ausgebremst.
 
+### Optional: automatisch entsperren (`systemd-creds`)
+
+Nur wenn der **Standort gesichert** ist (z. B. alarmgesicherter Raum) und der Praxisverantwortliche zustimmt: Wer den
+Pi oder ein Abbild der Karte besitzt, kann dann die Passphrase gewinnen (SECURITY.md, Restrisiko 11).
+
+```bash
+sudo bash docs/pi/auto-unlock.sh einrichten    # fragt die Passphrase ab, prüft sie, startet den Dienst neu
+sudo bash docs/pi/auto-unlock.sh status
+sudo bash docs/pi/auto-unlock.sh entfernen     # zurück zum Entsperren von Hand
+```
+
+- Die Passphrase liegt verschlüsselt in `/etc/credstore.encrypted/physio-passphrase` (nur root); systemd stellt sie
+  beim Start ausschließlich als Datei für den Dienst bereit — nicht in der Umgebungsdatei oder in Umgebungsvariablen.
+- Schlägt das fehl (falsche/geänderte Passphrase), startet die App gesperrt; `/entsperren/` funktioniert wie bisher.
+- Nicht möglich, wenn zusätzlich eine USB-Datei als zweiter Faktor eingerichtet ist.
+- Nach einem Wechsel der Passphrase oder einer Neuinstallation des Pi erneut einrichten. Der Eigentümer muss die
+  Passphrase weiterhin kennen und sicher verwahren (Verwaltungsbefehle fragen danach).
+- **Abbilder der Karte** nur verschlüsselt aufbewahren; ausgemusterte Karten vernichten.
+
 ## 4. Regelmäßige Aufgaben (Cron, Dienstbenutzer)
 
 | Zeit | Befehl | Zweck |
@@ -104,6 +123,7 @@ Eigentümer). Belegordner (`PHYSIO_BELEG_DIR`) ist Teil der Sicherung.
 
 1. [ ] `check --deploy` ohne Fehler (Warnungen zu HSTS-Subdomains/Preload bewusst offen, SSL-Redirect macht der Proxy).
 2. [ ] Neustart: App ist gesperrt (503), nach `/entsperren/` läuft alles. Falsche Passphrase wird gebremst.
+   (Mit automatischem Entsperren: Entscheidung dokumentiert, Standort gesichert, `auto-unlock.sh status` zeigt HTTP 200/302.)
 3. [ ] **PostgreSQL:** `UPDATE`/`DELETE`/`TRUNCATE` auf `audit_auditentry` als `physio_app` schlägt fehl (Trigger und Rechte).
 4. [ ] **Wiederherstellungsübung:** Sicherung auf einem zweiten Gerät entpacken (`restore_backup`), mit der
    Wiederherstellungsdatei entsperren, `verify_audit` grün, Stichprobe Patient/Beleg lesbar.

@@ -2,7 +2,8 @@
 
 Der Master-Schlüssel liegt nie im Klartext auf der Platte. Er steht in einer Schlüsseldatei, verschlüsselt mit
 einem Schlüssel, der aus Passphrase (und optional einer Schlüsseldatei, z. B. von einem USB-Stick) per scrypt
-abgeleitet wird. Nach dem Start ist die App gesperrt, bis der Eigentümer sie entsperrt. Der entschlüsselte
+abgeleitet wird. Nach dem Start ist die App gesperrt, bis der Eigentümer sie entsperrt (oder bewusst eingerichtet:
+automatisch über ein systemd-Credential, siehe core/autounlock.py). Der entschlüsselte
 Master-Schlüssel lebt nur im Arbeitsspeicher dieses Prozesses (deshalb genau ein Serverprozess, siehe DEPLOYMENT.md).
 
 Eine Wiederherstellungsdatei enthält denselben Master-Schlüssel unter einer zweiten Passphrase und gehört
@@ -112,6 +113,22 @@ def unlock(path, passphrase: str, keyfile: bytes = b"") -> None:
             if _failures >= 3:
                 _blocked_until = time.monotonic() + min(900, 5 * 2 ** (_failures - 3))
             raise
+
+
+def unlock_unattended(path, passphrase: str) -> None:
+    """Entsperren beim Serverstart ohne Eingabe (core/autounlock.py).
+
+    Zählt nicht als Fehlversuch: Eine veraltete hinterlegte Passphrase darf die Entsperrseite nicht ausbremsen.
+    Nie mit Eingaben aus dem Netz aufrufen (keine Bremse gegen Raten).
+    """
+    global _key
+    with _lock:
+        try:
+            with open(path, encoding="utf-8") as fh:
+                blob = fh.read()
+        except OSError:
+            raise KeyUnlockError("Schlüsseldatei nicht lesbar.")
+        _key = open_sealed(blob, passphrase)
 
 
 def reset_for_tests():

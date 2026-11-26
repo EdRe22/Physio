@@ -45,6 +45,12 @@ aller Ansichten und automatisierten Tests. Nicht geprüft: Betriebssystem, nginx
    (Django 6.0.x). Das ist nicht automatisiert.
 10. **E-Mail-Erinnerungen** enthalten keine Gesundheitsdaten, der Versand läuft aber über das SMTP des Betreibers
     (TLS erzwingen).
+11. **Automatisches Entsperren (optional, standardmäßig aus):** Mit `docs/pi/auto-unlock.sh` liegt die Passphrase
+    verschlüsselt auf dem Pi, der Schlüssel dazu (`/var/lib/systemd/credential.secret`, ohne TPM) auf derselben Karte.
+    **Diebstahl des Pi oder ein Abbild der Karte hebt damit den Schutz des versiegelten Master-Schlüssels auf.**
+    Akzeptiert nur bei gesichertem Standort (alarmgesicherter Raum); bei Standortwechsel neu bewerten. Außerdem
+    kann jeder Prozess unter demselben Benutzer wie der Dienst die bereitgestellte Datei möglicherweise lesen:
+    Vor Echtdaten braucht Physio einen eigenen Systembenutzer.
 
 ## Empfehlung vor Echtbetrieb
 
